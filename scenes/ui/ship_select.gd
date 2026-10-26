@@ -10,6 +10,10 @@ const STAT_MAX := {
 }
 
 const STAR_ICON := preload("res://ui/star.svg")
+## Если палец сдвинулся дальше этого (px), это свайп списка, а не тап по карточке.
+const TAP_SLOP := 20.0
+
+var _press_pos := Vector2.ZERO
 
 @onready var stars_label: Label = %StarsLabel
 @onready var list: VBoxContainer = %ShipList
@@ -43,6 +47,10 @@ func _make_card(ship: ShipData) -> Control:
 	# ScrollContainer не получает свайп и список не листается.
 	var card := PanelContainer.new()
 	card.mouse_filter = Control.MOUSE_FILTER_PASS
+	card.add_theme_stylebox_override("panel", _card_style(ship))
+	# Тап по открытой карточке выбирает корабль (покупка — только кнопкой).
+	if GameState.is_ship_unlocked(ship.id):
+		card.gui_input.connect(_on_card_input.bind(ship.id))
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	card.add_child(box)
@@ -82,6 +90,28 @@ func _make_card(ship: ShipData) -> Control:
 	box.add_child(button)
 
 	return card
+
+
+func _on_card_input(event: InputEvent, ship_id: String) -> void:
+	var mb := event as InputEventMouseButton
+	if mb == null or mb.button_index != MOUSE_BUTTON_LEFT:
+		return
+	if mb.pressed:
+		_press_pos = mb.global_position
+	elif mb.global_position.distance_to(_press_pos) < TAP_SLOP:
+		GameState.select_ship(ship_id)
+
+
+func _card_style(ship: ShipData) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.1, 0.12, 0.17)
+	style.set_corner_radius_all(12)
+	style.set_content_margin_all(20)
+	if ship.id == GameState.selected_ship_id:
+		style.bg_color = ship.color.darkened(0.75)
+		style.border_color = ship.color
+		style.set_border_width_all(4)
+	return style
 
 
 func _make_stat(label_text: String, ratio: float) -> Control:

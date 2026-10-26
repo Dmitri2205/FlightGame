@@ -7,7 +7,7 @@ signal health_changed(current: int, maximum: int)
 
 enum State { ENTERING, FIGHTING }
 
-@export var max_hp := 120
+@export var max_hp := 500
 @export var score_value := 5000
 @export var star_drop := 40
 @export var bullet_scene: PackedScene

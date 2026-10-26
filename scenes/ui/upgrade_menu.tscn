@@ -60,6 +60,7 @@ text = "0"
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+scroll_deadzone = 24
 
 [node name="UpgradeList" type="VBoxContainer" parent="Margin/Box/Scroll"]
 unique_name_in_owner = true
