@@ -14,7 +14,7 @@
 
 При каждом пуше GitHub Actions (`.github/workflows/pages.yml`) прогоняет сцены
 headless на ошибки скриптов, собирает веб-версию и выкладывает её на
-GitHub Pages: **https://dmitri2205.github.io/flightgame/**
+GitHub Pages: **https://dmitri2205.github.io/FlightGame/**
 
 Один раз нужно включить: *Settings → Pages → Build and deployment →
 Source: GitHub Actions*.
