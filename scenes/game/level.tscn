@@ -1,0 +1,31 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scenes/game/level.gd" id="1_script"]
+[ext_resource type="Script" path="res://scenes/game/background.gd" id="2_bg"]
+[ext_resource type="PackedScene" path="res://scenes/game/player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/game/enemy_fighter.tscn" id="4_fighter"]
+[ext_resource type="PackedScene" path="res://scenes/game/enemy_gunship.tscn" id="5_gunship"]
+[ext_resource type="PackedScene" path="res://scenes/game/star_pickup.tscn" id="6_star"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="7_hud"]
+
+[node name="Level" type="Node2D"]
+script = ExtResource("1_script")
+enemy_scenes = Array[PackedScene]([ExtResource("4_fighter"), ExtResource("5_gunship")])
+star_scene = ExtResource("6_star")
+
+[node name="Background" type="Node2D" parent="."]
+script = ExtResource("2_bg")
+
+[node name="Pickups" type="Node2D" parent="."]
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="Projectiles" type="Node2D" parent="."]
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+
+[node name="SpawnTimer" type="Timer" parent="."]
+wait_time = 1.6
+autostart = true
+
+[node name="HUD" parent="." instance=ExtResource("7_hud")]

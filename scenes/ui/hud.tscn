@@ -1,0 +1,104 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/hud.gd" id="1_script"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_script")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Top" type="VBoxContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 140.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="Row" type="HBoxContainer" parent="Root/Top"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="HealthBar" type="ProgressBar" parent="Root/Top/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 28)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+max_value = 3.0
+value = 3.0
+show_percentage = false
+
+[node name="ScoreLabel" type="Label" parent="Root/Top/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 44
+text = "000000000"
+horizontal_alignment = 1
+
+[node name="MenuButton" type="Button" parent="Root/Top/Row"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+text = "II"
+
+[node name="LevelProgress" type="ProgressBar" parent="Root/Top"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 10)
+layout_mode = 2
+mouse_filter = 2
+show_percentage = false
+
+[node name="StarsLabel" type="Label" parent="Root/Top"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
+text = "★ 0"
+
+[node name="ResultsPanel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -200.0
+offset_right = 260.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Box" type="VBoxContainer" parent="Root/ResultsPanel"]
+layout_mode = 2
+alignment = 1
+
+[node name="ResultsTitle" type="Label" parent="Root/ResultsPanel/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 44
+text = "Итоги"
+horizontal_alignment = 1
+
+[node name="ResultsStats" type="Label" parent="Root/ResultsPanel/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_alignment = 1
+
+[node name="ResultsMenuButton" type="Button" parent="Root/ResultsPanel/Box"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+text = "В меню"
