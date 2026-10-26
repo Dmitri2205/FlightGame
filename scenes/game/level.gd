@@ -21,7 +21,7 @@ var _finished := false
 
 
 func _ready() -> void:
-	player.position = Vector2(get_viewport_rect().size.x / 2.0, get_viewport_rect().size.y - 200.0)
+	player.place_at(Vector2(get_viewport_rect().size.x / 2.0, get_viewport_rect().size.y - 200.0))
 	player.projectile_container = projectiles
 	player.health_changed.connect(hud.set_health)
 	player.died.connect(_finish.bind(false))

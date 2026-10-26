@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="ShipData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ship_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = "falcon"
+title = "Сокол"
+description = "Сбалансированный истребитель. Хорош во всём, но ни в чём не лучший."
+cost = 0
+mass = 1.0
+thrust = 6000.0
+max_speed = 1100.0
+base_health = 3
+fire_rate_mult = 1.0
+damage_bonus = 0
+magnet_mult = 1.0
+color = Color(0.92, 0.2, 0.22, 1)
+visual_scale = 1.0

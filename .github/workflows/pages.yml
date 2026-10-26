@@ -43,7 +43,7 @@ jobs:
       - name: Smoke test
         run: |
           status=0
-          for scene in scenes/ui/main_menu.tscn scenes/ui/upgrade_menu.tscn scenes/game/level.tscn; do
+          for scene in scenes/ui/main_menu.tscn scenes/ui/upgrade_menu.tscn scenes/ui/ship_select.tscn scenes/game/level.tscn; do
             echo "::group::$scene"
             godot --headless --path . "res://$scene" --quit-after 600 2>&1 | tee run.log
             echo "::endgroup::"
