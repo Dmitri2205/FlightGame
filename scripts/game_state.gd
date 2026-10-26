@@ -48,6 +48,8 @@ var upgrade_levels := {}
 var ships: Array[ShipData] = []
 var unlocked_ships: Array = []
 var selected_ship_id := ""
+## Отладка: следующий запуск уровня начнётся сразу с босса.
+var boss_test := false
 
 
 func _ready() -> void:

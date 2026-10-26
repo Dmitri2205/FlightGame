@@ -1,5 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
+[ext_resource type="Texture2D" path="res://ui/star.svg" id="9_star"]
 [ext_resource type="Script" path="res://scenes/ui/ship_select.gd" id="1_script"]
 
 [node name="ShipSelect" type="Control"]
@@ -36,12 +37,24 @@ theme_override_constants/margin_bottom = 48
 layout_mode = 2
 theme_override_constants/separation = 24
 
-[node name="StarsLabel" type="Label" parent="Margin/Box"]
+[node name="StarsRow" type="HBoxContainer" parent="Margin/Box"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="StarIcon" type="TextureRect" parent="Margin/Box/StarsRow"]
+custom_minimum_size = Vector2(48, 48)
+layout_mode = 2
+texture = ExtResource("9_star")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StarsLabel" type="Label" parent="Margin/Box/StarsRow"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
 theme_override_font_sizes/font_size = 48
-text = "★ 0"
+text = "0"
 
 [node name="Scroll" type="ScrollContainer" parent="Margin/Box"]
 layout_mode = 2

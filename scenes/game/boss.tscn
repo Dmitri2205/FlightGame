@@ -1,0 +1,38 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/game/boss.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/game/enemy_bullet.tscn" id="2_bullet"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
+size = Vector2(240, 110)
+
+[node name="Boss" type="Area2D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_script")
+bullet_scene = ExtResource("2_bullet")
+
+[node name="Wings" type="Polygon2D" parent="."]
+color = Color(0.3, 0.32, 0.4, 1)
+polygon = PackedVector2Array(-150, -30, -60, -50, 60, -50, 150, -30, 130, 30, 100, 50, -100, 50, -130, 30)
+
+[node name="Hull" type="Polygon2D" parent="."]
+color = Color(0.5, 0.18, 0.22, 1)
+polygon = PackedVector2Array(-50, -80, 50, -80, 70, -20, 50, 70, 20, 90, -20, 90, -50, 70, -70, -20)
+
+[node name="Core" type="Polygon2D" parent="."]
+color = Color(1, 0.55, 0.2, 1)
+polygon = PackedVector2Array(0, -20, 20, 0, 0, 30, -20, 0)
+
+[node name="GunLeft" type="Polygon2D" parent="."]
+position = Vector2(-90, 30)
+color = Color(0.85, 0.3, 0.3, 1)
+polygon = PackedVector2Array(-10, -10, 10, -10, 8, 20, -8, 20)
+
+[node name="GunRight" type="Polygon2D" parent="."]
+position = Vector2(90, 30)
+color = Color(0.85, 0.3, 0.3, 1)
+polygon = PackedVector2Array(-10, -10, 10, -10, 8, 20, -8, 20)
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_hit")

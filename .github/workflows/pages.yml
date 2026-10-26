@@ -52,6 +52,13 @@ jobs:
               status=1
             fi
           done
+          echo "::group::boss fight"
+          godot --headless --path . res://scenes/game/level.tscn --quit-after 1200 -- --boss 2>&1 | tee run.log
+          echo "::endgroup::"
+          if grep -qE "SCRIPT ERROR|Parse Error|ERROR:" run.log; then
+            echo "::error::Ошибки в бою с боссом"
+            status=1
+          fi
           exit $status
 
       - name: Export Web

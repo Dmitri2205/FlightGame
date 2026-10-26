@@ -7,11 +7,13 @@
 [ext_resource type="PackedScene" path="res://scenes/game/enemy_gunship.tscn" id="5_gunship"]
 [ext_resource type="PackedScene" path="res://scenes/game/star_pickup.tscn" id="6_star"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="7_hud"]
+[ext_resource type="PackedScene" path="res://scenes/game/boss.tscn" id="8_boss"]
 
 [node name="Level" type="Node2D"]
 script = ExtResource("1_script")
 enemy_scenes = Array[PackedScene]([ExtResource("4_fighter"), ExtResource("5_gunship")])
 star_scene = ExtResource("6_star")
+boss_scene = ExtResource("8_boss")
 
 [node name="Background" type="Node2D" parent="."]
 script = ExtResource("2_bg")

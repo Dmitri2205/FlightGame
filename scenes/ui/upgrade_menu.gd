@@ -2,6 +2,8 @@ extends Control
 ## Экран прокачки. Строки строятся по GameState.UPGRADES,
 ## так что новое улучшение достаточно описать там.
 
+const STAR_ICON := preload("res://ui/star.svg")
+
 @onready var stars_label: Label = %StarsLabel
 @onready var list: VBoxContainer = %UpgradeList
 
@@ -22,7 +24,7 @@ func _on_upgrade_changed(_id: String, _level: int) -> void:
 
 
 func _refresh() -> void:
-	stars_label.text = "★ %d" % GameState.stars
+	stars_label.text = "%d" % GameState.stars
 	for child in list.get_children():
 		child.queue_free()
 	for id in GameState.UPGRADES:
@@ -32,6 +34,7 @@ func _refresh() -> void:
 func _make_row(id: String) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
+	row.mouse_filter = Control.MOUSE_FILTER_PASS
 
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -45,16 +48,20 @@ func _make_row(id: String) -> Control:
 	bar.max_value = GameState.get_max_level(id)
 	bar.value = GameState.get_level(id)
 	bar.show_percentage = false
+	bar.mouse_filter = Control.MOUSE_FILTER_PASS
 	bar.custom_minimum_size = Vector2(0, 24)
 	info.add_child(bar)
 
 	var button := Button.new()
 	button.custom_minimum_size = Vector2(200, 80)
+	# PASS, чтобы список можно было листать, начав свайп на кнопке.
+	button.mouse_filter = Control.MOUSE_FILTER_PASS
 	if GameState.is_maxed(id):
 		button.text = "МАКС"
 		button.disabled = true
 	else:
-		button.text = "★ %d" % GameState.get_upgrade_cost(id)
+		button.text = "%d" % GameState.get_upgrade_cost(id)
+		button.icon = STAR_ICON
 		button.disabled = not GameState.can_upgrade(id)
 		button.pressed.connect(GameState.try_upgrade.bind(id))
 	row.add_child(button)

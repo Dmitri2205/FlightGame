@@ -1,5 +1,6 @@
 [gd_scene load_steps=2 format=3]
 
+[ext_resource type="Texture2D" path="res://ui/star.svg" id="9_star"]
 [ext_resource type="Script" path="res://scenes/ui/main_menu.gd" id="1_script"]
 
 [node name="MainMenu" type="Control"]
@@ -28,9 +29,9 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -240.0
-offset_top = -330.0
+offset_top = -380.0
 offset_right = 240.0
-offset_bottom = 330.0
+offset_bottom = 380.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 32
@@ -42,11 +43,24 @@ theme_override_font_sizes/font_size = 72
 text = "FLIGHT GAME"
 horizontal_alignment = 1
 
-[node name="StarsLabel" type="Label" parent="Center"]
+[node name="StarsRow" type="HBoxContainer" parent="Center"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="StarIcon" type="TextureRect" parent="Center/StarsRow"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture = ExtResource("9_star")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="StarsLabel" type="Label" parent="Center/StarsRow"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.2, 1)
-text = "★ 0"
+text = "0"
 horizontal_alignment = 1
 
 [node name="PlayButton" type="Button" parent="Center"]
@@ -66,3 +80,10 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 text = "Ангар"
+
+[node name="BossTestButton" type="Button" parent="Center"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 70)
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Тест: сразу к боссу"

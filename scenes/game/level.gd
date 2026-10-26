@@ -1,16 +1,22 @@
 extends Node2D
-## Уровень: спавнит волны врагов, считает очки и звёзды,
+## Уровень: спавнит волны врагов, в конце — босс. Считает очки и звёзды,
 ## по окончании начисляет звёзды в GameState.
+## Сразу к боссу: GameState.boss_test = true (кнопка в меню)
+## или аргумент `-- --boss` при запуске из командной строки.
 
 @export var enemy_scenes: Array[PackedScene] = []
 @export var star_scene: PackedScene
 @export var level_duration := 60.0
+@export var boss_scene: PackedScene
+## Пауза после победы над боссом, чтобы успеть собрать звёзды.
+@export var victory_delay := 3.0
 
 var score := 0
 var run_stars := 0
 var elapsed := 0.0
 
 var _finished := false
+var _boss_spawned := false
 
 @onready var player = $Player
 @onready var projectiles: Node2D = $Projectiles
@@ -32,6 +38,11 @@ func _ready() -> void:
 	hud.set_score(score)
 	hud.set_stars(run_stars)
 
+	if GameState.boss_test or "--boss" in OS.get_cmdline_user_args():
+		GameState.boss_test = false
+		elapsed = level_duration
+		spawn_timer.stop()
+
 
 func _process(delta: float) -> void:
 	if _finished:
@@ -40,8 +51,12 @@ func _process(delta: float) -> void:
 	hud.set_progress(elapsed / level_duration)
 	if elapsed >= level_duration:
 		spawn_timer.stop()
-		if enemies.get_child_count() == 0:
-			_finish(true)
+		# Сначала добиваем оставшиеся волны, потом выходит босс.
+		if not _boss_spawned and enemies.get_child_count() == 0:
+			if boss_scene:
+				_spawn_boss()
+			else:
+				_finish(true)
 
 
 # --- Волны --------------------------------------------------------------------
@@ -73,6 +88,23 @@ func _spawn_enemy(scene: PackedScene, pos: Vector2) -> void:
 	enemies.add_child(enemy)
 
 
+func _spawn_boss() -> void:
+	_boss_spawned = true
+	var boss = boss_scene.instantiate()
+	boss.position = Vector2(get_viewport_rect().size.x / 2.0, -150.0)
+	boss.projectile_container = projectiles
+	boss.destroyed.connect(_on_enemy_destroyed)
+	boss.destroyed.connect(_on_boss_destroyed)
+	boss.health_changed.connect(hud.set_boss_health)
+	enemies.add_child(boss)
+	hud.show_boss(boss.max_hp)
+
+
+func _on_boss_destroyed(_boss) -> void:
+	hud.hide_boss()
+	get_tree().create_timer(victory_delay).timeout.connect(_finish.bind(true))
+
+
 func _on_enemy_destroyed(enemy) -> void:
 	score += enemy.score_value
 	hud.set_score(score)
@@ -89,6 +121,11 @@ func _on_enemy_destroyed(enemy) -> void:
 func _on_star_collected() -> void:
 	run_stars += 1
 	hud.set_stars(run_stars)
+
+	if GameState.boss_test or "--boss" in OS.get_cmdline_user_args():
+		GameState.boss_test = false
+		elapsed = level_duration
+		spawn_timer.stop()
 
 
 # --- Конец уровня -------------------------------------------------------------

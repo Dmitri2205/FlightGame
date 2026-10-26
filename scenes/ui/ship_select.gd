@@ -9,6 +9,8 @@ const STAT_MAX := {
 	"firepower": 2.5,
 }
 
+const STAR_ICON := preload("res://ui/star.svg")
+
 @onready var stars_label: Label = %StarsLabel
 @onready var list: VBoxContainer = %ShipList
 
@@ -29,7 +31,7 @@ func _on_ship_changed(_id: String) -> void:
 
 
 func _refresh() -> void:
-	stars_label.text = "★ %d" % GameState.stars
+	stars_label.text = "%d" % GameState.stars
 	for child in list.get_children():
 		child.queue_free()
 	for ship in GameState.ships:
@@ -37,7 +39,10 @@ func _refresh() -> void:
 
 
 func _make_card(ship: ShipData) -> Control:
+	# Всё внутри списка пропускает касания наверх (PASS), иначе
+	# ScrollContainer не получает свайп и список не листается.
 	var card := PanelContainer.new()
+	card.mouse_filter = Control.MOUSE_FILTER_PASS
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	card.add_child(box)
@@ -62,6 +67,7 @@ func _make_card(ship: ShipData) -> Control:
 
 	var button := Button.new()
 	button.custom_minimum_size = Vector2(0, 80)
+	button.mouse_filter = Control.MOUSE_FILTER_PASS
 	if ship.id == GameState.selected_ship_id:
 		button.text = "Выбран"
 		button.disabled = true
@@ -69,7 +75,8 @@ func _make_card(ship: ShipData) -> Control:
 		button.text = "Выбрать"
 		button.pressed.connect(GameState.select_ship.bind(ship.id))
 	else:
-		button.text = "Купить ★ %d" % ship.cost
+		button.text = "Купить %d" % ship.cost
+		button.icon = STAR_ICON
 		button.disabled = GameState.stars < ship.cost
 		button.pressed.connect(GameState.try_unlock_ship.bind(ship.id))
 	box.add_child(button)
@@ -79,6 +86,7 @@ func _make_card(ship: ShipData) -> Control:
 
 func _make_stat(label_text: String, ratio: float) -> Control:
 	var row := HBoxContainer.new()
+	row.mouse_filter = Control.MOUSE_FILTER_PASS
 
 	var label := Label.new()
 	label.text = label_text
@@ -91,6 +99,7 @@ func _make_stat(label_text: String, ratio: float) -> Control:
 	bar.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	bar.custom_minimum_size = Vector2(0, 18)
 	bar.show_percentage = false
+	bar.mouse_filter = Control.MOUSE_FILTER_PASS
 	bar.value = clampf(ratio, 0.0, 1.0) * 100.0
 	row.add_child(bar)
 
