@@ -10,6 +10,15 @@
 2. Открыть `project.godot` через менеджер проектов.
 3. F5. На ПК корабль двигается перетаскиванием мышью или стрелками.
 
+## Играть в браузере (в т.ч. с телефона)
+
+При каждом пуше GitHub Actions (`.github/workflows/pages.yml`) прогоняет сцены
+headless на ошибки скриптов, собирает веб-версию и выкладывает её на
+GitHub Pages: **https://dmitri2205.github.io/flightgame/**
+
+Один раз нужно включить: *Settings → Pages → Build and deployment →
+Source: GitHub Actions*.
+
 ## Структура
 
 ```

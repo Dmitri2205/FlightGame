@@ -1,0 +1,77 @@
+name: Web build → GitHub Pages
+
+on:
+  push:
+    branches: [main, master, "claude/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: "4.3"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Godot and export templates
+        run: |
+          base="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable"
+          curl -sSL -o godot.zip "$base/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          curl -sSL -o templates.tpz "$base/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          unzip -q godot.zip
+          sudo mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" /usr/local/bin/godot
+          tpl_dir="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$tpl_dir"
+          unzip -q templates.tpz
+          mv templates/* "$tpl_dir/"
+          rm -rf godot.zip templates.tpz templates
+
+      - name: Import project
+        run: godot --headless --import || godot --headless --editor --quit
+
+      # Прогоняем сцены несколько секунд и падаем, если в логе есть ошибки скриптов.
+      - name: Smoke test
+        run: |
+          status=0
+          for scene in scenes/ui/main_menu.tscn scenes/ui/upgrade_menu.tscn scenes/game/level.tscn; do
+            echo "::group::$scene"
+            godot --headless --path . "res://$scene" --quit-after 600 2>&1 | tee run.log
+            echo "::endgroup::"
+            if grep -qE "SCRIPT ERROR|Parse Error|ERROR:" run.log; then
+              echo "::error::Ошибки при запуске $scene"
+              status=1
+            fi
+          done
+          exit $status
+
+      - name: Export Web
+        run: |
+          mkdir -p build/web
+          godot --headless --export-release "Web" build/web/index.html
+          test -f build/web/index.html
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
