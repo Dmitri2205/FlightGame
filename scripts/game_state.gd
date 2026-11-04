@@ -62,6 +62,9 @@ var completed_levels := {}
 ## Какой уровень сейчас выбран/запущен.
 var current_chapter := 0
 var current_level := 0
+## Инструменты разработчика (превью волн, тесты) в меню. Скрыты от игрока:
+## включаются 7 тапами по названию в главном меню; в отладочной сборке — всегда.
+var dev_mode := false
 ## Отладка: следующий запуск уровня начнётся сразу с босса.
 var boss_test := false
 ## Отладка: волны с разными траекториями идут по очереди.
@@ -290,6 +293,7 @@ func save_game() -> void:
 		"selected_ship": selected_ship_id,
 		"completed_levels": completed_levels,
 		"current_chapter": current_chapter,
+		"dev_mode": dev_mode,
 	}))
 
 
@@ -310,6 +314,16 @@ func load_game() -> void:
 		selected_ship_id = selected
 	completed_levels = data.get("completed_levels", {})
 	current_chapter = clampi(int(data.get("current_chapter", 0)), 0, chapters.size() - 1)
+	dev_mode = bool(data.get("dev_mode", false))
+
+
+func dev_tools_available() -> bool:
+	return dev_mode or OS.is_debug_build()
+
+
+func set_dev_mode(enabled: bool) -> void:
+	dev_mode = enabled
+	save_game()
 
 
 func reset_progress() -> void:

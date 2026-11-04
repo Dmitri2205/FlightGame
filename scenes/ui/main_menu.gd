@@ -2,10 +2,14 @@ extends Control
 ## Главное меню. Живой фон: планета текущей главы, облака, свой корабль
 ## (его можно водить пальцем) и пролетающие волны врагов-призраков
 ## (тот же WaveDirector и GhostFlock, что в превью). «Играть» ведёт на карту.
-## Отладочные кнопки спрятаны в блоке «Разработчику».
+## Отладочные кнопки спрятаны в блоке «Разработчику», а сам блок от игрока:
+## в собранной игре он появляется после 7 быстрых тапов по названию.
 
 ## Пауза между волнами-призраками на фоне, секунд.
 const DEMO_WAVE_INTERVAL := 3.5
+const DEV_UNLOCK_TAPS := 7
+
+var _title_taps := 0
 
 var _reset_armed := false
 
@@ -38,6 +42,8 @@ func _ready() -> void:
 	%ResetButton.pressed.connect(_on_reset_pressed)
 	%DevToggle.pressed.connect(_toggle_dev_panel)
 	%DevPanel.hide()
+	%DevToggle.visible = GameState.dev_tools_available()
+	%Title.gui_input.connect(_on_title_input)
 	_pulse(%PlayButton)
 
 	# Корабль-витрина: летает и стреляет, можно водить пальцем.
@@ -78,6 +84,23 @@ func _start_test(boss: bool) -> void:
 func _toggle_dev_panel() -> void:
 	%DevPanel.visible = not %DevPanel.visible
 	%DevToggle.text = "Разработчику –" if %DevPanel.visible else "Разработчику +"
+
+
+## Секрет: 7 быстрых тапов по названию включают/выключают инструменты разработчика.
+func _on_title_input(event: InputEvent) -> void:
+	var mb := event as InputEventMouseButton
+	if mb == null or not mb.pressed or mb.button_index != MOUSE_BUTTON_LEFT:
+		return
+	_title_taps += 1
+	if _title_taps == 1:
+		get_tree().create_timer(2.5).timeout.connect(func(): _title_taps = 0)
+	if _title_taps >= DEV_UNLOCK_TAPS:
+		_title_taps = 0
+		GameState.set_dev_mode(not GameState.dev_mode)
+		%DevToggle.visible = GameState.dev_tools_available()
+		if not %DevToggle.visible:
+			%DevPanel.hide()
+		%NextLabel.text = "Режим разработчика: %s" % ("включён" if GameState.dev_mode else "выключен")
 
 
 ## Сброс — в два нажатия, чтобы не стереть прогресс случайно.
