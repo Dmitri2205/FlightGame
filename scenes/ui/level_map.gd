@@ -19,7 +19,7 @@ const NODE_X := [0.5, 0.74, 0.3, 0.66, 0.36, 0.7]
 
 func _ready() -> void:
 	%StarsLabel.text = "%d" % GameState.stars
-	%BackButton.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn"))
+	%BackButton.pressed.connect(Router.main_menu)
 	%PrevButton.pressed.connect(_switch_chapter.bind(-1))
 	%NextButton.pressed.connect(_switch_chapter.bind(1))
 	_show_chapter()
@@ -153,4 +153,4 @@ func _node_style(completed: bool, unlocked: bool, accent: Color, state: String) 
 
 func _start_level(chapter_index: int, level_index: int) -> void:
 	GameState.select_level(chapter_index, level_index)
-	get_tree().change_scene_to_file("res://scenes/game/level.tscn")
+	Router.level()

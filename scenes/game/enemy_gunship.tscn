@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" path="res://art/sprites/enemy_gunship.png" id="4_tex"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hit"]
-radius = 40.0
+radius = 32.0
 
 [node name="EnemyGunship" type="Area2D"]
 collision_layer = 2
@@ -22,7 +22,7 @@ explosion_size = 1.5
 
 [node name="Shadow" type="CanvasGroup" parent="."]
 script = ExtResource("3_shadow")
-offset = Vector2(30, 44)
+offset = Vector2(26, 38)
 
 [node name="Sprite" type="Sprite2D" parent="."]
 texture = ExtResource("4_tex")

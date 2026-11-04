@@ -20,7 +20,7 @@ var _press_pos := Vector2.ZERO
 
 
 func _ready() -> void:
-	%BackButton.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn"))
+	%BackButton.pressed.connect(Router.main_menu)
 	GameState.stars_changed.connect(_on_stars_changed)
 	GameState.ship_changed.connect(_on_ship_changed)
 	_refresh()

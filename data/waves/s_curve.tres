@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="WaveData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/wave_data.gd" id="1_wave"]
+[ext_resource type="PackedScene" path="res://scenes/game/enemy_fighter.tscn" id="2_enemy"]
+[ext_resource type="Resource" path="res://data/patterns/s_curve.tres" id="3_pattern"]
+
+[resource]
+script = ExtResource("1_wave")
+title = "S-заход ×6"
+enemy = ExtResource("2_enemy")
+pattern = ExtResource("3_pattern")
+count = 6
+spacing = 130.0
+mirror = 1
+random_x = false

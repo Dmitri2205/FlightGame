@@ -9,7 +9,7 @@ const STAR_ICON := preload("res://ui/star.svg")
 
 
 func _ready() -> void:
-	%BackButton.pressed.connect(func(): get_tree().change_scene_to_file("res://scenes/ui/main_menu.tscn"))
+	%BackButton.pressed.connect(Router.main_menu)
 	GameState.stars_changed.connect(_on_stars_changed)
 	GameState.upgrade_changed.connect(_on_upgrade_changed)
 	_refresh()

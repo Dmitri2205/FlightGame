@@ -53,16 +53,23 @@ jobs:
             name="$1"; shift
             echo "::group::$name"
             godot --headless --path . --fixed-fps 60 "$@" 2>&1 | tee run.log
+            local code=${PIPESTATUS[0]}
             echo "::endgroup::"
-            if grep -qE "SCRIPT ERROR|Parse Error|ERROR:" run.log; then
+            if [ "$code" -ne 0 ] || grep -qE "SCRIPT ERROR|Parse Error|ERROR:" run.log; then
               echo "::error::Ошибки: $name"
               status=1
             fi
           }
-          for scene in scenes/ui/main_menu.tscn scenes/ui/upgrade_menu.tscn scenes/ui/ship_select.tscn scenes/ui/level_map.tscn; do
-            run "$scene" "res://$scene" --quit-after 120
+          run "data validation" res://tests/validate_data.tscn
+          for scene in scenes/ui/main_menu.tscn scenes/ui/upgrade_menu.tscn scenes/ui/ship_select.tscn scenes/ui/level_map.tscn scenes/ui/wave_preview.tscn; do
+            run "$scene" "res://$scene" --quit-after 300
           done
-          run "level (random waves, 20s)" res://scenes/game/level.tscn --quit-after 1200
+          # Каждый уровень каждой главы — по 15 с игрового времени.
+          for chapter in 0 1 2; do
+            for level in 0 1 2 3; do
+              run "level $chapter:$level (15s)" res://scenes/game/level.tscn --quit-after 900 -- --level=$chapter:$level
+            done
+          done
           run "all flight patterns (25s)" res://scenes/game/level.tscn --quit-after 1500 -- --patterns
           run "boss fight (20s)" res://scenes/game/level.tscn --quit-after 1200 -- --boss
           exit $status

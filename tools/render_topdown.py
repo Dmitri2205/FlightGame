@@ -43,13 +43,13 @@ BOSS = {"metalRed": (0.85, 0.2, 0.3), "metal": (0.5, 0.48, 0.55), "metalDark": (
 # и перекраска материалов.
 SPRITES = {
     # корабли игрока — нос вверх
-    "ship_falcon": dict(model="craft_speederA", size=104, rotation=180, tilt=20, recolor=PLAYER_FALCON),
-    "ship_swift": dict(model="craft_racer", size=108, rotation=180, tilt=20, recolor=PLAYER_SWIFT),
-    "ship_bastion": dict(model="craft_cargoA", size=100, rotation=180, tilt=20, recolor=PLAYER_BASTION),
+    "ship_falcon": dict(model="craft_speederA", size=84, rotation=180, tilt=20, recolor=PLAYER_FALCON),
+    "ship_swift": dict(model="craft_racer", size=86, rotation=180, tilt=20, recolor=PLAYER_SWIFT),
+    "ship_bastion": dict(model="craft_cargoA", size=80, rotation=180, tilt=20, recolor=PLAYER_BASTION),
     # враги — нос вниз, летят на игрока
-    "enemy_fighter": dict(model="craft_speederB", size=80, rotation=0, tilt=20, recolor=ENEMY),
-    "enemy_gunship": dict(model="craft_miner", size=110, rotation=0, tilt=20, recolor=ENEMY),
-    "boss": dict(model="craft_cargoB", size=240, rotation=0, tilt=20, recolor=BOSS),
+    "enemy_fighter": dict(model="craft_speederB", size=64, rotation=0, tilt=20, recolor=ENEMY),
+    "enemy_gunship": dict(model="craft_miner", size=88, rotation=0, tilt=20, recolor=ENEMY),
+    "boss": dict(model="craft_cargoB", size=200, rotation=0, tilt=20, recolor=BOSS),
 }
 
 # Декор поверхности планет. Для каждого биома — свой набор с перекраской

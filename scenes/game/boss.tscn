@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" path="res://art/sprites/boss.png" id="4_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
-size = Vector2(140, 210)
+size = Vector2(115, 175)
 
 [node name="Boss" type="Area2D"]
 collision_layer = 2
