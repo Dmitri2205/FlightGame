@@ -7,6 +7,11 @@ signal health_changed(current: int, maximum: int)
 
 enum State { ENTERING, FIGHTING }
 
+## Точки вылета пуль относительно центра спрайта: нос и бортовые пушки.
+const NOSE := Vector2(0, 110)
+const GUN_LEFT := Vector2(-55, 70)
+const GUN_RIGHT := Vector2(55, 70)
+
 @export var max_hp := 500
 @export var score_value := 5000
 @export var star_drop := 40
@@ -85,20 +90,20 @@ func _attack() -> void:
 			0:
 				_ring(18, 0.0)
 			1:
-				_fan(Vector2(0, 60), 7, 0.9)
+				_fan(NOSE, 7, 0.9)
 			2:
 				_ring(18, PI / 18.0)
-				_fan(Vector2(0, 60), 3, 0.3)
+				_fan(NOSE, 3, 0.3)
 		_attack_cooldown = 0.9
 	else:
 		match _pattern % 2:
 			0:
-				_fan(Vector2(0, 60), 5, 0.6)
+				_fan(NOSE, 5, 0.6)
 			1:
-				_shoot(Vector2(-90, 40), Vector2.DOWN)
-				_shoot(Vector2(90, 40), Vector2.DOWN)
-				_shoot(Vector2(-90, 40), Vector2.DOWN.rotated(0.15))
-				_shoot(Vector2(90, 40), Vector2.DOWN.rotated(-0.15))
+				_shoot(GUN_LEFT, Vector2.DOWN)
+				_shoot(GUN_RIGHT, Vector2.DOWN)
+				_shoot(GUN_LEFT, Vector2.DOWN.rotated(0.15))
+				_shoot(GUN_RIGHT, Vector2.DOWN.rotated(-0.15))
 		_attack_cooldown = 1.4
 	_pattern += 1
 

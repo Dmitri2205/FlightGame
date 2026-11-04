@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/game/enemy.gd" id="1_script"]
 [ext_resource type="Script" path="res://scenes/fx/shadow.gd" id="2_shadow"]
+[ext_resource type="Texture2D" path="res://art/sprites/enemy_fighter.png" id="3_tex"]
 
 [sub_resource type="Gradient" id="Gradient_soft"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
@@ -26,7 +27,7 @@ offsets = PackedFloat32Array(0, 0.5, 1)
 colors = PackedColorArray(1, 0.95, 0.7, 1, 1, 0.55, 0.15, 0.7, 0.8, 0.2, 0.05, 0)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hit"]
-radius = 26.0
+radius = 30.0
 
 [node name="EnemyFighter" type="Area2D"]
 collision_layer = 2
@@ -44,7 +45,7 @@ script = ExtResource("2_shadow")
 
 [node name="EngineTrail" type="CPUParticles2D" parent="."]
 material = SubResource("Material_add")
-position = Vector2(0, -26)
+position = Vector2(0, -36)
 amount = 14
 lifetime = 0.22
 texture = SubResource("Texture_soft")
@@ -58,9 +59,8 @@ scale_amount_max = 0.45
 scale_amount_curve = SubResource("Curve_shrink")
 color_ramp = SubResource("Gradient_trail")
 
-[node name="Sprite" type="Polygon2D" parent="."]
-color = Color(0.8, 0.15, 0.25, 1)
-polygon = PackedVector2Array(0, 30, 34, -6, 30, -16, 6, -8, 0, -30, -6, -8, -30, -16, -34, -6)
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("3_tex")
 
 [node name="Collision" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_hit")
