@@ -4,6 +4,7 @@ extends Node
 
 const EXPLOSION := preload("res://scenes/fx/explosion.tscn")
 const HIT_SPARK := preload("res://scenes/fx/hit_spark.tscn")
+const MUZZLE_FLASH := preload("res://scenes/fx/muzzle_flash.tscn")
 
 
 ## Взрыв размера `size` (1 — истребитель, 2+ — крупные цели).
@@ -22,6 +23,11 @@ func chain_explosions(pos: Vector2, count: int, radius: float, size := 1.2) -> v
 ## Искры попадания пули.
 func hit(pos: Vector2) -> void:
 	_spawn(HIT_SPARK, pos, 1.0)
+
+
+## Вспышка у ствола при выстреле.
+func muzzle(pos: Vector2, size := 1.0) -> void:
+	_spawn(MUZZLE_FLASH, pos, size)
 
 
 ## Тряска камеры уровня (если она есть).

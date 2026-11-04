@@ -15,6 +15,10 @@ signal destroyed(enemy: Node2D)
 @export var fire_interval := 0.0
 @export var bullet_scene: PackedScene
 @export var bullet_speed := 450.0
+## Урон пули по игроку, HP.
+@export var bullet_damage := 20
+## Урон тарана, HP.
+@export var ram_damage := 25
 ## Размер взрыва при гибели (1 — обычный).
 @export var explosion_size := 1.0
 
@@ -103,11 +107,12 @@ func _fire() -> void:
 	var bullet = bullet_scene.instantiate()
 	bullet.position = global_position
 	bullet.velocity = direction * bullet_speed
+	bullet.damage = bullet_damage
 	projectile_container.add_child(bullet)
 
 
 func _on_area_entered(area) -> void:
 	# Таран: игрок получает урон, враг погибает.
 	if area.is_in_group("player") and not _dead:
-		area.take_damage(1)
+		area.take_damage(ram_damage)
 		_die()

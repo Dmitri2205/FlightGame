@@ -34,9 +34,16 @@ func set_progress(ratio: float) -> void:
 	progress_bar.value = clampf(ratio, 0.0, 1.0) * 100.0
 
 
+## Здоровье — полоска и проценты; цвет от зелёного к красному.
 func set_health(current: int, maximum: int) -> void:
 	health_bar.max_value = maximum
 	health_bar.value = current
+	var ratio := float(current) / maxf(maximum, 1.0)
+	var label: Label = %HealthLabel
+	label.text = "%d%%" % roundi(ratio * 100.0)
+	var color := Color(0.45, 1.0, 0.45) if ratio > 0.6 else (Color(1.0, 0.85, 0.3) if ratio > 0.3 else Color(1.0, 0.35, 0.3))
+	health_bar.modulate = color
+	label.add_theme_color_override("font_color", color)
 
 
 func set_stars(value: int) -> void:

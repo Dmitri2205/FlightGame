@@ -255,28 +255,86 @@ func select_next_level() -> void:
 # --- Характеристики корабля (весь баланс в одном месте) ----------------------
 # Итог = база выбранного корабля + улучшения (улучшения общие для всех кораблей).
 
+## Здоровье: +15% от базового за каждый уровень улучшения.
+const HEALTH_PER_LEVEL := 0.15
+## Сколько шрапнели у основной пушки на уровнях 0..10.
+const SHRAPNEL_BY_LEVEL := [0, 0, 1, 2, 2, 3, 3, 4, 4, 5, 5]
+
+
 func player_max_health() -> int:
-	return get_selected_ship().base_health + get_level("health")
+	return _max_health_at(get_level("health"))
 
 
 func fire_interval() -> float:
-	return 0.25 * pow(0.93, get_level("main_cannon")) / get_selected_ship().fire_rate_mult
+	return _fire_interval_at(get_level("main_cannon"))
 
 
 func main_cannon_damage() -> int:
-	return 1 + get_level("main_cannon") / 3 + get_selected_ship().damage_bonus
+	return _main_damage_at(get_level("main_cannon"))
 
 
-func wing_cannons_level() -> int:
-	return get_level("wing_cannons")
+## Сколько дополнительных маленьких патронов (шрапнели) даёт основная пушка.
+func shrapnel_count() -> int:
+	return SHRAPNEL_BY_LEVEL[clampi(get_level("main_cannon"), 0, SHRAPNEL_BY_LEVEL.size() - 1)]
+
+
+## Стволов на каждом крыле: 0 — модуль не куплен, дальше 1 → 2 → 3 (веером).
+func wing_guns_per_side() -> int:
+	return _wing_guns_at(get_level("wing_cannons"))
 
 
 func wing_cannon_damage() -> int:
-	return maxi(1, get_level("wing_cannons") / 2)
+	return _wing_damage_at(get_level("wing_cannons"))
+
+
+func _max_health_at(level: int) -> int:
+	return roundi(get_selected_ship().base_health * (1.0 + HEALTH_PER_LEVEL * level))
+
+
+func _fire_interval_at(level: int) -> float:
+	return 0.25 * pow(0.95, level) / get_selected_ship().fire_rate_mult
+
+
+func _main_damage_at(level: int) -> int:
+	return 1 + level / 2 + get_selected_ship().damage_bonus
+
+
+func _wing_guns_at(level: int) -> int:
+	if level <= 0:
+		return 0
+	return 1 if level < 4 else (2 if level < 7 else 3)
+
+
+func _wing_damage_at(level: int) -> int:
+	return 1 + maxi(level - 1, 0) / 3
+
+
+## Что даёт модуль на уровне level — для ангара.
+func describe_upgrade(id: String, level: int) -> String:
+	match id:
+		"health":
+			return "+%d%% здоровья · %d HP" % [roundi(HEALTH_PER_LEVEL * 100 * level), _max_health_at(level)]
+		"main_cannon":
+			var shrapnel: int = SHRAPNEL_BY_LEVEL[clampi(level, 0, SHRAPNEL_BY_LEVEL.size() - 1)]
+			return "урон %d · шрапнель %d · %.1f выстр/с" % [_main_damage_at(level), shrapnel, 1.0 / _fire_interval_at(level)]
+		"wing_cannons":
+			var guns := _wing_guns_at(level)
+			if guns == 0:
+				return "не установлены"
+			return "%d ств. на крыло · урон %d" % [guns, _wing_damage_at(level)]
+		"magnet":
+			return "радиус %d px" % _magnet_radius_at(level)
+	return ""
 
 
 func magnet_radius() -> float:
-	return (60.0 + 35.0 * get_level("magnet")) * get_selected_ship().magnet_mult
+	return _magnet_radius_at(get_level("magnet"))
+
+
+func _magnet_radius_at(level: int) -> float:
+	return (60.0 + 35.0 * level) * get_selected_ship().magnet_mult
+
+
 
 
 # --- Сохранение --------------------------------------------------------------
