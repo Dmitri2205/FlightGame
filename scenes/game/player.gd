@@ -11,6 +11,8 @@ signal died
 @export var shrapnel_scene: PackedScene
 ## Пули крыльевых пушек.
 @export var wing_bullet_scene: PackedScene
+## Самонаводящиеся ракеты (модуль «Ракеты»).
+@export var missile_scene: PackedScene
 @export var bullet_speed := 1400.0
 @export var invulnerability_time := 1.0
 ## Насколько сильно корабль стремится к цели: желаемая скорость = расстояние * gain.
@@ -38,6 +40,10 @@ var _main_damage := 1
 var _shrapnel := 0
 var _wing_guns := 0
 var _wing_damage := 1
+var _missiles := 0
+var _missile_interval := 2.0
+var _missile_damage := 4
+var _missile_cooldown := 1.0
 var _invulnerable_left := 0.0
 
 
@@ -55,6 +61,9 @@ func _ready() -> void:
 	_shrapnel = GameState.shrapnel_count()
 	_wing_guns = GameState.wing_guns_per_side()
 	_wing_damage = GameState.wing_cannon_damage()
+	_missiles = GameState.missiles_per_salvo()
+	_missile_interval = GameState.missile_interval()
+	_missile_damage = GameState.missile_damage()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -83,6 +92,12 @@ func _process(delta: float) -> void:
 	if _fire_cooldown <= 0.0:
 		_fire_cooldown = _fire_interval
 		_fire()
+
+	if _missiles > 0:
+		_missile_cooldown -= delta
+		if _missile_cooldown <= 0.0:
+			_missile_cooldown = _missile_interval
+			_launch_missiles()
 
 	if _invulnerable_left > 0.0:
 		_invulnerable_left -= delta
@@ -129,6 +144,22 @@ func _fire() -> void:
 				var offset: Vector2 = mount + Vector2(side * 5.0 * k, 4.0 * k)
 				_spawn_bullet(wing_bullet_scene, offset, Vector2.UP.rotated(side * (0.03 + 0.08 * k)), _wing_damage, bullet_speed)
 			FX.muzzle(global_position + mount, 0.6)
+
+
+## Залп ракет: по очереди слева и справа, из-под крыльев (между фюзеляжем и
+## крыльевыми пушками). Ракеты стартуют в сторону и доворачивают на врагов.
+func _launch_missiles() -> void:
+	if projectile_container == null or missile_scene == null:
+		return
+	for i in _missiles:
+		var side := -1.0 if i % 2 == 0 else 1.0
+		var row := i / 2
+		var mount := Vector2(ship.wing_gun.x * 0.6 * side, ship.wing_gun.y + 10.0 + 8.0 * row) * ship.visual_scale
+		var missile = missile_scene.instantiate()
+		missile.position = global_position + mount
+		missile.velocity = Vector2.UP.rotated(side * (0.7 + 0.25 * row))
+		missile.damage = _missile_damage
+		projectile_container.add_child(missile)
 
 
 func _spawn_bullet(scene: PackedScene, offset: Vector2, direction: Vector2, damage: int, speed: float) -> void:
