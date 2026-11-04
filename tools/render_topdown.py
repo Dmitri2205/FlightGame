@@ -50,18 +50,38 @@ SPRITES = {
     "enemy_fighter": dict(model="craft_speederB", size=80, rotation=0, tilt=20, recolor=ENEMY),
     "enemy_gunship": dict(model="craft_miner", size=110, rotation=0, tilt=20, recolor=ENEMY),
     "boss": dict(model="craft_cargoB", size=240, rotation=0, tilt=20, recolor=BOSS),
-    # декор поверхности планеты
-    "decor_crater": dict(model="crater", size=150),
-    "decor_crater_large": dict(model="craterLarge", size=260),
-    "decor_rock": dict(model="rock", size=70),
-    "decor_rock_large_a": dict(model="rock_largeA", size=120),
-    "decor_rock_large_b": dict(model="rock_largeB", size=120),
-    "decor_rocks_small_a": dict(model="rocks_smallA", size=90),
-    "decor_rocks_small_b": dict(model="rocks_smallB", size=90),
-    "decor_crystals": dict(model="rock_crystals", size=90),
-    "decor_crystals_large": dict(model="rock_crystalsLargeA", size=130),
-    "decor_meteor": dict(model="meteor", size=90),
 }
+
+# Декор поверхности планет. Для каждого биома — свой набор с перекраской
+# материалов скал (rock, rockDark, rockTrack) и кристаллов (crystal).
+# Марс — исходные цвета пака, файлы decor_*.png; остальные — decor_<биом>_*.png.
+DECOR = {
+    "crater": dict(model="crater", size=150),
+    "crater_large": dict(model="craterLarge", size=260),
+    "rock": dict(model="rock", size=70),
+    "rock_large_a": dict(model="rock_largeA", size=120),
+    "rock_large_b": dict(model="rock_largeB", size=120),
+    "rocks_small_a": dict(model="rocks_smallA", size=90),
+    "rocks_small_b": dict(model="rocks_smallB", size=90),
+    "crystals": dict(model="rock_crystals", size=90),
+    "crystals_large": dict(model="rock_crystalsLargeA", size=130),
+    "meteor": dict(model="meteor", size=90),
+}
+BIOMES = {
+    "": {},  # Марс
+    "ice": {
+        "rock": (0.8, 0.88, 0.96), "rockDark": (0.58, 0.7, 0.84),
+        "rockTrack": (0.9, 0.95, 1.0), "crystal": (0.3, 0.72, 1.0),
+    },
+    "toxic": {
+        "rock": (0.46, 0.52, 0.38), "rockDark": (0.3, 0.35, 0.26),
+        "rockTrack": (0.56, 0.62, 0.46), "crystal": (0.75, 1.0, 0.2),
+    },
+}
+for biome, palette in BIOMES.items():
+    prefix = f"decor_{biome}_" if biome else "decor_"
+    for name, spec in DECOR.items():
+        SPRITES[prefix + name] = dict(spec, recolor=palette)
 
 
 def load_mtl(text):
