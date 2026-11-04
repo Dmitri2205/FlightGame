@@ -83,7 +83,8 @@ func advance(delta: float, target = null) -> void:
 ## завалился на бок. base_scale — обычный масштаб спрайта.
 static func apply_bank(sprite: Node2D, bank_value: float, base_scale := Vector2.ONE) -> void:
 	sprite.scale = Vector2(base_scale.x * (1.0 - 0.45 * absf(bank_value)), base_scale.y)
-	sprite.skew = bank_value * 0.35
+	# Знак минус: при повороте вправо корабль заваливается на правое крыло.
+	sprite.skew = -bank_value * 0.35
 
 
 func _next_step() -> void:
