@@ -60,6 +60,8 @@ func take_damage(amount: int) -> void:
 	create_tween().tween_property(self, "modulate", _base_modulate(), 0.08)
 	if hp == 0:
 		_dead = true
+		FX.chain_explosions(global_position, 8, 120.0)
+		FX.explosion(global_position, 2.5)
 		destroyed.emit(self)
 		queue_free()
 	elif is_enraged() and not was_enraged:

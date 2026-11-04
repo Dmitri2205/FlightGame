@@ -20,4 +20,5 @@ func _process(delta: float) -> void:
 func _on_area_entered(area) -> void:
 	if area.has_method("take_damage"):
 		area.take_damage(damage)
+		FX.hit(global_position)
 		queue_free()

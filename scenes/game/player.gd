@@ -88,9 +88,11 @@ func take_damage(amount: int) -> void:
 	health = maxi(health - amount, 0)
 	health_changed.emit(health, max_health)
 	if health == 0:
+		FX.explosion(global_position, 1.8)
 		died.emit()
 		queue_free()
 	else:
+		FX.shake(10.0, 0.3)
 		_invulnerable_left = invulnerability_time
 
 
