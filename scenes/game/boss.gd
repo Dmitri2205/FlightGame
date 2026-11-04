@@ -35,6 +35,7 @@ var _pattern := 0
 
 
 func _ready() -> void:
+	add_to_group("enemies")
 	hp = max_hp
 	area_entered.connect(_on_area_entered)
 

@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/game/player_bullet.tscn" id="2_bullet"]
 [ext_resource type="PackedScene" path="res://scenes/game/player_shrapnel.tscn" id="5_shrapnel"]
 [ext_resource type="PackedScene" path="res://scenes/game/player_wing_bullet.tscn" id="6_wing"]
+[ext_resource type="PackedScene" path="res://scenes/game/missile.tscn" id="7_missile"]
 [ext_resource type="Script" path="res://scenes/fx/shadow.gd" id="3_shadow"]
 [ext_resource type="Texture2D" path="res://art/sprites/ship_falcon.png" id="4_tex"]
 
@@ -38,6 +39,7 @@ script = ExtResource("1_script")
 bullet_scene = ExtResource("2_bullet")
 shrapnel_scene = ExtResource("5_shrapnel")
 wing_bullet_scene = ExtResource("6_wing")
+missile_scene = ExtResource("7_missile")
 
 [node name="Shadow" type="CanvasGroup" parent="."]
 script = ExtResource("3_shadow")

@@ -8,9 +8,11 @@ const MUZZLE_FLASH := preload("res://scenes/fx/muzzle_flash.tscn")
 
 
 ## Взрыв размера `size` (1 — истребитель, 2+ — крупные цели).
-func explosion(pos: Vector2, size := 1.0) -> void:
+## shake_screen = false — без тряски (частые мелкие взрывы, например ракеты).
+func explosion(pos: Vector2, size := 1.0, shake_screen := true) -> void:
 	_spawn(EXPLOSION, pos, size)
-	shake(3.0 * size, 0.15 + 0.08 * size)
+	if shake_screen:
+		shake(3.0 * size, 0.15 + 0.08 * size)
 
 
 ## Серия взрывов в радиусе `radius` вокруг точки — для босса.

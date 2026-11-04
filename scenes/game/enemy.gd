@@ -39,6 +39,7 @@ var _motion: PatternMotion
 
 
 func _ready() -> void:
+	add_to_group("enemies")
 	_hp = max_hp
 	_base_x = position.x
 	_time = randf() * TAU

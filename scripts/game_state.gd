@@ -49,6 +49,12 @@ const UPGRADES := {
 		"base_cost": 60,
 		"cost_growth": 1.3,
 	},
+	"missiles": {
+		"title": "Ракеты",
+		"max_level": 10,
+		"base_cost": 150,
+		"cost_growth": 1.4,
+	},
 }
 
 var stars := 0
@@ -309,6 +315,33 @@ func _wing_damage_at(level: int) -> int:
 	return 1 + maxi(level - 1, 0) / 3
 
 
+## Ракеты за залп: 0 — модуль не куплен, дальше 1 → 2 → 3 → 4.
+func missiles_per_salvo() -> int:
+	return _missiles_at(get_level("missiles"))
+
+
+func missile_interval() -> float:
+	return _missile_interval_at(get_level("missiles"))
+
+
+func missile_damage() -> int:
+	return _missile_damage_at(get_level("missiles"))
+
+
+func _missiles_at(level: int) -> int:
+	if level <= 0:
+		return 0
+	return 1 if level < 3 else (2 if level < 6 else (3 if level < 9 else 4))
+
+
+func _missile_interval_at(level: int) -> float:
+	return 2.2 * pow(0.93, maxi(level - 1, 0))
+
+
+func _missile_damage_at(level: int) -> int:
+	return 3 + level
+
+
 ## Что даёт модуль на уровне level — для ангара.
 func describe_upgrade(id: String, level: int) -> String:
 	match id:
@@ -324,6 +357,11 @@ func describe_upgrade(id: String, level: int) -> String:
 			return "%d ств. на крыло · урон %d" % [guns, _wing_damage_at(level)]
 		"magnet":
 			return "радиус %d px" % _magnet_radius_at(level)
+		"missiles":
+			var count := _missiles_at(level)
+			if count == 0:
+				return "не установлены"
+			return "%d в залпе · урон %d · раз в %.1f с" % [count, _missile_damage_at(level), _missile_interval_at(level)]
 	return ""
 
 
