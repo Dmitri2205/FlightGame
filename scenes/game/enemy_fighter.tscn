@@ -27,7 +27,7 @@ offsets = PackedFloat32Array(0, 0.5, 1)
 colors = PackedColorArray(1, 0.95, 0.7, 1, 1, 0.55, 0.15, 0.7, 0.8, 0.2, 0.05, 0)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hit"]
-radius = 30.0
+radius = 24.0
 
 [node name="EnemyFighter" type="Area2D"]
 collision_layer = 2
@@ -45,7 +45,7 @@ script = ExtResource("2_shadow")
 
 [node name="EngineTrail" type="CPUParticles2D" parent="."]
 material = SubResource("Material_add")
-position = Vector2(0, -36)
+position = Vector2(0, -29)
 amount = 14
 lifetime = 0.22
 texture = SubResource("Texture_soft")

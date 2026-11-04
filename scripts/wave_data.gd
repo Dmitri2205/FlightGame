@@ -14,8 +14,24 @@ enum Mirror {
 @export var enemy: PackedScene
 @export var pattern: FlightPattern
 @export_range(1, 20) var count := 4
-## Интервал между врагами в «паровозике», секунд.
-@export var interval := 0.3
+## Расстояние между соседними врагами в «паровозике», пикселей по пути.
+## Интервал выпуска считается из скорости врага (spawn_interval()),
+## поэтому зазор сохраняется для любых врагов.
+@export var spacing := 150.0
 @export var mirror := Mirror.RANDOM
 ## Случайная точка появления по горизонтали (вместо start.x траектории).
 @export var random_x := false
+
+## Скорость врага по сцене — кэш, чтобы не создавать врага каждый раз.
+static var _speed_cache := {}
+
+
+## Через сколько секунд выпускать следующего врага «паровозика».
+func spawn_interval() -> float:
+	if enemy == null:
+		return 0.0
+	if not _speed_cache.has(enemy):
+		var node = enemy.instantiate()
+		_speed_cache[enemy] = float(node.speed) if "speed" in node else 200.0
+		node.free()
+	return spacing / maxf(_speed_cache[enemy], 1.0)

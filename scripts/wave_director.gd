@@ -112,7 +112,8 @@ func _schedule(wave: WaveData, at: float) -> void:
 			sides = [randf() < 0.5]
 		_:
 			sides = [false]
+	var interval := wave.spawn_interval()
 	for mirrored in sides:
 		for i in wave.count:
-			_queue.append({"time": at + wave.interval * i, "wave": wave, "pattern": pattern, "mirrored": mirrored})
+			_queue.append({"time": at + interval * i, "wave": wave, "pattern": pattern, "mirrored": mirrored})
 	_queue.sort_custom(func(a, b): return a.time < b.time)

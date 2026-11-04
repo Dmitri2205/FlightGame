@@ -8,9 +8,9 @@ signal health_changed(current: int, maximum: int)
 enum State { ENTERING, FIGHTING }
 
 ## Точки вылета пуль относительно центра спрайта: нос и бортовые пушки.
-const NOSE := Vector2(0, 110)
-const GUN_LEFT := Vector2(-55, 70)
-const GUN_RIGHT := Vector2(55, 70)
+const NOSE := Vector2(0, 92)
+const GUN_LEFT := Vector2(-46, 58)
+const GUN_RIGHT := Vector2(46, 58)
 
 @export var max_hp := 500
 @export var score_value := 5000

@@ -45,6 +45,8 @@ func _check_wave(wave: WaveData) -> void:
 		_fail("%s: не задана траектория" % wave.resource_path)
 	if wave.count < 1:
 		_fail("%s: count < 1" % wave.resource_path)
+	if wave.count > 1 and wave.spacing <= 0.0:
+		_fail("%s: spacing <= 0 — враги «паровозика» слипнутся" % wave.resource_path)
 
 
 func _check_level(chapter: ChapterData, index: int) -> void:
