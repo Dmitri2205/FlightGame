@@ -40,6 +40,8 @@ var _main_damage := 1
 var _shrapnel := 0
 var _wing_guns := 0
 var _wing_damage := 1
+var _wing_interval := 0.34
+var _wing_cooldown := 0.0
 var _missiles := 0
 var _missile_interval := 2.0
 var _missile_damage := 4
@@ -61,6 +63,7 @@ func _ready() -> void:
 	_shrapnel = GameState.shrapnel_count()
 	_wing_guns = GameState.wing_guns_per_side()
 	_wing_damage = GameState.wing_cannon_damage()
+	_wing_interval = GameState.wing_fire_interval()
 	_missiles = GameState.missiles_per_salvo()
 	_missile_interval = GameState.missile_interval()
 	_missile_damage = GameState.missile_damage()
@@ -92,6 +95,12 @@ func _process(delta: float) -> void:
 	if _fire_cooldown <= 0.0:
 		_fire_cooldown = _fire_interval
 		_fire()
+
+	if _wing_guns > 0:
+		_wing_cooldown -= delta
+		if _wing_cooldown <= 0.0:
+			_wing_cooldown = _wing_interval
+			_fire_wings()
 
 	if _missiles > 0:
 		_missile_cooldown -= delta
@@ -136,7 +145,11 @@ func _fire() -> void:
 		var angle := side * (0.09 + 0.07 * tier)
 		_spawn_bullet(shrapnel_scene, nose + Vector2(side * (4.0 + 3.0 * tier), 8.0), Vector2.UP.rotated(angle), 1, bullet_speed * 0.9)
 
-	# Крыльевые пушки — с крыльев, со 2-м и 3-м стволом расходятся веером.
+
+## Крыльевые пушки — с крыльев, в своём темпе; 2-й и 3-й стволы расходятся веером.
+func _fire_wings() -> void:
+	if projectile_container == null:
+		return
 	if _wing_guns > 0:
 		for side in [-1.0, 1.0]:
 			var mount := Vector2(ship.wing_gun.x * side, ship.wing_gun.y) * ship.visual_scale
