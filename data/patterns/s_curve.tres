@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="FlightPattern" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/flight_pattern.gd" id="1_pattern"]
+[ext_resource type="Script" path="res://scripts/flight_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_1"]
+script = ExtResource("2_step")
+type = 1
+angle = 90.0
+radius = 130.0
+
+[sub_resource type="Resource" id="Step_2"]
+script = ExtResource("2_step")
+type = 1
+angle = -180.0
+radius = 130.0
+
+[sub_resource type="Resource" id="Step_3"]
+script = ExtResource("2_step")
+type = 1
+angle = 90.0
+radius = 130.0
+
+[resource]
+script = ExtResource("1_pattern")
+title = "S-заход"
+start = Vector2(0.4, -60.0)
+heading = 0.0
+steps = [SubResource("Step_1"), SubResource("Step_2"), SubResource("Step_3")]

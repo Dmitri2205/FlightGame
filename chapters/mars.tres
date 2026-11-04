@@ -1,13 +1,99 @@
-[gd_resource type="Resource" script_class="ChapterData" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="ChapterData" load_steps=31 format=3]
 
-[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="1_chapter"]
-[ext_resource type="Script" path="res://scripts/level_data.gd" id="2_level"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="1_level"]
+[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="2_entry"]
+[ext_resource type="Resource" path="res://data/waves/diagonal.tres" id="3_diagonal"]
+[ext_resource type="Resource" path="res://data/waves/dive.tres" id="4_dive"]
+[ext_resource type="Resource" path="res://data/waves/drift.tres" id="5_drift"]
+[ext_resource type="Resource" path="res://data/waves/hunter.tres" id="6_hunter"]
+[ext_resource type="Resource" path="res://data/waves/loop.tres" id="7_loop"]
+[ext_resource type="Resource" path="res://data/waves/side_sweep.tres" id="8_side_sweep"]
+[ext_resource type="Resource" path="res://data/waves/swoop.tres" id="9_swoop"]
+[ext_resource type="Resource" path="res://data/waves/zigzag.tres" id="10_zigzag"]
+[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="9_chapter"]
+
+[sub_resource type="Resource" id="Entry_1"]
+script = ExtResource("2_entry")
+time = 1.0
+wave = ExtResource("4_dive")
+
+[sub_resource type="Resource" id="Entry_2"]
+script = ExtResource("2_entry")
+time = 4.0
+wave = ExtResource("3_diagonal")
+
+[sub_resource type="Resource" id="Entry_3"]
+script = ExtResource("2_entry")
+time = 7.5
+wave = ExtResource("9_swoop")
+
+[sub_resource type="Resource" id="Entry_4"]
+script = ExtResource("2_entry")
+time = 1.0
+wave = ExtResource("3_diagonal")
+
+[sub_resource type="Resource" id="Entry_5"]
+script = ExtResource("2_entry")
+time = 4.0
+wave = ExtResource("7_loop")
+
+[sub_resource type="Resource" id="Entry_6"]
+script = ExtResource("2_entry")
+time = 7.5
+wave = ExtResource("8_side_sweep")
+
+[sub_resource type="Resource" id="Entry_7"]
+script = ExtResource("2_entry")
+time = 11.0
+wave = ExtResource("4_dive")
+
+[sub_resource type="Resource" id="Entry_8"]
+script = ExtResource("2_entry")
+time = 1.0
+wave = ExtResource("7_loop")
+
+[sub_resource type="Resource" id="Entry_9"]
+script = ExtResource("2_entry")
+time = 4.0
+wave = ExtResource("10_zigzag")
+
+[sub_resource type="Resource" id="Entry_10"]
+script = ExtResource("2_entry")
+time = 7.5
+wave = ExtResource("6_hunter")
+
+[sub_resource type="Resource" id="Entry_11"]
+script = ExtResource("2_entry")
+time = 11.0
+wave = ExtResource("5_drift")
+
+[sub_resource type="Resource" id="Entry_12"]
+script = ExtResource("2_entry")
+time = 1.0
+wave = ExtResource("9_swoop")
+
+[sub_resource type="Resource" id="Entry_13"]
+script = ExtResource("2_entry")
+time = 4.0
+wave = ExtResource("7_loop")
+
+[sub_resource type="Resource" id="Entry_14"]
+script = ExtResource("2_entry")
+time = 7.5
+wave = ExtResource("5_drift")
+
+[sub_resource type="Resource" id="Entry_15"]
+script = ExtResource("2_entry")
+time = 11.0
+wave = ExtResource("3_diagonal")
 
 [sub_resource type="Resource" id="Level_1"]
-script = ExtResource("2_level")
+script = ExtResource("1_level")
 title = "Первый вылет"
 duration = 45.0
-waves = PackedStringArray("dive", "diagonal", "swoop")
+timeline = [SubResource("Entry_1"), SubResource("Entry_2"), SubResource("Entry_3")]
+filler_waves = [ExtResource("4_dive"), ExtResource("3_diagonal"), ExtResource("9_swoop")]
+filler_from = 11.5
 spawn_interval = 2.8
 enemy_hp_mult = 1.0
 boss = false
@@ -15,10 +101,12 @@ boss_hp = 500
 completion_bonus = 20
 
 [sub_resource type="Resource" id="Level_2"]
-script = ExtResource("2_level")
+script = ExtResource("1_level")
 title = "Каньоны"
 duration = 55.0
-waves = PackedStringArray("diagonal", "loop", "side_sweep", "dive")
+timeline = [SubResource("Entry_4"), SubResource("Entry_5"), SubResource("Entry_6"), SubResource("Entry_7")]
+filler_waves = [ExtResource("3_diagonal"), ExtResource("7_loop"), ExtResource("8_side_sweep"), ExtResource("4_dive")]
+filler_from = 15.0
 spawn_interval = 2.6
 enemy_hp_mult = 1.0
 boss = false
@@ -26,10 +114,12 @@ boss_hp = 500
 completion_bonus = 25
 
 [sub_resource type="Resource" id="Level_3"]
-script = ExtResource("2_level")
+script = ExtResource("1_level")
 title = "Пыльная буря"
 duration = 60.0
-waves = PackedStringArray("loop", "zigzag", "side_sweep", "hunter", "drift")
+timeline = [SubResource("Entry_8"), SubResource("Entry_9"), SubResource("Entry_10"), SubResource("Entry_11")]
+filler_waves = [ExtResource("7_loop"), ExtResource("10_zigzag"), ExtResource("6_hunter"), ExtResource("5_drift"), ExtResource("8_side_sweep")]
+filler_from = 15.0
 spawn_interval = 2.4
 enemy_hp_mult = 1.0
 boss = false
@@ -37,10 +127,12 @@ boss_hp = 500
 completion_bonus = 30
 
 [sub_resource type="Resource" id="Level_4"]
-script = ExtResource("2_level")
+script = ExtResource("1_level")
 title = "Страж Марса"
 duration = 50.0
-waves = PackedStringArray("diagonal", "loop", "swoop", "drift")
+timeline = [SubResource("Entry_12"), SubResource("Entry_13"), SubResource("Entry_14"), SubResource("Entry_15")]
+filler_waves = [ExtResource("9_swoop"), ExtResource("7_loop"), ExtResource("5_drift"), ExtResource("3_diagonal")]
+filler_from = 15.0
 spawn_interval = 2.6
 enemy_hp_mult = 1.0
 boss = true
@@ -48,7 +140,7 @@ boss_hp = 500
 completion_bonus = 60
 
 [resource]
-script = ExtResource("1_chapter")
+script = ExtResource("9_chapter")
 id = "mars"
 title = "Глава 1"
 planet = "Марс-7"

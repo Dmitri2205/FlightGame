@@ -3,17 +3,15 @@
 [ext_resource type="Script" path="res://scenes/game/level.gd" id="1_script"]
 [ext_resource type="Script" path="res://scenes/game/background.gd" id="2_bg"]
 [ext_resource type="PackedScene" path="res://scenes/game/player.tscn" id="3_player"]
-[ext_resource type="PackedScene" path="res://scenes/game/enemy_fighter.tscn" id="4_fighter"]
-[ext_resource type="PackedScene" path="res://scenes/game/enemy_gunship.tscn" id="5_gunship"]
 [ext_resource type="PackedScene" path="res://scenes/game/star_pickup.tscn" id="6_star"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="7_hud"]
 [ext_resource type="PackedScene" path="res://scenes/game/boss.tscn" id="8_boss"]
 [ext_resource type="Script" path="res://scenes/game/clouds.gd" id="9_clouds"]
 [ext_resource type="Script" path="res://scenes/game/camera_shake.gd" id="10_camera"]
+[ext_resource type="Script" path="res://scripts/wave_director.gd" id="11_director"]
 
 [node name="Level" type="Node2D"]
 script = ExtResource("1_script")
-enemy_scenes = Array[PackedScene]([ExtResource("4_fighter"), ExtResource("5_gunship")])
 star_scene = ExtResource("6_star")
 boss_scene = ExtResource("8_boss")
 
@@ -39,8 +37,7 @@ script = ExtResource("2_bg")
 z_index = 10
 script = ExtResource("9_clouds")
 
-[node name="SpawnTimer" type="Timer" parent="."]
-wait_time = 2.4
-autostart = true
+[node name="WaveDirector" type="Node" parent="."]
+script = ExtResource("11_director")
 
 [node name="HUD" parent="." instance=ExtResource("7_hud")]
