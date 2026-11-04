@@ -50,7 +50,7 @@ scripts/pattern_motion.gd  движение по траектории (враг 
 scripts/router.gd          autoload Router: переходы между экранами
 scripts/data_library.gd    списки траекторий и волн
 data/patterns/, data/waves/ библиотеки траекторий и волн
-tests/validate_data.gd     проверка данных (CI)
+tests/validate_data.tscn   проверка данных (CI)
 scripts/fx.gd              autoload FX: взрывы, искры, тряска экрана
 scenes/fx/                 сцены эффектов (взрыв, искры), тень самолёта
 art/sprites/               спрайты (вид сверху), отрендеренные из Kenney Space Kit

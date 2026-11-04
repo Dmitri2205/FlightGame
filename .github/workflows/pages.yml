@@ -60,7 +60,7 @@ jobs:
               status=1
             fi
           }
-          run "data validation" --script res://tests/validate_data.gd || status=1
+          run "data validation" res://tests/validate_data.tscn
           for scene in scenes/ui/main_menu.tscn scenes/ui/upgrade_menu.tscn scenes/ui/ship_select.tscn scenes/ui/level_map.tscn scenes/ui/wave_preview.tscn; do
             run "$scene" "res://$scene" --quit-after 300
           done

@@ -1,13 +1,15 @@
-extends SceneTree
+extends Node
 ## Проверка данных: все главы, уровни, волны и траектории ссылаются на
 ## существующее и заполнены. Запуск (CI):
-##   godot --headless --path . --script res://tests/validate_data.gd
+##   godot --headless --path . res://tests/validate_data.tscn
+## Это сцена, а не --script: так подключаются autoload (FX, GameState…),
+## без которых не компилируются скрипты врагов, на которые ссылаются волны.
 ## При ошибках печатает «ERROR: …» и выходит с кодом 1.
 
 var _errors := 0
 
 
-func _init() -> void:
+func _ready() -> void:
 	for path in ["res://data/patterns", "res://data/waves"]:
 		if DirAccess.get_files_at(path).is_empty():
 			_fail("пустая папка %s" % path)
@@ -27,7 +29,7 @@ func _init() -> void:
 			_check_level(chapter, i)
 
 	print("validate_data: %s" % ("OK" if _errors == 0 else "%d ошибок" % _errors))
-	quit(1 if _errors > 0 else 0)
+	get_tree().quit(1 if _errors > 0 else 0)
 
 
 func _check_pattern(pattern: FlightPattern) -> void:
