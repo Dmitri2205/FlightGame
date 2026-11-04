@@ -16,7 +16,8 @@ extends Resource
 @export var max_speed := 1100.0
 
 @export_group("Бой")
-@export var base_health := 3
+## Базовое здоровье, HP. Улучшение «Здоровье» прибавляет проценты от него.
+@export var base_health := 100
 ## Множитель скорострельности (больше — чаще стреляет).
 @export var fire_rate_mult := 1.0
 @export var damage_bonus := 0
@@ -28,6 +29,12 @@ extends Resource
 ## Цвет корабля в интерфейсе (заголовок карточки, рамка выбора).
 @export var color := Color(0.92, 0.2, 0.22)
 @export var visual_scale := 1.0
+
+@export_group("Орудия")
+## Где стоит основная пушка (нос), px от центра спрайта (до visual_scale).
+@export var nose_gun := Vector2(0, -40)
+## Где стоят крыльевые пушки: x — расстояние от оси (зеркалится), y — по высоте.
+@export var wing_gun := Vector2(28, 6)
 
 
 func acceleration() -> float:

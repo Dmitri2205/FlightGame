@@ -7,6 +7,10 @@ signal health_changed(current: int, maximum: int)
 signal died
 
 @export var bullet_scene: PackedScene
+## Шрапнель основной пушки (появляется со 2-го уровня улучшения).
+@export var shrapnel_scene: PackedScene
+## Пули крыльевых пушек.
+@export var wing_bullet_scene: PackedScene
 @export var bullet_speed := 1400.0
 @export var invulnerability_time := 1.0
 ## Насколько сильно корабль стремится к цели: желаемая скорость = расстояние * gain.
@@ -31,7 +35,8 @@ var _acceleration := 6000.0
 var _fire_interval := 0.25
 var _fire_cooldown := 0.0
 var _main_damage := 1
-var _wing_level := 0
+var _shrapnel := 0
+var _wing_guns := 0
 var _wing_damage := 1
 var _invulnerable_left := 0.0
 
@@ -47,7 +52,8 @@ func _ready() -> void:
 	magnet_radius = GameState.magnet_radius()
 	_fire_interval = GameState.fire_interval()
 	_main_damage = GameState.main_cannon_damage()
-	_wing_level = GameState.wing_cannons_level()
+	_shrapnel = GameState.shrapnel_count()
+	_wing_guns = GameState.wing_guns_per_side()
 	_wing_damage = GameState.wing_cannon_damage()
 
 
@@ -97,20 +103,40 @@ func take_damage(amount: int) -> void:
 		_invulnerable_left = invulnerability_time
 
 
+## Залп. Стволы стоят там, где они у модели корабля (ShipData.nose_gun / wing_gun).
+## Чем выше уровень модуля, тем больше видно стволов и патронов.
 func _fire() -> void:
-	_spawn_bullet(Vector2(0, -44), Vector2.UP, _main_damage)
-	if _wing_level > 0:
-		var spread := 0.04 + 0.01 * _wing_level
-		_spawn_bullet(Vector2(-26, -8), Vector2.UP.rotated(-spread), _wing_damage)
-		_spawn_bullet(Vector2(26, -8), Vector2.UP.rotated(spread), _wing_damage)
-
-
-func _spawn_bullet(offset: Vector2, direction: Vector2, damage: int) -> void:
-	if bullet_scene == null or projectile_container == null:
+	if projectile_container == null:
 		return
-	var bullet = bullet_scene.instantiate()
+	var nose := ship.nose_gun * ship.visual_scale
+
+	# Основная пушка — из носа.
+	_spawn_bullet(bullet_scene, nose, Vector2.UP, _main_damage, bullet_speed)
+	FX.muzzle(global_position + nose)
+
+	# Шрапнель — маленькие патроны веером по бокам от основного, по очереди слева/справа.
+	for i in _shrapnel:
+		var side := 1.0 if i % 2 == 0 else -1.0
+		var tier := i / 2
+		var angle := side * (0.09 + 0.07 * tier)
+		_spawn_bullet(shrapnel_scene, nose + Vector2(side * (4.0 + 3.0 * tier), 8.0), Vector2.UP.rotated(angle), 1, bullet_speed * 0.9)
+
+	# Крыльевые пушки — с крыльев, со 2-м и 3-м стволом расходятся веером.
+	if _wing_guns > 0:
+		for side in [-1.0, 1.0]:
+			var mount := Vector2(ship.wing_gun.x * side, ship.wing_gun.y) * ship.visual_scale
+			for k in _wing_guns:
+				var offset: Vector2 = mount + Vector2(side * 5.0 * k, 4.0 * k)
+				_spawn_bullet(wing_bullet_scene, offset, Vector2.UP.rotated(side * (0.03 + 0.08 * k)), _wing_damage, bullet_speed)
+			FX.muzzle(global_position + mount, 0.6)
+
+
+func _spawn_bullet(scene: PackedScene, offset: Vector2, direction: Vector2, damage: int, speed: float) -> void:
+	if scene == null:
+		scene = bullet_scene
+	var bullet = scene.instantiate()
 	bullet.position = global_position + offset
-	bullet.velocity = direction * bullet_speed
+	bullet.velocity = direction * speed
 	bullet.damage = damage
 	projectile_container.add_child(bullet)
 

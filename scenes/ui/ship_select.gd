@@ -5,7 +5,7 @@ extends Control
 const STAT_MAX := {
 	"speed": 1600.0,
 	"agility": 12000.0,
-	"armor": 8.0,
+	"armor": 200.0,
 	"firepower": 2.5,
 }
 

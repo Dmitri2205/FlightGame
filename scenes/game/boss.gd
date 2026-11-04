@@ -17,6 +17,9 @@ const GUN_RIGHT := Vector2(46, 58)
 @export var star_drop := 40
 @export var bullet_scene: PackedScene
 @export var bullet_speed := 380.0
+## Урон пули и тарана по игроку, HP.
+@export var bullet_damage := 20
+@export var ram_damage := 30
 @export var entry_y := 260.0
 @export var move_speed := 140.0
 
@@ -132,6 +135,7 @@ func _shoot(offset: Vector2, direction: Vector2) -> void:
 	var bullet = bullet_scene.instantiate()
 	bullet.position = global_position + offset
 	bullet.velocity = direction * bullet_speed
+	bullet.damage = bullet_damage
 	projectile_container.add_child(bullet)
 
 
@@ -142,4 +146,4 @@ func _base_modulate() -> Color:
 func _on_area_entered(area) -> void:
 	# Таран босса бьёт игрока, но сам босс не погибает.
 	if area.is_in_group("player"):
-		area.take_damage(1)
+		area.take_damage(ram_damage)

@@ -40,9 +40,24 @@ func _make_row(id: String) -> Control:
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(info)
 
+	var level := GameState.get_level(id)
 	var title := Label.new()
-	title.text = GameState.UPGRADES[id].title
+	title.text = "%s  · ур. %d/%d" % [GameState.UPGRADES[id].title, level, GameState.get_max_level(id)]
 	info.add_child(title)
+
+	# Что модуль даёт сейчас и что изменится на следующем уровне.
+	var now := Label.new()
+	now.text = "Сейчас: " + GameState.describe_upgrade(id, level)
+	now.add_theme_font_size_override("font_size", 22)
+	now.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	info.add_child(now)
+	if not GameState.is_maxed(id):
+		var next := Label.new()
+		next.text = "Дальше: " + GameState.describe_upgrade(id, level + 1)
+		next.add_theme_font_size_override("font_size", 22)
+		next.add_theme_color_override("font_color", Color(1, 0.85, 0.4))
+		next.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		info.add_child(next)
 
 	var bar := ProgressBar.new()
 	bar.max_value = GameState.get_max_level(id)
