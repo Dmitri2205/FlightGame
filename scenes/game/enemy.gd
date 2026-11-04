@@ -15,6 +15,8 @@ signal destroyed(enemy: Node2D)
 @export var fire_interval := 0.0
 @export var bullet_scene: PackedScene
 @export var bullet_speed := 450.0
+## Размер взрыва при гибели (1 — обычный).
+@export var explosion_size := 1.0
 
 var projectile_container: Node
 ## Траектория из FlightPatterns.get_pattern(). Выставляет уровень до add_child.
@@ -128,6 +130,7 @@ func take_damage(amount: int) -> void:
 
 func _die() -> void:
 	_dead = true
+	FX.explosion(global_position, explosion_size)
 	destroyed.emit(self)
 	queue_free()
 

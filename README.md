@@ -12,12 +12,19 @@
 
 ## Играть в браузере (в т.ч. с телефона)
 
-При каждом пуше GitHub Actions (`.github/workflows/pages.yml`) прогоняет сцены
-headless на ошибки скриптов, собирает веб-версию и выкладывает её на
-GitHub Pages: **https://dmitri2205.github.io/FlightGame/**
+Веб-версия: **https://dmitri2205.github.io/FlightGame/**
 
-Один раз нужно включить: *Settings → Pages → Build and deployment →
-Source: GitHub Actions*.
+GitHub Actions (`.github/workflows/pages.yml`):
+
+- **push в `main`** — сборка, smoke test (сцены headless на ошибки скриптов)
+  и публикация на GitHub Pages;
+- **pull request** — только сборка и smoke test, без публикации.
+
+Порядок работы: изменения делаются в отдельной ветке → pull request в `main`
+(CI должен быть зелёным) → слияние → игра обновляется на сайте.
+
+Один раз в настройках репозитория: *Settings → Pages → Source: GitHub
+Actions*, ветка по умолчанию — `main` (*Settings → General → Default branch*).
 
 ### Отладка
 
@@ -33,6 +40,8 @@ project.godot              настройки: экран, слои коллиз
 scripts/game_state.gd      autoload GameState: звёзды, корабли, улучшения, баланс, сохранение
 scripts/ship_data.gd       Resource ShipData — характеристики корабля
 scripts/flight_patterns.gd траектории врагов (петли, змейки, заходы сбоку…)
+scripts/fx.gd              autoload FX: взрывы, искры, тряска экрана
+scenes/fx/                 сцены эффектов (взрыв, искры), тень самолёта
 ships/*.tres               корабли: falcon (Сокол), swift (Стриж), bastion (Бастион)
 ui/theme.tres              общая тема интерфейса
 scenes/ui/
@@ -51,6 +60,8 @@ scenes/game/
   player_bullet.tscn / enemy_bullet.tscn
   star_pickup.tscn/.gd     звезда, притягивается магнитом
   background.gd            временный процедурный фон
+  clouds.gd                облака над полем боя (параллакс)
+  camera_shake.gd          камера уровня с тряской
 ```
 
 ### Слои коллизий
@@ -93,6 +104,19 @@ scenes/game/
 Новая траектория = новый `case` в `FlightPatterns.get_pattern()` + имя
 в `ids()` + строка в `WAVES`.
 
+### Визуальные эффекты
+
+Пока без текстур — всё рисуется кодом и частицами (CPUParticles2D):
+
+- `FX.explosion(pos, size)` — огонь, дым, обломки, вспышка + тряска;
+  у врага размер задаётся `explosion_size`, у босса — серия взрывов;
+- `FX.hit(pos)` — искры попадания пули;
+- `FX.shake(сила, сек)` — тряска камеры (при попадании по игроку и взрывах);
+- `Shadow` (scenes/fx/shadow.gd) — тень самолёта: копия силуэта со сдвигом
+  «от солнца», чем меньше `shadow_scale`, тем выше самолёт;
+- `EngineTrail` — след двигателя у игрока и истребителей;
+- облака поверх поля боя летят быстрее земли — эффект глубины.
+
 ### Баланс
 
 Все формулы характеристик (здоровье, скорострельность, урон, радиус магнита)
@@ -113,6 +137,8 @@ scenes/game/
 - [x] Босс в конце уровня (тестовый; в меню есть кнопка «Тест: сразу к боссу»)
 - [ ] Оружие: ракеты, лазер, энергощит, мега-бомба
 - [ ] Таймер улучшений (как 08:33 в оригинале)
-- [ ] Взрывы и частицы (GPUParticles2D), тряска камеры, звук
+- [x] Взрывы, искры, следы двигателей, тени, облака, тряска камеры
+- [ ] Звук
+- [ ] Текстуры из бесплатного пака (Kenney, CC0)
 - [ ] Настоящий арт вместо полигонов
 - [ ] Экспорт под Android / iOS
