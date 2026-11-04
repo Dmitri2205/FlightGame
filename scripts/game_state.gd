@@ -225,6 +225,16 @@ func complete_current_level(score: int) -> int:
 	return bonus
 
 
+## Первый открытый, но ещё не пройденный уровень — [глава, уровень].
+## Если пройдено всё — последний уровень последней главы.
+func next_level_to_play() -> Array:
+	for c in chapters.size():
+		for l in get_chapter(c).levels.size():
+			if is_level_unlocked(c, l) and not is_level_completed(c, l):
+				return [c, l]
+	return [chapters.size() - 1, get_chapter(chapters.size() - 1).levels.size() - 1]
+
+
 func has_next_level() -> bool:
 	if current_level + 1 < current_chapter_data().levels.size():
 		return true
