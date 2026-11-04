@@ -67,7 +67,7 @@ ships/*.tres               корабли: falcon (Сокол), swift (Стри�
 ui/theme.tres              общая тема интерфейса
 scenes/ui/
   main_menu.tscn/.gd       главное меню
-  upgrade_menu.tscn/.gd    ангар (прокачка), строки строятся из GameState.UPGRADES
+  upgrade_menu.tscn/.gd    ангар (прокачка), модули из GameState.MODULES (уровни + деления)
   ship_select.tscn/.gd     выбор и покупка кораблей
   level_map.tscn/.gd       карта уровней: главы-планеты, дорожка уровней
   wave_preview.tscn/.gd    превью траекторий и волн уровней
