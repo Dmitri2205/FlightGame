@@ -11,8 +11,9 @@ signal died
 @export var invulnerability_time := 1.0
 ## Насколько сильно корабль стремится к цели: желаемая скорость = расстояние * gain.
 @export var follow_gain := 10.0
-## Максимальный крен на вираже (радианы).
-@export var max_bank := 0.3
+## Максимальный наклон силуэта на вираже (радианы). Нос не поворачивается:
+## крен показывается сужением и перекосом силуэта, плюс лёгкий наклон.
+@export var max_bank := 0.08
 
 ## Куда складывать пули (выставляет уровень).
 var projectile_container: Node
@@ -126,10 +127,11 @@ func _move(delta: float) -> void:
 		velocity.y = 0.0
 	position = clamped
 
-	# Крен: наклон и «сжатие» силуэта по горизонтали на вираже.
+	# Крен на вираже: корабль заваливается на бок (сужение + перекос силуэта)
+	# и чуть наклоняется, но нос продолжает смотреть вперёд.
 	var bank := clampf(velocity.x / _max_speed, -1.0, 1.0)
-	$Visual.rotation = bank * max_bank * 0.5
-	$Visual.scale.x = ship.visual_scale * (1.0 - absf(bank) * 0.3)
+	PatternMotion.apply_bank($Visual, bank, Vector2.ONE * ship.visual_scale)
+	$Visual.rotation = bank * max_bank
 
 
 func _apply_visuals() -> void:

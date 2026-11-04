@@ -6,10 +6,10 @@
 
 [resource]
 script = ExtResource("1_wave")
-title = "Петля ×4"
+title = "Петля ×5"
 enemy = ExtResource("2_enemy")
 pattern = ExtResource("3_pattern")
-count = 4
+count = 5
 spacing = 150.0
 mirror = 1
 random_x = false

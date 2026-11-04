@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ChapterData" load_steps=33 format=3]
+[gd_resource type="Resource" script_class="ChapterData" load_steps=36 format=3]
 
 [ext_resource type="Script" path="res://scripts/level_data.gd" id="1_level"]
 [ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="2_entry"]
@@ -7,71 +7,74 @@
 [ext_resource type="Resource" path="res://data/waves/drift.tres" id="5_drift"]
 [ext_resource type="Resource" path="res://data/waves/hunter.tres" id="6_hunter"]
 [ext_resource type="Resource" path="res://data/waves/loop.tres" id="7_loop"]
-[ext_resource type="Resource" path="res://data/waves/s_curve.tres" id="8_s_curve"]
-[ext_resource type="Resource" path="res://data/waves/side_sweep.tres" id="9_side_sweep"]
-[ext_resource type="Resource" path="res://data/waves/swoop.tres" id="10_swoop"]
-[ext_resource type="Resource" path="res://data/waves/zigzag.tres" id="11_zigzag"]
-[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="9_chapter"]
+[ext_resource type="Resource" path="res://data/waves/pincer.tres" id="8_pincer"]
+[ext_resource type="Resource" path="res://data/waves/s_curve.tres" id="9_s_curve"]
+[ext_resource type="Resource" path="res://data/waves/side_sweep.tres" id="10_side_sweep"]
+[ext_resource type="Resource" path="res://data/waves/spiral.tres" id="11_spiral"]
+[ext_resource type="Resource" path="res://data/waves/swoop.tres" id="12_swoop"]
+[ext_resource type="Resource" path="res://data/waves/wide_arc.tres" id="13_wide_arc"]
+[ext_resource type="Resource" path="res://data/waves/zigzag.tres" id="14_zigzag"]
+[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="99_chapter"]
 
 [sub_resource type="Resource" id="Entry_1"]
 script = ExtResource("2_entry")
 time = 1.0
-wave = ExtResource("11_zigzag")
+wave = ExtResource("14_zigzag")
 
 [sub_resource type="Resource" id="Entry_2"]
 script = ExtResource("2_entry")
-time = 4.0
+time = 3.0
 wave = ExtResource("6_hunter")
 
 [sub_resource type="Resource" id="Entry_3"]
 script = ExtResource("2_entry")
-time = 7.5
-wave = ExtResource("8_s_curve")
+time = 5.5
+wave = ExtResource("8_pincer")
 
 [sub_resource type="Resource" id="Entry_4"]
 script = ExtResource("2_entry")
-time = 11.0
+time = 8.0
 wave = ExtResource("5_drift")
 
 [sub_resource type="Resource" id="Entry_5"]
 script = ExtResource("2_entry")
 time = 1.0
-wave = ExtResource("9_side_sweep")
+wave = ExtResource("10_side_sweep")
 
 [sub_resource type="Resource" id="Entry_6"]
 script = ExtResource("2_entry")
-time = 4.0
+time = 3.0
 wave = ExtResource("7_loop")
 
 [sub_resource type="Resource" id="Entry_7"]
 script = ExtResource("2_entry")
-time = 7.5
+time = 5.5
 wave = ExtResource("6_hunter")
 
 [sub_resource type="Resource" id="Entry_8"]
 script = ExtResource("2_entry")
-time = 11.0
+time = 8.0
 wave = ExtResource("5_drift")
 
 [sub_resource type="Resource" id="Entry_9"]
 script = ExtResource("2_entry")
 time = 1.0
-wave = ExtResource("10_swoop")
+wave = ExtResource("3_diagonal")
 
 [sub_resource type="Resource" id="Entry_10"]
 script = ExtResource("2_entry")
-time = 4.0
-wave = ExtResource("8_s_curve")
+time = 3.0
+wave = ExtResource("7_loop")
 
 [sub_resource type="Resource" id="Entry_11"]
 script = ExtResource("2_entry")
-time = 7.5
-wave = ExtResource("6_hunter")
+time = 5.5
+wave = ExtResource("12_swoop")
 
 [sub_resource type="Resource" id="Entry_12"]
 script = ExtResource("2_entry")
-time = 11.0
-wave = ExtResource("5_drift")
+time = 8.0
+wave = ExtResource("10_side_sweep")
 
 [sub_resource type="Resource" id="Entry_13"]
 script = ExtResource("2_entry")
@@ -80,27 +83,27 @@ wave = ExtResource("6_hunter")
 
 [sub_resource type="Resource" id="Entry_14"]
 script = ExtResource("2_entry")
-time = 4.0
-wave = ExtResource("11_zigzag")
+time = 3.0
+wave = ExtResource("8_pincer")
 
 [sub_resource type="Resource" id="Entry_15"]
 script = ExtResource("2_entry")
-time = 7.5
+time = 5.5
 wave = ExtResource("5_drift")
 
 [sub_resource type="Resource" id="Entry_16"]
 script = ExtResource("2_entry")
-time = 11.0
-wave = ExtResource("8_s_curve")
+time = 8.0
+wave = ExtResource("9_s_curve")
 
 [sub_resource type="Resource" id="Level_1"]
 script = ExtResource("1_level")
 title = "Кислотные болота"
 duration = 60.0
 timeline = [SubResource("Entry_1"), SubResource("Entry_2"), SubResource("Entry_3"), SubResource("Entry_4")]
-filler_waves = [ExtResource("11_zigzag"), ExtResource("6_hunter"), ExtResource("8_s_curve"), ExtResource("5_drift")]
-filler_from = 15.0
-spawn_interval = 2.3
+filler_waves = [ExtResource("14_zigzag"), ExtResource("6_hunter"), ExtResource("8_pincer"), ExtResource("5_drift"), ExtResource("11_spiral")]
+filler_from = 11.0
+spawn_interval = 1.7
 enemy_hp_mult = 1.9
 boss = false
 boss_hp = 500
@@ -111,9 +114,9 @@ script = ExtResource("1_level")
 title = "Ядовитые туманы"
 duration = 65.0
 timeline = [SubResource("Entry_5"), SubResource("Entry_6"), SubResource("Entry_7"), SubResource("Entry_8")]
-filler_waves = [ExtResource("9_side_sweep"), ExtResource("7_loop"), ExtResource("6_hunter"), ExtResource("5_drift"), ExtResource("10_swoop")]
-filler_from = 15.0
-spawn_interval = 2.1
+filler_waves = [ExtResource("10_side_sweep"), ExtResource("7_loop"), ExtResource("6_hunter"), ExtResource("5_drift"), ExtResource("12_swoop"), ExtResource("8_pincer")]
+filler_from = 11.0
+spawn_interval = 1.6
 enemy_hp_mult = 1.9
 boss = false
 boss_hp = 500
@@ -124,9 +127,9 @@ script = ExtResource("1_level")
 title = "Улей"
 duration = 70.0
 timeline = [SubResource("Entry_9"), SubResource("Entry_10"), SubResource("Entry_11"), SubResource("Entry_12")]
-filler_waves = [ExtResource("10_swoop"), ExtResource("8_s_curve"), ExtResource("6_hunter"), ExtResource("5_drift"), ExtResource("3_diagonal"), ExtResource("7_loop"), ExtResource("9_side_sweep"), ExtResource("11_zigzag"), ExtResource("4_dive")]
-filler_from = 15.0
-spawn_interval = 2.0
+filler_waves = [ExtResource("3_diagonal"), ExtResource("7_loop"), ExtResource("12_swoop"), ExtResource("10_side_sweep"), ExtResource("14_zigzag"), ExtResource("9_s_curve"), ExtResource("6_hunter"), ExtResource("4_dive"), ExtResource("5_drift"), ExtResource("11_spiral"), ExtResource("13_wide_arc"), ExtResource("8_pincer")]
+filler_from = 11.0
+spawn_interval = 1.5
 enemy_hp_mult = 1.9
 boss = false
 boss_hp = 500
@@ -137,16 +140,16 @@ script = ExtResource("1_level")
 title = "Королева улья"
 duration = 60.0
 timeline = [SubResource("Entry_13"), SubResource("Entry_14"), SubResource("Entry_15"), SubResource("Entry_16")]
-filler_waves = [ExtResource("6_hunter"), ExtResource("11_zigzag"), ExtResource("5_drift"), ExtResource("8_s_curve")]
-filler_from = 15.0
-spawn_interval = 2.2
+filler_waves = [ExtResource("6_hunter"), ExtResource("8_pincer"), ExtResource("5_drift"), ExtResource("9_s_curve"), ExtResource("11_spiral")]
+filler_from = 11.0
+spawn_interval = 1.65
 enemy_hp_mult = 1.9
 boss = true
 boss_hp = 1200
 completion_bonus = 120
 
 [resource]
-script = ExtResource("9_chapter")
+script = ExtResource("99_chapter")
 id = "toxida"
 title = "Глава 3"
 planet = "Токсида"

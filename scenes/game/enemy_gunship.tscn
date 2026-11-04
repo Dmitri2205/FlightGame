@@ -12,11 +12,11 @@ radius = 32.0
 collision_layer = 2
 collision_mask = 1
 script = ExtResource("1_script")
-max_hp = 8
+max_hp = 12
 speed = 110.0
 score_value = 250
 star_drop = 6
-fire_interval = 1.4
+fire_interval = 1.1
 bullet_scene = ExtResource("2_bullet")
 explosion_size = 1.5
 

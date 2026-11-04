@@ -42,6 +42,7 @@ func advance(dt: float) -> void:
 		ghost.time += dt
 		ghost.sprite.position = motion.position
 		ghost.sprite.rotation = motion.sprite_rotation()
+		PatternMotion.apply_bank(ghost.sprite, motion.bank)
 		if screen.has_point(motion.position):
 			ghost.seen = true
 		var gone: bool = (ghost.seen and not screen.grow(150.0).has_point(motion.position)) or ghost.time > 30.0

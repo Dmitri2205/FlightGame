@@ -58,6 +58,8 @@ func _process(delta: float) -> void:
 		_motion.advance(delta, player.position if player else null)
 		position = _motion.position
 		rotation = _motion.sprite_rotation()
+		if has_node("Sprite"):
+			PatternMotion.apply_bank($Sprite, _motion.bank)
 
 	# Удаляем, когда улетел за экран (появляются враги тоже за экраном,
 	# поэтому сначала ждём, пока он хоть раз окажется в кадре).
