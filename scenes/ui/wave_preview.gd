@@ -27,17 +27,13 @@ var _pattern_index := 0
 var _levels: Array = []
 var _level_index := 0
 
-## Призраки: [{sprite, motion, time, seen, loop}]
-var _ghosts: Array[Dictionary] = []
 ## Пути для рисования: [{points, color, dashed, age}]
 var _paths: Array[Dictionary] = []
-## Кэш по сцене врага: {texture, speed}
-var _enemy_info := {}
 var _ghost_timer := 0.0
 
 @onready var background: Node2D = $Background
 @onready var overlay: Control = $Overlay
-@onready var ghosts_layer: Node2D = $Ghosts
+@onready var ghosts: GhostFlock = $Ghosts
 @onready var director: WaveDirector = $WaveDirector
 @onready var title_label: Label = %TitleLabel
 @onready var info_label: Label = %InfoLabel
@@ -51,6 +47,7 @@ func _ready() -> void:
 			_levels.append([c, l])
 	_level_index = maxi(0, _levels.find([GameState.current_chapter, GameState.current_level]))
 
+	ghosts.target = _player_spot()
 	overlay.draw.connect(_draw_overlay)
 	director.enemy_requested.connect(_on_enemy_requested)
 	director.wave_started.connect(_on_wave_started)
@@ -75,8 +72,8 @@ func _process(delta: float) -> void:
 		_ghost_timer -= dt
 		if _ghost_timer <= 0.0 and not _patterns.is_empty():
 			_ghost_timer = 0.9
-			_spawn_ghost(_patterns[_pattern_index], false, PATTERN_SPEED, null)
-			_spawn_ghost(_patterns[_pattern_index], true, PATTERN_SPEED, null)
+			ghosts.spawn(_patterns[_pattern_index], false, PATTERN_SPEED)
+			ghosts.spawn(_patterns[_pattern_index], true, PATTERN_SPEED)
 	else:
 		for path in _paths:
 			path.age += dt
@@ -85,7 +82,7 @@ func _process(delta: float) -> void:
 		_paths = kept
 		_update_time_label()
 
-	_update_ghosts(dt)
+	ghosts.advance(dt)
 	overlay.queue_redraw()
 
 
@@ -119,9 +116,7 @@ func _cycle_speed() -> void:
 
 
 func _restart() -> void:
-	for ghost in _ghosts:
-		ghost.sprite.queue_free()
-	_ghosts.clear()
+	ghosts.clear()
 	_paths.clear()
 	_ghost_timer = 0.0
 	director.stop()
@@ -174,47 +169,14 @@ func _show_level() -> void:
 # --- Призраки и пути ----------------------------------------------------------
 
 func _on_enemy_requested(wave: WaveData, pattern: FlightPattern, mirrored: bool) -> void:
-	var info := _get_enemy_info(wave.enemy)
-	_spawn_ghost(pattern, mirrored, info.speed, info.texture)
+	ghosts.spawn_for_wave(wave, pattern, mirrored)
 
 
 func _on_wave_started(wave: WaveData, _time: float) -> void:
-	var info := _get_enemy_info(wave.enemy)
+	var info := ghosts.enemy_info(wave.enemy)
 	var sides := [false, true] if wave.mirror == WaveData.Mirror.BOTH else [false]
 	for mirrored in sides:
 		_paths.append({"points": _compute_path(wave.pattern, mirrored, info.speed), "color": COLOR_MAIN if not mirrored else COLOR_MIRROR, "dashed": mirrored, "age": 0.0})
-
-
-func _spawn_ghost(pattern: FlightPattern, mirrored: bool, speed: float, texture: Texture2D) -> void:
-	var sprite := Sprite2D.new()
-	sprite.texture = texture if texture else preload("res://art/sprites/enemy_fighter.png")
-	sprite.modulate = Color(1, 1, 1, 0.85)
-	ghosts_layer.add_child(sprite)
-	var motion := PatternMotion.new(pattern, mirrored, speed, get_viewport_rect().size.x)
-	sprite.position = motion.position
-	sprite.rotation = motion.sprite_rotation()
-	_ghosts.append({"sprite": sprite, "motion": motion, "time": 0.0, "seen": false})
-
-
-func _update_ghosts(dt: float) -> void:
-	var screen := get_viewport_rect()
-	var target := _player_spot()
-	for ghost in _ghosts:
-		var motion: PatternMotion = ghost.motion
-		motion.advance(dt, target)
-		ghost.time += dt
-		ghost.sprite.position = motion.position
-		ghost.sprite.rotation = motion.sprite_rotation()
-		if screen.has_point(motion.position):
-			ghost.seen = true
-	var alive: Array[Dictionary] = []
-	for ghost in _ghosts:
-		var gone: bool = (ghost.seen and not screen.grow(150.0).has_point(ghost.motion.position)) or ghost.time > 30.0
-		if gone:
-			ghost.sprite.queue_free()
-		else:
-			alive.append(ghost)
-	_ghosts = alive
 
 
 ## Путь траектории — та же симуляция, что у врага в игре.
@@ -234,15 +196,6 @@ func _compute_path(pattern: FlightPattern, mirrored: bool, speed: float) -> Pack
 			break
 	points.append(motion.position)
 	return points
-
-
-func _get_enemy_info(scene: PackedScene) -> Dictionary:
-	if not _enemy_info.has(scene):
-		var enemy = scene.instantiate()
-		var sprite := enemy.get_node_or_null("Sprite") as Sprite2D
-		_enemy_info[scene] = {"texture": sprite.texture if sprite else null, "speed": enemy.speed}
-		enemy.free()
-	return _enemy_info[scene]
 
 
 ## Где обычно находится игрок — цель для манёвра «доворот на игрока».
