@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="ChapterData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="1_chapter"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="2_level"]
+
+[sub_resource type="Resource" id="Level_1"]
+script = ExtResource("2_level")
+title = "Первый вылет"
+duration = 45.0
+waves = PackedStringArray("dive", "diagonal", "swoop")
+spawn_interval = 2.8
+enemy_hp_mult = 1.0
+boss = false
+boss_hp = 500
+completion_bonus = 20
+
+[sub_resource type="Resource" id="Level_2"]
+script = ExtResource("2_level")
+title = "Каньоны"
+duration = 55.0
+waves = PackedStringArray("diagonal", "loop", "side_sweep", "dive")
+spawn_interval = 2.6
+enemy_hp_mult = 1.0
+boss = false
+boss_hp = 500
+completion_bonus = 25
+
+[sub_resource type="Resource" id="Level_3"]
+script = ExtResource("2_level")
+title = "Пыльная буря"
+duration = 60.0
+waves = PackedStringArray("loop", "zigzag", "side_sweep", "hunter", "drift")
+spawn_interval = 2.4
+enemy_hp_mult = 1.0
+boss = false
+boss_hp = 500
+completion_bonus = 30
+
+[sub_resource type="Resource" id="Level_4"]
+script = ExtResource("2_level")
+title = "Страж Марса"
+duration = 50.0
+waves = PackedStringArray("diagonal", "loop", "swoop", "drift")
+spawn_interval = 2.6
+enemy_hp_mult = 1.0
+boss = true
+boss_hp = 500
+completion_bonus = 60
+
+[resource]
+script = ExtResource("1_chapter")
+id = "mars"
+title = "Глава 1"
+planet = "Марс-7"
+description = "Красная пустыня: кратеры, скалы и пыльные бури. Здесь всё и начинается."
+color = Color(0.95, 0.45, 0.3, 1)
+ground_color = Color(0.6, 0.35, 0.27, 1)
+decor_prefix = "decor_"
+levels = [SubResource("Level_1"), SubResource("Level_2"), SubResource("Level_3"), SubResource("Level_4")]

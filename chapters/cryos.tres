@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="ChapterData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="1_chapter"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="2_level"]
+
+[sub_resource type="Resource" id="Level_1"]
+script = ExtResource("2_level")
+title = "Ледяные поля"
+duration = 55.0
+waves = PackedStringArray("diagonal", "s_curve", "swoop", "dive")
+spawn_interval = 2.5
+enemy_hp_mult = 1.4
+boss = false
+boss_hp = 500
+completion_bonus = 35
+
+[sub_resource type="Resource" id="Level_2"]
+script = ExtResource("2_level")
+title = "Кристальные пики"
+duration = 60.0
+waves = PackedStringArray("s_curve", "zigzag", "hunter", "drift")
+spawn_interval = 2.4
+enemy_hp_mult = 1.4
+boss = false
+boss_hp = 500
+completion_bonus = 40
+
+[sub_resource type="Resource" id="Level_3"]
+script = ExtResource("2_level")
+title = "Метель"
+duration = 65.0
+waves = PackedStringArray("loop", "side_sweep", "hunter", "zigzag", "drift")
+spawn_interval = 2.2
+enemy_hp_mult = 1.4
+boss = false
+boss_hp = 500
+completion_bonus = 45
+
+[sub_resource type="Resource" id="Level_4"]
+script = ExtResource("2_level")
+title = "Ледяной колосс"
+duration = 55.0
+waves = PackedStringArray("s_curve", "loop", "hunter", "drift")
+spawn_interval = 2.4
+enemy_hp_mult = 1.4
+boss = true
+boss_hp = 800
+completion_bonus = 90
+
+[resource]
+script = ExtResource("1_chapter")
+id = "cryos"
+title = "Глава 2"
+planet = "Криос"
+description = "Ледяная планета: кристальные пики и метели. Враги здесь крепче."
+color = Color(0.4, 0.75, 1, 1)
+ground_color = Color(0.56, 0.66, 0.76, 1)
+decor_prefix = "decor_ice_"
+levels = [SubResource("Level_1"), SubResource("Level_2"), SubResource("Level_3"), SubResource("Level_4")]

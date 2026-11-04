@@ -2,6 +2,8 @@ extends CanvasLayer
 ## Интерфейс во время полёта: очки, прогресс уровня, здоровье, звёзды, итоги.
 
 signal menu_requested
+signal retry_requested
+signal next_requested
 
 @onready var score_label: Label = %ScoreLabel
 @onready var progress_bar: ProgressBar = %LevelProgress
@@ -19,6 +21,9 @@ func _ready() -> void:
 	boss_box.hide()
 	%MenuButton.pressed.connect(menu_requested.emit)
 	%ResultsMenuButton.pressed.connect(menu_requested.emit)
+	%RetryButton.pressed.connect(retry_requested.emit)
+	%NextButton.pressed.connect(next_requested.emit)
+	%Banner.hide()
 
 
 func set_score(value: int) -> void:
@@ -53,7 +58,25 @@ func hide_boss() -> void:
 	boss_box.hide()
 
 
-func show_results(victory: bool, score: int, stars: int) -> void:
+## Название уровня по центру экрана в начале — плавно появляется и гаснет.
+func show_banner(text: String) -> void:
+	var banner: Label = %Banner
+	banner.text = text
+	banner.modulate.a = 0.0
+	banner.show()
+	var tween := create_tween()
+	tween.tween_property(banner, "modulate:a", 1.0, 0.4)
+	tween.tween_interval(1.8)
+	tween.tween_property(banner, "modulate:a", 0.0, 0.6)
+	tween.tween_callback(banner.hide)
+
+
+func show_results(victory: bool, score: int, stars: int, bonus: int, has_next: bool) -> void:
 	results_title.text = "Уровень пройден!" if victory else "Корабль сбит"
-	results_stats.text = "Очки: %d\nЗвёзды: +%d\nВсего звёзд: %d" % [score, stars, GameState.stars]
+	var lines := PackedStringArray(["Очки: %d" % score, "Звёзды: +%d" % stars])
+	if bonus > 0:
+		lines.append("Бонус за прохождение: +%d" % bonus)
+	lines.append("Всего звёзд: %d" % GameState.stars)
+	results_stats.text = "\n".join(lines)
+	%NextButton.visible = has_next
 	results_panel.show()

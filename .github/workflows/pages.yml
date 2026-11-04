@@ -59,7 +59,7 @@ jobs:
               status=1
             fi
           }
-          for scene in scenes/ui/main_menu.tscn scenes/ui/upgrade_menu.tscn scenes/ui/ship_select.tscn; do
+          for scene in scenes/ui/main_menu.tscn scenes/ui/upgrade_menu.tscn scenes/ui/ship_select.tscn scenes/ui/level_map.tscn; do
             run "$scene" "res://$scene" --quit-after 120
           done
           run "level (random waves, 20s)" res://scenes/game/level.tscn --quit-after 1200

@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="ChapterData" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="1_chapter"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="2_level"]
+
+[sub_resource type="Resource" id="Level_1"]
+script = ExtResource("2_level")
+title = "Кислотные болота"
+duration = 60.0
+waves = PackedStringArray("zigzag", "hunter", "s_curve", "drift")
+spawn_interval = 2.3
+enemy_hp_mult = 1.9
+boss = false
+boss_hp = 500
+completion_bonus = 50
+
+[sub_resource type="Resource" id="Level_2"]
+script = ExtResource("2_level")
+title = "Ядовитые туманы"
+duration = 65.0
+waves = PackedStringArray("loop", "side_sweep", "hunter", "drift", "swoop")
+spawn_interval = 2.1
+enemy_hp_mult = 1.9
+boss = false
+boss_hp = 500
+completion_bonus = 60
+
+[sub_resource type="Resource" id="Level_3"]
+script = ExtResource("2_level")
+title = "Улей"
+duration = 70.0
+waves = PackedStringArray("diagonal", "loop", "swoop", "side_sweep", "zigzag", "s_curve", "hunter", "dive", "drift")
+spawn_interval = 2.0
+enemy_hp_mult = 1.9
+boss = false
+boss_hp = 500
+completion_bonus = 70
+
+[sub_resource type="Resource" id="Level_4"]
+script = ExtResource("2_level")
+title = "Королева улья"
+duration = 60.0
+waves = PackedStringArray("hunter", "zigzag", "s_curve", "drift")
+spawn_interval = 2.2
+enemy_hp_mult = 1.9
+boss = true
+boss_hp = 1200
+completion_bonus = 120
+
+[resource]
+script = ExtResource("1_chapter")
+id = "toxida"
+title = "Глава 3"
+planet = "Токсида"
+description = "Ядовитый мир: кислотные болота и улей врага. Самые сильные противники."
+color = Color(0.7, 1, 0.25, 1)
+ground_color = Color(0.28, 0.33, 0.22, 1)
+decor_prefix = "decor_toxic_"
+levels = [SubResource("Level_1"), SubResource("Level_2"), SubResource("Level_3"), SubResource("Level_4")]

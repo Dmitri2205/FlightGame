@@ -1,6 +1,7 @@
 extends Node2D
 ## Поверхность планеты: бесконечно прокручиваемая земля с пятнами грунта
-## и декором (кратеры, скалы, кристаллы — спрайты из art/sprites/decor_*).
+## и декором (кратеры, скалы, кристаллы — спрайты art/sprites/<префикс>*.png).
+## Цвет земли и набор декора берутся из главы (ChapterData).
 
 class Patch:
 	var pos: Vector2
@@ -12,32 +13,51 @@ class Decor:
 	var texture: Texture2D
 	var flip: bool
 
-const DECOR_TEXTURES := [
-	preload("res://art/sprites/decor_crater.png"),
-	preload("res://art/sprites/decor_crater.png"),
-	preload("res://art/sprites/decor_crater_large.png"),
-	preload("res://art/sprites/decor_rock.png"),
-	preload("res://art/sprites/decor_rock_large_a.png"),
-	preload("res://art/sprites/decor_rock_large_b.png"),
-	preload("res://art/sprites/decor_rocks_small_a.png"),
-	preload("res://art/sprites/decor_rocks_small_a.png"),
-	preload("res://art/sprites/decor_rocks_small_b.png"),
-	preload("res://art/sprites/decor_rocks_small_b.png"),
-	preload("res://art/sprites/decor_crystals.png"),
-	preload("res://art/sprites/decor_crystals_large.png"),
-	preload("res://art/sprites/decor_meteor.png"),
+## Имена спрайтов декора (без префикса биома); повторы — чаще встречаются.
+const DECOR_NAMES := [
+	"crater", "crater", "crater_large", "rock", "rock_large_a", "rock_large_b",
+	"rocks_small_a", "rocks_small_a", "rocks_small_b", "rocks_small_b",
+	"crystals", "crystals_large", "meteor",
 ]
 
 @export var scroll_speed := 120.0
 @export var base_color := Color(0.6, 0.35, 0.27)
 @export var patch_count := 30
 @export var decor_count := 12
+## true — оформление берётся из текущей главы GameState при запуске.
+@export var use_current_chapter := true
 
 var _patches: Array[Patch] = []
 var _decor: Array[Decor] = []
+var _decor_textures: Array[Texture2D] = []
 
 
 func _ready() -> void:
+	if use_current_chapter:
+		apply_chapter(GameState.current_chapter_data())
+	else:
+		_load_decor("decor_")
+		_build()
+
+
+## Перекрасить землю и сменить декор под главу (планету).
+func apply_chapter(chapter: ChapterData) -> void:
+	base_color = chapter.ground_color
+	_load_decor(chapter.decor_prefix)
+	_build()
+
+
+func _load_decor(prefix: String) -> void:
+	_decor_textures.clear()
+	for decor_name in DECOR_NAMES:
+		var texture := load("res://art/sprites/%s%s.png" % [prefix, decor_name]) as Texture2D
+		if texture:
+			_decor_textures.append(texture)
+
+
+func _build() -> void:
+	_patches.clear()
+	_decor.clear()
 	var size := get_viewport_rect().size
 	for i in patch_count:
 		var patch := Patch.new()
@@ -59,7 +79,7 @@ func _process(delta: float) -> void:
 			_randomize_patch(patch)
 	for decor in _decor:
 		decor.pos.y += scroll_speed * delta
-		if decor.pos.y - decor.texture.get_height() / 2.0 > size.y:
+		if decor.texture == null or decor.pos.y - decor.texture.get_height() / 2.0 > size.y:
 			_randomize_decor(decor, -randf_range(150.0, 600.0))
 	queue_redraw()
 
@@ -69,6 +89,8 @@ func _draw() -> void:
 	for patch in _patches:
 		draw_circle(patch.pos, patch.radius, patch.color)
 	for decor in _decor:
+		if decor.texture == null:
+			continue
 		var size := decor.texture.get_size()
 		var rect := Rect2(decor.pos - size / 2.0, size)
 		if decor.flip:
@@ -87,6 +109,6 @@ func _randomize_patch(patch: Patch) -> void:
 
 
 func _randomize_decor(decor: Decor, y: float) -> void:
-	decor.texture = DECOR_TEXTURES.pick_random()
+	decor.texture = _decor_textures.pick_random()
 	decor.pos = Vector2(randf() * get_viewport_rect().size.x, y)
 	decor.flip = randf() < 0.5
