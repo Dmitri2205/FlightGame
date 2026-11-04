@@ -50,6 +50,8 @@ var unlocked_ships: Array = []
 var selected_ship_id := ""
 ## Отладка: следующий запуск уровня начнётся сразу с босса.
 var boss_test := false
+## Отладка: волны с разными траекториями идут по очереди.
+var pattern_test := false
 
 
 func _ready() -> void:

@@ -3,10 +3,26 @@ extends Node2D
 ## по окончании начисляет звёзды в GameState.
 ## Сразу к боссу: GameState.boss_test = true (кнопка в меню)
 ## или аргумент `-- --boss` при запуске из командной строки.
+## Все волны по очереди: GameState.pattern_test = true или `-- --patterns`.
 
 @export var enemy_scenes: Array[PackedScene] = []
 @export var star_scene: PackedScene
 @export var level_duration := 60.0
+## Волны: траектория (FlightPatterns), тип врага (индекс в enemy_scenes),
+## сколько врагов в «паровозике», интервал между ними (с) и зеркалирование:
+## "none" — как описано, "random" — случайная сторона, "both" — пара с двух сторон.
+## random_x — случайная точка появления по горизонтали.
+const WAVES := [
+	{"pattern": "diagonal", "enemy": 0, "count": 5, "interval": 0.25, "mirror": "random"},
+	{"pattern": "loop", "enemy": 0, "count": 4, "interval": 0.3, "mirror": "random"},
+	{"pattern": "swoop", "enemy": 0, "count": 4, "interval": 0.25, "mirror": "both"},
+	{"pattern": "side_sweep", "enemy": 0, "count": 5, "interval": 0.3, "mirror": "random"},
+	{"pattern": "zigzag", "enemy": 0, "count": 3, "interval": 0.45, "mirror": "random"},
+	{"pattern": "s_curve", "enemy": 0, "count": 6, "interval": 0.2, "mirror": "random"},
+	{"pattern": "hunter", "enemy": 0, "count": 2, "interval": 0.6, "mirror": "both"},
+	{"pattern": "dive", "enemy": 0, "count": 4, "interval": 0.35, "mirror": "none", "random_x": true},
+	{"pattern": "drift", "enemy": 1, "count": 1, "interval": 0.0, "mirror": "none", "random_x": true},
+]
 @export var boss_scene: PackedScene
 ## Пауза после победы над боссом, чтобы успеть собрать звёзды.
 @export var victory_delay := 3.0
@@ -17,6 +33,9 @@ var elapsed := 0.0
 
 var _finished := false
 var _boss_spawned := false
+## Режим проверки траекторий: волны идут по порядку, а не случайно.
+var _pattern_test := false
+var _next_wave := 0
 
 @onready var player = $Player
 @onready var projectiles: Node2D = $Projectiles
@@ -42,6 +61,9 @@ func _ready() -> void:
 		GameState.boss_test = false
 		elapsed = level_duration
 		spawn_timer.stop()
+	elif GameState.pattern_test or "--patterns" in OS.get_cmdline_user_args():
+		GameState.pattern_test = false
+		_pattern_test = true
 
 
 func _process(delta: float) -> void:
@@ -64,25 +86,42 @@ func _process(delta: float) -> void:
 func _spawn_wave() -> void:
 	if enemy_scenes.is_empty():
 		return
-	var width := get_viewport_rect().size.x
-	match randi() % 3:
-		0:  # одиночный враг (иногда тяжёлый)
-			_spawn_enemy(enemy_scenes.pick_random(), Vector2(randf_range(80.0, width - 80.0), -60.0))
-		1:  # линия
-			var count := randi_range(3, 5)
-			for i in count:
-				var x := width * (i + 1) / (count + 1)
-				_spawn_enemy(enemy_scenes[0], Vector2(x, -60.0))
-		2:  # клин
-			var center := randf_range(200.0, width - 200.0)
-			for i in 5:
-				var offset := i - 2
-				_spawn_enemy(enemy_scenes[0], Vector2(center + offset * 70.0, -60.0 - absi(offset) * 60.0))
+	var wave: Dictionary
+	if _pattern_test:
+		wave = WAVES[_next_wave % WAVES.size()]
+		_next_wave += 1
+	else:
+		wave = WAVES.pick_random()
+
+	var pattern := FlightPatterns.get_pattern(wave.pattern)
+	if wave.get("random_x", false):
+		pattern.start = Vector2(randf_range(0.15, 0.85), pattern.start.y)
+	var scene: PackedScene = enemy_scenes[mini(wave.enemy, enemy_scenes.size() - 1)]
+
+	var sides: Array[bool] = []
+	match wave.mirror:
+		"both":
+			sides = [false, true]
+		"random":
+			sides = [randf() < 0.5]
+		_:
+			sides = [false]
+	for mirrored in sides:
+		for i in wave.count:
+			if i == 0:
+				_spawn_enemy(scene, pattern, mirrored)
+			else:
+				get_tree().create_timer(wave.interval * i, false).timeout.connect(
+					_spawn_enemy.bind(scene, pattern, mirrored))
 
 
-func _spawn_enemy(scene: PackedScene, pos: Vector2) -> void:
+func _spawn_enemy(scene: PackedScene, pattern: Dictionary, mirrored: bool) -> void:
+	if _finished:
+		return
 	var enemy = scene.instantiate()
-	enemy.position = pos
+	enemy.pattern = pattern
+	enemy.mirrored = mirrored
+	enemy.position = FlightPatterns.start_position(pattern, get_viewport_rect().size.x, mirrored)
 	enemy.projectile_container = projectiles
 	enemy.destroyed.connect(_on_enemy_destroyed)
 	enemies.add_child(enemy)
@@ -121,11 +160,6 @@ func _on_enemy_destroyed(enemy) -> void:
 func _on_star_collected() -> void:
 	run_stars += 1
 	hud.set_stars(run_stars)
-
-	if GameState.boss_test or "--boss" in OS.get_cmdline_user_args():
-		GameState.boss_test = false
-		elapsed = level_duration
-		spawn_timer.stop()
 
 
 # --- Конец уровня -------------------------------------------------------------

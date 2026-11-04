@@ -27,7 +27,7 @@ script = ExtResource("2_bg")
 [node name="Player" parent="." instance=ExtResource("3_player")]
 
 [node name="SpawnTimer" type="Timer" parent="."]
-wait_time = 1.6
+wait_time = 2.4
 autostart = true
 
 [node name="HUD" parent="." instance=ExtResource("7_hud")]

@@ -39,26 +39,28 @@ jobs:
       - name: Import project
         run: godot --headless --import || godot --headless --editor --quit
 
-      # Прогоняем сцены несколько секунд и падаем, если в логе есть ошибки скриптов.
+      # Прогоняем сцены и падаем, если в логе есть ошибки скриптов.
+      # --fixed-fps 60: каждый кадр = 1/60 с игрового времени, поэтому
+      # N кадров = N/60 секунд игры независимо от скорости раннера.
       - name: Smoke test
         run: |
           status=0
-          for scene in scenes/ui/main_menu.tscn scenes/ui/upgrade_menu.tscn scenes/ui/ship_select.tscn scenes/game/level.tscn; do
-            echo "::group::$scene"
-            godot --headless --path . "res://$scene" --quit-after 600 2>&1 | tee run.log
+          run() {
+            name="$1"; shift
+            echo "::group::$name"
+            godot --headless --path . --fixed-fps 60 "$@" 2>&1 | tee run.log
             echo "::endgroup::"
             if grep -qE "SCRIPT ERROR|Parse Error|ERROR:" run.log; then
-              echo "::error::Ошибки при запуске $scene"
+              echo "::error::Ошибки: $name"
               status=1
             fi
+          }
+          for scene in scenes/ui/main_menu.tscn scenes/ui/upgrade_menu.tscn scenes/ui/ship_select.tscn; do
+            run "$scene" "res://$scene" --quit-after 120
           done
-          echo "::group::boss fight"
-          godot --headless --path . res://scenes/game/level.tscn --quit-after 1200 -- --boss 2>&1 | tee run.log
-          echo "::endgroup::"
-          if grep -qE "SCRIPT ERROR|Parse Error|ERROR:" run.log; then
-            echo "::error::Ошибки в бою с боссом"
-            status=1
-          fi
+          run "level (random waves, 20s)" res://scenes/game/level.tscn --quit-after 1200
+          run "all flight patterns (25s)" res://scenes/game/level.tscn --quit-after 1500 -- --patterns
+          run "boss fight (20s)" res://scenes/game/level.tscn --quit-after 1200 -- --boss
           exit $status
 
       - name: Export Web
