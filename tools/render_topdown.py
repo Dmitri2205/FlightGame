@@ -18,7 +18,7 @@ import zipfile
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
 ARCHIVE = ROOT / "Assets" / "kenney_space-kit.zip"
@@ -26,10 +26,21 @@ OUT_DIR = ROOT / "art" / "sprites"
 OBJ_DIR = "Models/OBJ format/"
 
 SUPERSAMPLE = 4
-# Свет сверху-слева-спереди; ambient не даёт теневым граням стать чёрными.
-LIGHT_DIR = np.array([-0.45, 1.0, -0.55])
-AMBIENT = 0.5
-DIFFUSE = 0.6
+# Свет сверху-слева-спереди. Низкий ambient + сильный diffuse дают контраст
+# между гранями — модель читается объёмной, а не плоской.
+LIGHT_DIR = np.array([-0.5, 1.0, -0.6])
+AMBIENT = 0.32
+DIFFUSE = 0.8
+# Блики (Blinn-Phong): насколько ярко и насколько узко.
+SPECULAR = 0.35
+SHININESS = 24
+# Затемнение по высоте: самые низкие части модели темнее на столько.
+DEPTH_DARKEN = 0.4
+# Градиент освещения по всей модели (от верхнего левого угла к нижнему правому):
+# большие плоские грани перестают быть однотонными.
+LIGHT_GRADIENT = 0.22
+# Цвет тонкого контура вокруг кораблей (outline=True).
+OUTLINE_COLOR = (0.07, 0.05, 0.09)
 
 # Палитры для перекраски оранжевых деталей (материал metalRed).
 PLAYER_FALCON = {"metalRed": (0.95, 0.3, 0.25)}
@@ -43,13 +54,13 @@ BOSS = {"metalRed": (0.85, 0.2, 0.3), "metal": (0.5, 0.48, 0.55), "metalDark": (
 # и перекраска материалов.
 SPRITES = {
     # корабли игрока — нос вверх
-    "ship_falcon": dict(model="craft_speederA", size=84, rotation=180, tilt=20, recolor=PLAYER_FALCON),
-    "ship_swift": dict(model="craft_racer", size=86, rotation=180, tilt=20, recolor=PLAYER_SWIFT),
-    "ship_bastion": dict(model="craft_cargoA", size=80, rotation=180, tilt=20, recolor=PLAYER_BASTION),
+    "ship_falcon": dict(model="craft_speederA", size=84, rotation=180, tilt=30, outline=True, recolor=PLAYER_FALCON),
+    "ship_swift": dict(model="craft_racer", size=86, rotation=180, tilt=30, outline=True, recolor=PLAYER_SWIFT),
+    "ship_bastion": dict(model="craft_cargoA", size=80, rotation=180, tilt=30, outline=True, recolor=PLAYER_BASTION),
     # враги — нос вниз, летят на игрока
-    "enemy_fighter": dict(model="craft_speederB", size=64, rotation=0, tilt=20, recolor=ENEMY),
-    "enemy_gunship": dict(model="craft_miner", size=88, rotation=0, tilt=20, recolor=ENEMY),
-    "boss": dict(model="craft_cargoB", size=200, rotation=0, tilt=20, recolor=BOSS),
+    "enemy_fighter": dict(model="craft_speederB", size=64, rotation=0, tilt=30, outline=True, recolor=ENEMY),
+    "enemy_gunship": dict(model="craft_miner", size=88, rotation=0, tilt=30, outline=True, recolor=ENEMY),
+    "boss": dict(model="craft_cargoB", size=200, rotation=0, tilt=30, outline=True, recolor=BOSS),
 }
 
 # Декор поверхности планет. Для каждого биома — свой набор с перекраской
@@ -132,7 +143,7 @@ def rotation_y(degrees):
     return np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
 
 
-def render(tris, colors, size_px, screen_rotation, tilt):
+def render(tris, colors, size_px, screen_rotation, tilt, outline=False):
     # Мир: Y — вверх. Смотрим сверху вниз: экран x = X, экран y = Z.
     # Поворот на экране = поворот модели вокруг вертикальной оси Y,
     # наклон камеры = поворот вокруг X (верх экрана уходит от зрителя).
@@ -145,7 +156,10 @@ def render(tris, colors, size_px, screen_rotation, tilt):
     # Смотрим вниз по -Y: видны грани с нормалью вверх (y > 0).
     light = LIGHT_DIR / np.linalg.norm(LIGHT_DIR)
     shade = AMBIENT + DIFFUSE * np.clip(normals @ light, 0, 1)
-    face_colors = np.clip(colors * shade[:, None], 0, 1)
+    half = light + np.array([0.0, 1.0, 0.0])
+    half /= np.linalg.norm(half)
+    highlight = SPECULAR * np.clip(normals @ half, 0, 1) ** SHININESS
+    face_colors = np.clip(colors * shade[:, None] + highlight[:, None], 0, 1)
 
     xy = tris[:, :, [0, 2]]
     lo, hi = xy.reshape(-1, 2).min(0), xy.reshape(-1, 2).max(0)
@@ -180,6 +194,17 @@ def render(tris, colors, size_px, screen_rotation, tilt):
         region[mask] = z[mask]
         img[ymin:ymax, xmin:xmax][mask] = [*face_colors[t], 1.0]
 
+    # Затемнение по высоте: чем ниже точка модели, тем темнее — даёт глубину.
+    covered = np.isfinite(zbuf)
+    if covered.any():
+        zmin, zmax = zbuf[covered].min(), zbuf[covered].max()
+        height = np.where(covered, (zbuf - zmin) / max(zmax - zmin, 1e-6), 1.0)
+        img[..., :3] *= (1.0 - DEPTH_DARKEN * (1.0 - height))[..., None]
+    gy, gx = np.mgrid[0:h, 0:w]
+    diagonal = (gx / max(w - 1, 1) + gy / max(h - 1, 1)) / 2.0
+    img[..., :3] *= (1.0 + LIGHT_GRADIENT * (0.5 - diagonal))[..., None]
+    img[..., :3] = np.clip(img[..., :3], 0.0, 1.0)
+
     # Суперсэмплинг → сглаженные края (через premultiplied alpha).
     h2, w2 = h // SUPERSAMPLE * SUPERSAMPLE, w // SUPERSAMPLE * SUPERSAMPLE
     img = img[:h2, :w2]
@@ -187,7 +212,19 @@ def render(tris, colors, size_px, screen_rotation, tilt):
     img = img.reshape(h2 // SUPERSAMPLE, SUPERSAMPLE, w2 // SUPERSAMPLE, SUPERSAMPLE, 4).mean((1, 3))
     alpha = img[..., 3:4]
     img[..., :3] /= np.where(alpha == 0, 1, alpha)
-    return Image.fromarray((img * 255).round().astype(np.uint8), "RGBA")
+    image = Image.fromarray((img * 255).round().astype(np.uint8), "RGBA")
+    return _add_outline(image) if outline else image
+
+
+def _add_outline(image):
+    """Тонкий тёмный контур: силуэт, расширенный на пиксель, под спрайтом."""
+    padded = Image.new("RGBA", (image.width + 4, image.height + 4))
+    padded.paste(image, (2, 2))
+    ring = padded.getchannel("A").filter(ImageFilter.MaxFilter(3))
+    base = Image.new("RGBA", padded.size, tuple(round(c * 255) for c in OUTLINE_COLOR) + (0,))
+    base.putalpha(ring.point(lambda a: round(a * 0.85)))
+    base.alpha_composite(padded)
+    return base
 
 
 def main(names):
@@ -196,7 +233,7 @@ def main(names):
         for name in names or SPRITES:
             spec = SPRITES[name]
             tris, colors = load_obj(zf, spec["model"], spec.get("recolor"))
-            image = render(tris, colors, spec["size"], spec.get("rotation", 0), spec.get("tilt", 0))
+            image = render(tris, colors, spec["size"], spec.get("rotation", 0), spec.get("tilt", 0), spec.get("outline", False))
             image.save(OUT_DIR / f"{name}.png")
             print(f"{name}: {image.size[0]}x{image.size[1]}")
 
