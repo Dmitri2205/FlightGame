@@ -12,12 +12,19 @@
 
 ## Играть в браузере (в т.ч. с телефона)
 
-При каждом пуше GitHub Actions (`.github/workflows/pages.yml`) прогоняет сцены
-headless на ошибки скриптов, собирает веб-версию и выкладывает её на
-GitHub Pages: **https://dmitri2205.github.io/FlightGame/**
+Веб-версия: **https://dmitri2205.github.io/FlightGame/**
 
-Один раз нужно включить: *Settings → Pages → Build and deployment →
-Source: GitHub Actions*.
+GitHub Actions (`.github/workflows/pages.yml`):
+
+- **push в `main`** — сборка, smoke test (сцены headless на ошибки скриптов)
+  и публикация на GitHub Pages;
+- **pull request** — только сборка и smoke test, без публикации.
+
+Порядок работы: изменения делаются в отдельной ветке → pull request в `main`
+(CI должен быть зелёным) → слияние → игра обновляется на сайте.
+
+Один раз в настройках репозитория: *Settings → Pages → Source: GitHub
+Actions*, ветка по умолчанию — `main` (*Settings → General → Default branch*).
 
 ### Отладка
 
