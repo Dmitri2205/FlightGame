@@ -55,6 +55,14 @@ func _make_card(ship: ShipData) -> Control:
 	box.add_theme_constant_override("separation", 8)
 	card.add_child(box)
 
+	if ship.texture:
+		var picture := TextureRect.new()
+		picture.texture = ship.texture
+		picture.custom_minimum_size = Vector2(0, 130)
+		picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		box.add_child(picture)
+
 	var title := Label.new()
 	title.text = ship.title
 	title.add_theme_font_size_override("font_size", 40)

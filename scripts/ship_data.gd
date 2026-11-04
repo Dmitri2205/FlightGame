@@ -23,6 +23,9 @@ extends Resource
 @export var magnet_mult := 1.0
 
 @export_group("Вид")
+## Спрайт корабля (вид сверху, нос вверх). См. tools/render_topdown.py.
+@export var texture: Texture2D
+## Цвет корабля в интерфейсе (заголовок карточки, рамка выбора).
 @export var color := Color(0.92, 0.2, 0.22)
 @export var visual_scale := 1.0
 

@@ -42,6 +42,9 @@ scripts/ship_data.gd       Resource ShipData — характеристики к
 scripts/flight_patterns.gd траектории врагов (петли, змейки, заходы сбоку…)
 scripts/fx.gd              autoload FX: взрывы, искры, тряска экрана
 scenes/fx/                 сцены эффектов (взрыв, искры), тень самолёта
+art/sprites/               спрайты (вид сверху), отрендеренные из Kenney Space Kit
+tools/render_topdown.py    рендер спрайтов из 3D-моделей пака
+Assets/                    исходные паки ассетов (архивы)
 ships/*.tres               корабли: falcon (Сокол), swift (Стриж), bastion (Бастион)
 ui/theme.tres              общая тема интерфейса
 scenes/ui/
@@ -104,6 +107,30 @@ scenes/game/
 Новая траектория = новый `case` в `FlightPatterns.get_pattern()` + имя
 в `ids()` + строка в `WAVES`.
 
+### Графика
+
+Пак **Kenney Space Kit** (CC0, `Assets/kenney_space-kit.zip`, лицензия —
+`art/LICENSE-kenney-space-kit.txt`) — это 3D-модели, а готовые картинки в нём
+только сбоку и в изометрии. Поэтому спрайты «вид сверху» рендерятся из моделей
+скриптом `tools/render_topdown.py` (numpy + Pillow, читает модели прямо из
+архива):
+
+```
+python3 tools/render_topdown.py              # все спрайты
+python3 tools/render_topdown.py ship_swift   # один
+```
+
+В скрипте (`SPRITES`) для каждого спрайта задаются модель, размер, поворот,
+наклон камеры и перекраска деталей: корабли игрока — в свои цвета, враги —
+в пурпурный, босс — в красный. Готовые PNG лежат в `art/sprites/` и
+коммитятся, Godot импортирует их сам.
+
+| Спрайт | Модель |
+|---|---|
+| Сокол / Стриж / Бастион | craft_speederA / craft_racer / craft_cargoA |
+| Истребитель / тяжёлый / босс | craft_speederB / craft_miner / craft_cargoB |
+| Декор поверхности | crater, craterLarge, rock*, rocks_small*, rock_crystals*, meteor |
+
 ### Визуальные эффекты
 
 Пока без текстур — всё рисуется кодом и частицами (CPUParticles2D):
@@ -139,6 +166,6 @@ scenes/game/
 - [ ] Таймер улучшений (как 08:33 в оригинале)
 - [x] Взрывы, искры, следы двигателей, тени, облака, тряска камеры
 - [ ] Звук
-- [ ] Текстуры из бесплатного пака (Kenney, CC0)
+- [x] Спрайты кораблей, врагов, босса и декор планеты (Kenney Space Kit, CC0)
 - [ ] Настоящий арт вместо полигонов
 - [ ] Экспорт под Android / iOS

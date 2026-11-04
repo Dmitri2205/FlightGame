@@ -1,5 +1,5 @@
 extends CanvasGroup
-## Тень самолёта на земле: силуэт родителя (все его Polygon2D),
+## Тень самолёта на земле: силуэт родителя (все его Sprite2D и Polygon2D),
 ## сдвинутый «от солнца», уменьшенный и полупрозрачный.
 ## CanvasGroup рисует силуэт целиком, поэтому перекрытия частей не темнее остальной тени.
 
@@ -31,19 +31,29 @@ func _process(_delta: float) -> void:
 func _build(parent: Node2D) -> void:
 	_built = true
 	var to_parent := parent.global_transform.affine_inverse()
-	for polygon in _collect_polygons(parent):
-		var copy := Polygon2D.new()
-		copy.polygon = polygon.polygon
-		copy.transform = to_parent * polygon.global_transform
+	for source in _collect_shapes(parent):
+		var copy: Node2D
+		var sprite := source as Sprite2D
+		if sprite:
+			var sprite_copy := Sprite2D.new()
+			sprite_copy.texture = sprite.texture
+			sprite_copy.centered = sprite.centered
+			sprite_copy.offset = sprite.offset
+			copy = sprite_copy
+		else:
+			var polygon_copy := Polygon2D.new()
+			polygon_copy.polygon = (source as Polygon2D).polygon
+			copy = polygon_copy
+		copy.transform = to_parent * source.global_transform
 		add_child(copy)
 
 
-func _collect_polygons(node: Node) -> Array[Polygon2D]:
-	var result: Array[Polygon2D] = []
+func _collect_shapes(node: Node) -> Array[Node2D]:
+	var result: Array[Node2D] = []
 	for child in node.get_children():
 		if child == self:
 			continue
-		if child is Polygon2D:
+		if child is Sprite2D or child is Polygon2D:
 			result.append(child)
-		result.append_array(_collect_polygons(child))
+		result.append_array(_collect_shapes(child))
 	return result

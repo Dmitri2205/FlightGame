@@ -135,8 +135,8 @@ func _move(delta: float) -> void:
 func _apply_visuals() -> void:
 	$Visual.scale = Vector2.ONE * ship.visual_scale
 	$Collision.scale = Vector2.ONE * ship.visual_scale
-	$Visual/Body.color = ship.color
-	$Visual/Wings.color = ship.color.darkened(0.25)
+	if ship.texture:
+		$Visual/Sprite.texture = ship.texture
 
 
 func _clamp_point(point: Vector2) -> Vector2:
