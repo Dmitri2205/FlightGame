@@ -19,7 +19,12 @@ signal next_requested
 func _ready() -> void:
 	results_panel.hide()
 	boss_box.hide()
-	%MenuButton.pressed.connect(menu_requested.emit)
+	# «II» — пауза, а не выход: уровень замирает, прогресс не теряется.
+	%MenuButton.pressed.connect(pause)
+	%ResumeButton.pressed.connect(resume)
+	%PauseRetryButton.pressed.connect(retry_requested.emit)
+	%PauseMapButton.pressed.connect(menu_requested.emit)
+	%PausePanel.hide()
 	%ResultsMenuButton.pressed.connect(menu_requested.emit)
 	%RetryButton.pressed.connect(retry_requested.emit)
 	%NextButton.pressed.connect(next_requested.emit)
@@ -78,6 +83,23 @@ func show_banner(text: String) -> void:
 	tween.tween_callback(banner.hide)
 
 
+## Пауза: вся игра замирает (HUD работает и на паузе — process_mode ALWAYS).
+func pause() -> void:
+	if results_panel.visible or get_tree().paused:
+		return
+	get_tree().paused = true
+	%PausePanel.show()
+
+
+func resume() -> void:
+	get_tree().paused = false
+	%PausePanel.hide()
+
+
+func is_paused() -> bool:
+	return %PausePanel.visible
+
+
 func show_results(victory: bool, score: int, stars: int, bonus: int, has_next: bool) -> void:
 	results_title.text = "Уровень пройден!" if victory else "Корабль сбит"
 	var lines := PackedStringArray(["Очки: %d" % score, "Звёзды: +%d" % stars])
@@ -86,4 +108,6 @@ func show_results(victory: bool, score: int, stars: int, bonus: int, has_next: b
 	lines.append("Всего звёзд: %d" % GameState.stars)
 	results_stats.text = "\n".join(lines)
 	%NextButton.visible = has_next
+	%PausePanel.hide()
+	get_tree().paused = false
 	results_panel.show()
