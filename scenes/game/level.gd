@@ -73,6 +73,14 @@ func _process(_delta: float) -> void:
 			_finish(true)
 
 
+## Свернули браузер/приложение или нажали «назад» на Android — ставим на паузу.
+func _notification(what: int) -> void:
+	match what:
+		NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_APPLICATION_PAUSED, NOTIFICATION_WM_GO_BACK_REQUEST:
+			if not _finished and is_node_ready():
+				hud.pause()
+
+
 func _apply_cli_level() -> void:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--level="):
@@ -110,7 +118,7 @@ func _spawn_boss() -> void:
 
 func _on_boss_destroyed(_boss) -> void:
 	hud.hide_boss()
-	get_tree().create_timer(victory_delay).timeout.connect(_finish.bind(true))
+	get_tree().create_timer(victory_delay, false).timeout.connect(_finish.bind(true))
 
 
 func _on_enemy_destroyed(enemy) -> void:
