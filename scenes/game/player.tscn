@@ -29,7 +29,7 @@ shrapnel_scene = ExtResource("5_shrapnel")
 wing_bullet_scene = ExtResource("6_wing")
 missile_scene = ExtResource("7_missile")
 
-[node name="Shadow" type="CanvasGroup" parent="."]
+[node name="Shadow" type="Sprite2D" parent="."]
 script = ExtResource("3_shadow")
 
 [node name="Visual" type="Node2D" parent="."]

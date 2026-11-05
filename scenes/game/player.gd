@@ -178,7 +178,7 @@ func _launch_missiles() -> void:
 func _spawn_bullet(scene: PackedScene, offset: Vector2, direction: Vector2, damage: int, speed: float) -> void:
 	if scene == null:
 		scene = bullet_scene
-	var bullet = scene.instantiate()
+	var bullet = Pool.take(scene)
 	bullet.position = global_position + offset
 	bullet.velocity = direction * speed
 	bullet.damage = damage
