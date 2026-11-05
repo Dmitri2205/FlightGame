@@ -31,6 +31,7 @@ func _ready() -> void:
 	%RetryButton.pressed.connect(retry_requested.emit)
 	%NextButton.pressed.connect(next_requested.emit)
 	%Banner.hide()
+	_build_blueprint_badge()
 
 
 func set_score(value: int) -> void:
@@ -112,12 +113,47 @@ func is_paused() -> bool:
 	return %PausePanel.visible
 
 
-func show_results(victory: bool, score: int, stars: int, bonus: int, has_next: bool) -> void:
+## Значок «чертёж на борту»: подобран, но засчитается только в конце уровня.
+var _blueprint_badge: HBoxContainer
+
+
+func _build_blueprint_badge() -> void:
+	_blueprint_badge = HBoxContainer.new()
+	_blueprint_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_blueprint_badge.add_theme_constant_override("separation", 8)
+	var icon := TextureRect.new()
+	icon.texture = preload("res://ui/blueprint.svg")
+	icon.custom_minimum_size = Vector2(44, 44)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_blueprint_badge.add_child(icon)
+	var label := Label.new()
+	label.name = "Text"
+	label.add_theme_font_size_override("font_size", 24)
+	label.add_theme_color_override("font_color", Color(0.6, 0.8, 1.0))
+	_blueprint_badge.add_child(label)
+	%StarsRow.get_parent().add_child(_blueprint_badge)
+	_blueprint_badge.hide()
+
+
+func show_blueprint(ship_title: String) -> void:
+	(_blueprint_badge.get_node("Text") as Label).text = "Чертёж «%s» — долети до конца!" % ship_title
+	_blueprint_badge.show()
+	var tween := create_tween().set_loops(3)
+	tween.tween_property(_blueprint_badge, "modulate:a", 0.3, 0.2)
+	tween.tween_property(_blueprint_badge, "modulate:a", 1.0, 0.2)
+
+
+func show_results(victory: bool, score: int, stars: int, bonus: int, has_next: bool, crystals := 0, blueprint_line := "") -> void:
 	results_title.text = "Уровень пройден!" if victory else "Корабль сбит"
 	var lines := PackedStringArray(["Очки: %d" % score, "Звёзды: +%d" % stars])
 	if bonus > 0:
 		lines.append("Бонус за прохождение: +%d" % bonus)
-	lines.append("Всего звёзд: %d" % GameState.stars)
+	if crystals > 0:
+		lines.append("Кристаллы: +%d" % crystals)
+	if blueprint_line != "":
+		lines.append(blueprint_line)
+	lines.append("Всего звёзд: %d · кристаллов: %d" % [GameState.stars, GameState.crystals])
 	results_stats.text = "\n".join(lines)
 	%NextButton.visible = has_next
 	%PausePanel.hide()

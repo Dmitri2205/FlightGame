@@ -21,6 +21,7 @@ var _press_pos := Vector2.ZERO
 
 func _ready() -> void:
 	%BackButton.pressed.connect(Router.main_menu)
+	UiKit.add_crystal_counter(%StarsLabel.get_parent())
 	GameState.stars_changed.connect(_on_stars_changed)
 	GameState.ship_changed.connect(_on_ship_changed)
 	_refresh()
@@ -90,10 +91,15 @@ func _make_card(ship: ShipData) -> Control:
 	elif GameState.is_ship_unlocked(ship.id):
 		button.text = "Выбрать"
 		button.pressed.connect(GameState.select_ship.bind(ship.id))
+	elif not GameState.blueprints_complete(ship.id):
+		# Купить можно только после сборки чертежей (ищутся на уровнях).
+		button.text = "Чертежи %d/%d" % [GameState.blueprint_count(ship.id), ship.blueprints_required]
+		button.icon = UiKit.BLUEPRINT_ICON
+		button.disabled = true
 	else:
 		button.text = "Купить %d" % ship.cost
 		button.icon = STAR_ICON
-		button.disabled = GameState.stars < ship.cost
+		button.disabled = not GameState.can_unlock_ship(ship.id)
 		button.pressed.connect(GameState.try_unlock_ship.bind(ship.id))
 	box.add_child(button)
 

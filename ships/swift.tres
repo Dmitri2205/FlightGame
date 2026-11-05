@@ -9,6 +9,7 @@ id = "swift"
 title = "Стриж"
 description = "Лёгкий перехватчик: мгновенно слушается пальца и быстро стреляет, но хрупкий."
 cost = 300
+blueprints_required = 10
 mass = 0.55
 thrust = 6500.0
 max_speed = 1500.0

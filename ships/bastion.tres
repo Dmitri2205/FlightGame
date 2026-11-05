@@ -9,6 +9,7 @@ id = "bastion"
 title = "Бастион"
 description = "Тяжёлый штурмовик. Неповоротливый и инертный, зато держит удар и бьёт больно."
 cost = 600
+blueprints_required = 20
 mass = 2.4
 thrust = 6000.0
 max_speed = 750.0
