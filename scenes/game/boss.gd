@@ -32,6 +32,7 @@ var _time := 0.0
 var _dir := 1.0
 var _attack_cooldown := 1.5
 var _pattern := 0
+var _flash_tween: Tween
 
 
 func _ready() -> void:
@@ -66,7 +67,10 @@ func take_damage(amount: int) -> void:
 	hp = maxi(hp - amount, 0)
 	health_changed.emit(hp, max_hp)
 	modulate = Color(2, 2, 2)
-	create_tween().tween_property(self, "modulate", _base_modulate(), 0.08)
+	if _flash_tween:
+		_flash_tween.kill()
+	_flash_tween = create_tween()
+	_flash_tween.tween_property(self, "modulate", _base_modulate(), 0.08)
 	if hp == 0:
 		_dead = true
 		FX.chain_explosions(global_position, 8, 120.0)
