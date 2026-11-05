@@ -12,6 +12,14 @@ extends Node3D
 ## Фон — космос: звёзды, газовый гигант, планета, два солнца.
 
 const S := 0.01
+## Камера: выше и круче, чем раньше (траектории видны сверху), уже угол —
+## модели крупнее. По горизонтали едет за игроком, на виражах чуть кренится.
+const CAMERA_OFFSET := Vector3(0.0, 9.0, 10.5)
+const CAMERA_LOOK := Vector3(0.0, -9.0, -10.0)
+const CAMERA_FOV := 46.0
+const CAMERA_FOLLOW := 3.5
+## Доля сдвига игрока, на которую сдвигается камера (остальное — запас по краям).
+const CAMERA_FOLLOW_SHARE := 0.75
 ## Высота полёта самолётов над землёй.
 const AIR_HEIGHT := 1.1
 
@@ -52,6 +60,10 @@ var _model_cache := {}
 var _player_bullets: MultiMeshInstance3D
 var _enemy_bullets: MultiMeshInstance3D
 var _pickups: MultiMeshInstance3D
+## Полосы скорости: тонкие светлые штрихи пролетают мимо камеры — ощущение полёта.
+var _streaks: MultiMeshInstance3D
+var _streak_positions: Array[Vector3] = []
+var _camera_roll := 0.0
 ## Декор земли (скалы, кратеры): едет вместе с землёй и возвращается вперёд.
 var _decor: Array[Node3D] = []
 const DECOR_MODELS := ["rock_largeA", "rock_largeB", "rocks_smallA", "crater", "craterLarge", "meteor"]
@@ -73,6 +85,7 @@ func setup(p_level) -> void:
 		_build_environment()
 		_build_ground()
 		_build_decor()
+		_build_streaks()
 		_build_space()
 		_player_bullets = _make_multimesh(_glow_sphere(0.05, Color(1.0, 0.75, 0.3)))
 		_enemy_bullets = _make_multimesh(_glow_sphere(0.08, Color(1.0, 0.35, 0.85)))
@@ -98,11 +111,13 @@ func to_3d(p: Vector2) -> Vector3:
 func _process(delta: float) -> void:
 	_scroll += _scroll_speed * delta
 	_sync_proxies()
+	_update_camera(delta)
 	_update_drag_scale()
 	if _headless:
 		return
 	_ground_material.uv1_offset = Vector3(0.0, -_scroll * S / 9.0, 0.0)
 	_move_decor(_scroll_speed * delta * S)
+	_move_streaks(delta)
 	_sync_multimeshes()
 
 
@@ -146,11 +161,11 @@ func _build_environment() -> void:
 func _build_camera() -> void:
 	_camera = Camera3D.new()
 	_camera.keep_aspect = Camera3D.KEEP_WIDTH
-	_camera.fov = 62.0
+	_camera.fov = CAMERA_FOV
 	_camera.far = 600.0
-	_camera.position = Vector3(0.0, 6.0, 12.5)
+	_camera.position = CAMERA_OFFSET
 	add_child(_camera)
-	_camera.look_at(Vector3(0.0, 0.0, -0.5))
+	_camera.look_at(CAMERA_OFFSET + CAMERA_LOOK)
 	_camera.current = true
 
 
@@ -508,6 +523,54 @@ func _on_fx(kind: String, pos: Vector2, size: float) -> void:
 	tween.tween_property(flash, "scale", Vector3.ONE * 2.4, duration)
 	tween.tween_property(material, "albedo_color:a", 0.0, duration)
 	tween.chain().tween_callback(flash.queue_free)
+
+
+# --- Камера и ощущение полёта ------------------------------------------------
+
+## Камера едет за игроком по горизонтали и чуть кренится вместе с ним.
+func _update_camera(delta: float) -> void:
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	if player == null:
+		return
+	var target_x := to_3d(player.global_position).x * CAMERA_FOLLOW_SHARE
+	var follow := 1.0 - exp(-CAMERA_FOLLOW * delta)
+	var position_now := _camera.position
+	position_now.x = lerpf(position_now.x, target_x, follow)
+	_camera.position = Vector3(position_now.x, CAMERA_OFFSET.y, CAMERA_OFFSET.z)
+	_camera.look_at(_camera.position + CAMERA_LOOK)
+	var bank: float = player.get("visual_bank") if player.get("visual_bank") != null else 0.0
+	_camera_roll = lerpf(_camera_roll, -bank * 0.05, follow)
+	_camera.rotate_object_local(Vector3.FORWARD, _camera_roll)
+
+
+func _build_streaks() -> void:
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(0.015, 0.015, 1.4)
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.albedo_color = Color(1, 1, 1, 0.18)
+	mesh.material = material
+	_streaks = _make_multimesh(mesh)
+	for i in 40:
+		_streak_positions.append(_random_streak(randf_range(-40.0, 12.0)))
+
+
+func _random_streak(z: float) -> Vector3:
+	return Vector3(randf_range(-9.0, 9.0), randf_range(1.5, 5.5), z)
+
+
+func _move_streaks(delta: float) -> void:
+	var multimesh := _streaks.multimesh
+	var speed := _scroll_speed * S * 6.0
+	for i in _streak_positions.size():
+		var p := _streak_positions[i]
+		p.z += speed * delta
+		if p.z > 12.0:
+			p = _random_streak(-40.0)
+		_streak_positions[i] = p
+		multimesh.set_instance_transform(i, Transform3D(Basis(), p))
+	multimesh.visible_instance_count = _streak_positions.size()
 
 
 # --- Управление ----------------------------------------------------------------
