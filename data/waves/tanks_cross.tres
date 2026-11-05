@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="WaveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/wave_data.gd" id="1_wave"]
+[ext_resource type="PackedScene" path="res://scenes/game/ground_tank.tscn" id="2_enemy"]
+[ext_resource type="Resource" path="res://data/patterns/ground_cross.tres" id="3_pattern"]
+
+[resource]
+script = ExtResource("1_wave")
+title = "Танки сбоку ×3"
+enemy = ExtResource("2_enemy")
+pattern = ExtResource("3_pattern")
+count = 3
+spacing = 70.0
+mirror = 1
+random_x = false

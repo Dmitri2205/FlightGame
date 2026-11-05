@@ -8,6 +8,7 @@ enum Type {
 	TURN,   ## повернуть на angle градусов по дуге радиуса radius
 	AIM,    ## duration секунд доворачивать на игрока со скоростью turn_rate град/с
 	HOVER,  ## почти зависнуть на duration секунд
+	PARK,   ## остановиться насовсем (наземные: «приехал и встал»)
 }
 
 const FIELDS := {
@@ -15,6 +16,7 @@ const FIELDS := {
 	Type.TURN: ["angle", "radius"],
 	Type.AIM: ["duration", "turn_rate"],
 	Type.HOVER: ["duration"],
+	Type.PARK: [],
 }
 
 @export var type := Type.LINE:

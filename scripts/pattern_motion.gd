@@ -62,6 +62,9 @@ func advance(delta: float, target = null) -> void:
 				_step_progress += delta
 				if _step_progress >= step.duration:
 					_next_step()
+			FlightStep.Type.PARK:
+				# Плавно тормозит и больше не трогается; манёвр не заканчивается.
+				target_scale = 0.0
 			FlightStep.Type.HOVER:
 				target_scale = 0.08
 				_step_progress += delta
