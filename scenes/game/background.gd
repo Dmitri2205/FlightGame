@@ -22,6 +22,11 @@ const DECOR_NAMES := [
 
 @export var scroll_speed := 120.0
 @export var base_color := Color(0.6, 0.35, 0.27)
+## Текстура грунта (бесшовная по вертикали, шириной в экран). Есть — пятна
+## не рисуются, земля — эта текстура, прокручиваемая вниз.
+@export var ground_texture: Texture2D
+## Затемнение декора, чтобы скалы и кратеры не «светились» на фоне грунта.
+@export var decor_tint := Color(0.86, 0.86, 0.86)
 @export var patch_count := 30
 @export var decor_count := 12
 ## true — оформление берётся из текущей главы GameState при запуске.
@@ -30,6 +35,8 @@ const DECOR_NAMES := [
 var _patches: Array[Patch] = []
 var _decor: Array[Decor] = []
 var _decor_textures: Array[Texture2D] = []
+## Сколько проехала земля (для прокрутки текстуры).
+var _scrolled := 0.0
 
 
 func _ready() -> void:
@@ -38,6 +45,8 @@ func _ready() -> void:
 	if use_current_chapter:
 		apply_chapter(GameState.current_chapter_data())
 	else:
+		if ground_texture == null:
+			ground_texture = load("res://art/ground/mars.jpg") as Texture2D
 		_load_decor("decor_")
 		_build()
 
@@ -45,6 +54,7 @@ func _ready() -> void:
 ## Перекрасить землю и сменить декор под главу (планету).
 func apply_chapter(chapter: ChapterData) -> void:
 	base_color = chapter.ground_color
+	ground_texture = chapter.ground_texture
 	_load_decor(chapter.decor_prefix)
 	_build()
 
@@ -74,6 +84,7 @@ func _build() -> void:
 
 func _process(delta: float) -> void:
 	var size := get_viewport_rect().size
+	_scrolled += scroll_speed * delta
 	for patch in _patches:
 		patch.pos.y += scroll_speed * delta
 		if patch.pos.y - patch.radius > size.y:
@@ -87,9 +98,18 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(Vector2.ZERO, get_viewport_rect().size), base_color)
-	for patch in _patches:
-		draw_circle(patch.pos, patch.radius, patch.color)
+	var screen := get_viewport_rect().size
+	if ground_texture:
+		# Текстура растянута на ширину экрана и повторяется по вертикали.
+		var tile := ground_texture.get_size() * (screen.x / ground_texture.get_width())
+		var y := fmod(_scrolled, tile.y) - tile.y
+		while y < screen.y:
+			draw_texture_rect(ground_texture, Rect2(Vector2(0, y), tile), false)
+			y += tile.y
+	else:
+		draw_rect(Rect2(Vector2.ZERO, screen), base_color)
+		for patch in _patches:
+			draw_circle(patch.pos, patch.radius, patch.color)
 	for decor in _decor:
 		if decor.texture == null:
 			continue
@@ -98,7 +118,7 @@ func _draw() -> void:
 		if decor.flip:
 			rect.size.x = -rect.size.x
 			rect.position.x += size.x
-		draw_texture_rect(decor.texture, rect, false)
+		draw_texture_rect(decor.texture, rect, false, decor_tint)
 
 
 func _randomize_patch(patch: Patch) -> void:

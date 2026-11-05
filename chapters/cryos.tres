@@ -17,6 +17,7 @@
 [ext_resource type="Resource" path="res://data/waves/turret_pair.tres" id="g_turret_pair"]
 [ext_resource type="Resource" path="res://data/waves/tanks_cross.tres" id="g_tanks_cross"]
 [ext_resource type="Resource" path="res://data/waves/tanks_column.tres" id="g_tanks_column"]
+[ext_resource type="Texture2D" path="res://art/ground/ice.jpg" id="ground_tex"]
 [ext_resource type="Script" path="res://scripts/chapter_data.gd" id="99_chapter"]
 
 [sub_resource type="Resource" id="Entry_1"]
@@ -180,4 +181,5 @@ description = "Ледяная планета: кристальные пики и
 color = Color(0.4, 0.75, 1, 1)
 ground_color = Color(0.56, 0.66, 0.76, 1)
 decor_prefix = "decor_ice_"
+ground_texture = ExtResource("ground_tex")
 levels = [SubResource("Level_1"), SubResource("Level_2"), SubResource("Level_3"), SubResource("Level_4")]
