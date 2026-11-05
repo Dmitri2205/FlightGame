@@ -54,16 +54,23 @@ var _enemy_bullets: MultiMeshInstance3D
 var _pickups: MultiMeshInstance3D
 
 
+## Без экрана (CI) рендер-заглушка не создаёт примитивные меши и ругается на
+## каждый — там строим только двойники из моделей (проверка логики).
+var _headless := false
+
+
 func setup(p_level) -> void:
 	level = p_level
-	_build_environment()
+	_headless = DisplayServer.get_name() == "headless"
 	_build_camera()
-	_build_ground()
-	_build_space()
-	_player_bullets = _make_multimesh(_glow_sphere(0.05, Color(1.0, 0.75, 0.3)))
-	_enemy_bullets = _make_multimesh(_glow_sphere(0.08, Color(1.0, 0.35, 0.85)))
-	_pickups = _make_multimesh(_glow_sphere(0.07, Color(1.0, 0.85, 0.2)))
-	FX.spawned.connect(_on_fx)
+	if not _headless:
+		_build_environment()
+		_build_ground()
+		_build_space()
+		_player_bullets = _make_multimesh(_glow_sphere(0.05, Color(1.0, 0.75, 0.3)))
+		_enemy_bullets = _make_multimesh(_glow_sphere(0.08, Color(1.0, 0.35, 0.85)))
+		_pickups = _make_multimesh(_glow_sphere(0.07, Color(1.0, 0.85, 0.2)))
+		FX.spawned.connect(_on_fx)
 	var background := get_tree().get_first_node_in_group("background")
 	if background and "scroll_speed" in background:
 		_scroll_speed = background.scroll_speed
@@ -83,10 +90,12 @@ func to_3d(p: Vector2) -> Vector3:
 
 func _process(delta: float) -> void:
 	_scroll += _scroll_speed * delta
-	_ground_material.uv1_offset = Vector3(0.0, -_scroll * S / 9.0, 0.0)
 	_sync_proxies()
-	_sync_multimeshes()
 	_update_drag_scale()
+	if _headless:
+		return
+	_ground_material.uv1_offset = Vector3(0.0, -_scroll * S / 9.0, 0.0)
+	_sync_multimeshes()
 
 
 # --- Сцена -------------------------------------------------------------------
