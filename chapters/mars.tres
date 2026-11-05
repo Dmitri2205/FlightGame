@@ -17,6 +17,7 @@
 [ext_resource type="Resource" path="res://data/waves/turret_pair.tres" id="g_turret_pair"]
 [ext_resource type="Resource" path="res://data/waves/tanks_cross.tres" id="g_tanks_cross"]
 [ext_resource type="Resource" path="res://data/waves/tanks_column.tres" id="g_tanks_column"]
+[ext_resource type="Texture2D" path="res://art/ground/mars.jpg" id="ground_tex"]
 [ext_resource type="Script" path="res://scripts/chapter_data.gd" id="99_chapter"]
 
 [sub_resource type="Resource" id="Entry_1"]
@@ -180,4 +181,5 @@ description = "Красная пустыня: кратеры, скалы и пы
 color = Color(0.95, 0.45, 0.3, 1)
 ground_color = Color(0.6, 0.35, 0.27, 1)
 decor_prefix = "decor_"
+ground_texture = ExtResource("ground_tex")
 levels = [SubResource("Level_1"), SubResource("Level_2"), SubResource("Level_3"), SubResource("Level_4")]
