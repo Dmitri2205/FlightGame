@@ -135,13 +135,17 @@ func add_stars(amount: int) -> void:
 ## BLUEPRINT_PROP_CHANCE роняет его. Подобранный чертёж засчитывается только
 ## при прохождении уровня. Где лежат чертежи, игроку не говорим.
 
-## Базовый шанс, что на уровне вообще есть чертёж.
-const BLUEPRINT_LEVEL_CHANCE := 0.18
+## Базовый шанс, что на уровне вообще есть чертёж (пока ничего не собрано).
+const BLUEPRINT_LEVEL_CHANCE := 0.1
+## Чем больше чертежей собрано (всего, по всем кораблям), тем реже они
+## попадаются: шанс умножается на это число за каждый собранный кусок
+## (10 собрано — ×0.74, 30 — ×0.40).
+const BLUEPRINT_DECAY := 0.97
 ## Прибавка к шансу за каждый пустой пройденный уровень (скрытая).
-const BLUEPRINT_PITY_STEP := 0.04
-const BLUEPRINT_LEVEL_CHANCE_MAX := 0.6
+const BLUEPRINT_PITY_STEP := 0.02
+const BLUEPRINT_LEVEL_CHANCE_MAX := 0.3
 ## Шанс выпасть из одного разрушенного объекта, если на уровне чертёж есть.
-const BLUEPRINT_PROP_CHANCE := 0.15
+const BLUEPRINT_PROP_CHANCE := 0.1
 ## Награды кристаллами.
 const CRYSTALS_MINIBOSS := 1
 const CRYSTALS_BOSS := 3
@@ -196,9 +200,19 @@ func try_buy_blueprint(ship_id: String) -> bool:
 	return true
 
 
-## Шанс чертежа на уровне с учётом скрытой защиты от невезения.
+## Сколько кусков чертежей собрано всего (по всем кораблям).
+func blueprints_collected_total() -> int:
+	var total := 0
+	for id in blueprints:
+		total += int(blueprints[id])
+	return total
+
+
+## Шанс чертежа на уровне: падает с числом собранных, растёт от скрытой
+## защиты от невезения.
 func blueprint_level_chance() -> float:
-	return minf(BLUEPRINT_LEVEL_CHANCE + BLUEPRINT_PITY_STEP * blueprint_pity, BLUEPRINT_LEVEL_CHANCE_MAX)
+	var base := BLUEPRINT_LEVEL_CHANCE * pow(BLUEPRINT_DECAY, blueprints_collected_total())
+	return minf(base + BLUEPRINT_PITY_STEP * blueprint_pity, BLUEPRINT_LEVEL_CHANCE_MAX)
 
 
 ## Бросок при старте уровня: id корабля, чей чертёж тут спрятан, или "".
