@@ -72,8 +72,15 @@ func _check_level(chapter: ChapterData, index: int) -> void:
 	for wave in level.filler_waves:
 		if not wave is WaveData:
 			_fail("%s: наполнитель не WaveData" % where)
-	if not level.filler_waves.is_empty() and level.spawn_interval <= 0.0:
-		_fail("%s: spawn_interval <= 0" % where)
+	if level.group_min < 1 or level.group_max < level.group_min:
+		_fail("%s: пачка волн: нужно 1 <= group_min <= group_max" % where)
+	if level.rest_min <= 0.0 or level.rest_max < level.rest_min:
+		_fail("%s: передышка: нужно 0 < rest_min <= rest_max" % where)
+	var last_miniboss := 0.0
+	for fraction in level.miniboss_at:
+		if float(fraction) <= last_miniboss or float(fraction) >= 1.0:
+			_fail("%s: miniboss_at — доли от 0 до 1 по возрастанию" % where)
+		last_miniboss = float(fraction)
 
 
 func _fail(message: String) -> void:

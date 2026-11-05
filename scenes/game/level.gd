@@ -10,6 +10,8 @@ extends Node2D
 
 @export var star_scene: PackedScene
 @export var boss_scene: PackedScene
+## Мини-босс посреди уровня (LevelData.miniboss_at).
+@export var miniboss_scene: PackedScene
 ## Пауза после победы над боссом, чтобы успеть собрать звёзды.
 @export var victory_delay := 3.0
 
@@ -41,6 +43,7 @@ func _ready() -> void:
 	hud.retry_requested.connect(Router.reload)
 	hud.next_requested.connect(_next_level)
 	director.enemy_requested.connect(_spawn_enemy)
+	director.miniboss_requested.connect(_spawn_miniboss)
 
 	hud.set_health(player.health, player.max_health)
 	hud.set_score(score)
@@ -114,6 +117,27 @@ func _spawn_boss() -> void:
 	boss.health_changed.connect(hud.set_boss_health)
 	enemies.add_child(boss)
 	hud.show_boss(boss.max_hp)
+
+
+## Мини-босс: время уровня стоит, пока он жив (WaveDirector ждёт resume()).
+func _spawn_miniboss(_index: int) -> void:
+	if miniboss_scene == null or _finished:
+		director.resume()
+		return
+	var boss = miniboss_scene.instantiate()
+	boss.max_hp = level_data.miniboss_hp
+	boss.position = Vector2(get_viewport_rect().size.x / 2.0, -120.0)
+	boss.projectile_container = projectiles
+	boss.destroyed.connect(_on_enemy_destroyed)
+	boss.destroyed.connect(_on_miniboss_destroyed)
+	boss.health_changed.connect(hud.set_boss_health)
+	enemies.add_child(boss)
+	hud.show_boss(boss.max_hp, "МИНИБОСС")
+
+
+func _on_miniboss_destroyed(_boss) -> void:
+	hud.hide_boss()
+	director.resume()
 
 
 func _on_boss_destroyed(_boss) -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/game/level.gd" id="1_script"]
 [ext_resource type="Script" path="res://scenes/game/background.gd" id="2_bg"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/game/star_pickup.tscn" id="6_star"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="7_hud"]
 [ext_resource type="PackedScene" path="res://scenes/game/boss.tscn" id="8_boss"]
+[ext_resource type="PackedScene" path="res://scenes/game/miniboss.tscn" id="9_miniboss"]
 [ext_resource type="Script" path="res://scenes/game/clouds.gd" id="9_clouds"]
 [ext_resource type="Script" path="res://scenes/game/camera_shake.gd" id="10_camera"]
 [ext_resource type="Script" path="res://scripts/wave_director.gd" id="11_director"]
@@ -14,6 +15,7 @@
 script = ExtResource("1_script")
 star_scene = ExtResource("6_star")
 boss_scene = ExtResource("8_boss")
+miniboss_scene = ExtResource("9_miniboss")
 
 [node name="Camera" type="Camera2D" parent="."]
 anchor_mode = 0

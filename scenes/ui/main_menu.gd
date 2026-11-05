@@ -56,7 +56,8 @@ func _ready() -> void:
 	demo.duration = 1.0e9
 	demo.filler_waves = DataLibrary.waves()
 	demo.filler_from = 1.0
-	demo.spawn_interval = DEMO_WAVE_INTERVAL
+	demo.rest_min = DEMO_WAVE_INTERVAL
+	demo.rest_max = DEMO_WAVE_INTERVAL * 2.0
 	ghosts.opacity = 0.7
 	director.enemy_requested.connect(ghosts.spawn_for_wave)
 	director.start(demo)

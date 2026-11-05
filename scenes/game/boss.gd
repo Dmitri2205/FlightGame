@@ -7,12 +7,13 @@ signal health_changed(current: int, maximum: int)
 
 enum State { ENTERING, FIGHTING }
 
-## Точки вылета пуль относительно центра спрайта: нос и бортовые пушки.
-const NOSE := Vector2(0, 92)
-const GUN_LEFT := Vector2(-46, 58)
-const GUN_RIGHT := Vector2(46, 58)
 
 @export var max_hp := 500
+## Точки вылета пуль относительно центра: нос и бортовые пушки
+## (у мини-босса спрайт другой — свои точки).
+@export var nose := Vector2(0, 92)
+@export var gun_left := Vector2(-46, 58)
+@export var gun_right := Vector2(46, 58)
 @export var score_value := 5000
 @export var star_drop := 40
 @export var bullet_scene: PackedScene
@@ -21,6 +22,10 @@ const GUN_RIGHT := Vector2(46, 58)
 @export var bullet_damage := 20
 @export var ram_damage := 30
 @export var entry_y := 260.0
+## Гибель: серия взрывов (сколько, в каком радиусе) и финальный взрыв.
+@export var death_chain := 8
+@export var death_radius := 120.0
+@export var death_size := 2.5
 @export var move_speed := 140.0
 
 var projectile_container: Node
@@ -73,8 +78,8 @@ func take_damage(amount: int) -> void:
 	_flash_tween.tween_property(self, "modulate", _base_modulate(), 0.08)
 	if hp == 0:
 		_dead = true
-		FX.chain_explosions(global_position, 8, 120.0)
-		FX.explosion(global_position, 2.5)
+		FX.chain_explosions(global_position, death_chain, death_radius)
+		FX.explosion(global_position, death_size)
 		destroyed.emit(self)
 		queue_free()
 	elif is_enraged() and not was_enraged:
@@ -98,20 +103,20 @@ func _attack() -> void:
 			0:
 				_ring(18, 0.0)
 			1:
-				_fan(NOSE, 7, 0.9)
+				_fan(nose, 7, 0.9)
 			2:
 				_ring(18, PI / 18.0)
-				_fan(NOSE, 3, 0.3)
+				_fan(nose, 3, 0.3)
 		_attack_cooldown = 0.9
 	else:
 		match _pattern % 2:
 			0:
-				_fan(NOSE, 5, 0.6)
+				_fan(nose, 5, 0.6)
 			1:
-				_shoot(GUN_LEFT, Vector2.DOWN)
-				_shoot(GUN_RIGHT, Vector2.DOWN)
-				_shoot(GUN_LEFT, Vector2.DOWN.rotated(0.15))
-				_shoot(GUN_RIGHT, Vector2.DOWN.rotated(-0.15))
+				_shoot(gun_left, Vector2.DOWN)
+				_shoot(gun_right, Vector2.DOWN)
+				_shoot(gun_left, Vector2.DOWN.rotated(0.15))
+				_shoot(gun_right, Vector2.DOWN.rotated(-0.15))
 		_attack_cooldown = 1.4
 	_pattern += 1
 

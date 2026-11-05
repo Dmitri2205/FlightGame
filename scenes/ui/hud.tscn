@@ -102,6 +102,7 @@ grow_horizontal = 2
 mouse_filter = 2
 
 [node name="BossLabel" type="Label" parent="Root/BossBox"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.4, 0.35, 1)
 theme_override_font_sizes/font_size = 26

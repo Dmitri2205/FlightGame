@@ -160,7 +160,12 @@ func _show_level() -> void:
 		var names := PackedStringArray()
 		for wave in level.filler_waves:
 			names.append(wave.title)
-		lines.append("с %s каждые %.1f с, случайно: %s" % [_format_time(level.filler_from), level.spawn_interval, ", ".join(names)])
+		lines.append("с %s пачками по %d–%d, передышка %.1f–%.1f с, случайно: %s" % [_format_time(level.filler_from), level.group_min, level.group_max, level.rest_min, level.rest_max, ", ".join(names)])
+	if not level.miniboss_at.is_empty():
+		var at := PackedStringArray()
+		for fraction in level.miniboss_at:
+			at.append(_format_time(float(fraction) * level.duration))
+		lines.append("мини-боссы: %s (в превью пропускаются)" % ", ".join(at))
 	lines.append("%s  конец волн%s · здоровье врагов ×%.1f" % [_format_time(level.duration), " → БОСС %d HP" % level.boss_hp if level.boss else "", level.enemy_hp_mult])
 	info_label.text = "\n".join(lines)
 	director.start(level)
