@@ -30,6 +30,8 @@ const CHAPTER_PATHS := [
 ## видимую возможность: шрапнель, ствол, ракету), шкала начинается заново.
 ## installed = false — модуль сначала нужно установить (install_cost).
 const STEPS_PER_TIER := 10
+## Во сколько раз шаг следующего уровня модуля дороже шага предыдущего.
+const TIER_COST_GROWTH := 2.0
 const MODULES := {
 	"main_cannon": {
 		"title": "Основная пушка",
@@ -42,7 +44,7 @@ const MODULES := {
 		"title": "Крыльевые пушки",
 		"max_tier": 3,
 		"installed": false,
-		"install_cost": 150,
+		"install_cost": 300,
 		"stats": {"damage": "Урон", "rate": "Скорострельность"},
 		"base_cost": 45,
 	},
@@ -50,7 +52,7 @@ const MODULES := {
 		"title": "Ракеты",
 		"max_tier": 4,
 		"installed": false,
-		"install_cost": 300,
+		"install_cost": 600,
 		"stats": {"damage": "Урон", "reload": "Перезарядка"},
 		"base_cost": 60,
 	},
@@ -169,7 +171,9 @@ func install_cost(id: String) -> int:
 ## Цена деления: дороже с каждым уровнем и с каждым делением внутри уровня.
 func step_cost(id: String) -> int:
 	var tier := maxi(module_tier(id), 1)
-	return roundi(MODULES[id].base_cost * (1.0 + 0.7 * (tier - 1)) * (1.0 + 0.1 * tier_progress(id)))
+	# Каждый уровень модуля вдвое дороже предыдущего — старшие уровни
+	# приходится фармить (перепроходить уровни ради звёзд).
+	return roundi(MODULES[id].base_cost * pow(TIER_COST_GROWTH, tier - 1) * (1.0 + 0.08 * tier_progress(id)))
 
 
 func try_install(id: String) -> bool:

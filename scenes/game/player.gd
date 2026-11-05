@@ -146,7 +146,9 @@ func _fire() -> void:
 		_spawn_bullet(shrapnel_scene, nose + Vector2(side * (4.0 + 3.0 * tier), 8.0), Vector2.UP.rotated(angle), 1, bullet_speed * 0.9)
 
 
-## Крыльевые пушки — с крыльев, в своём темпе; 2-й и 3-й стволы расходятся веером.
+## Крыльевые пушки — с крыльев, в своём темпе. Все стволы бьют строго вперёд,
+## параллельно: 2-й и 3-й стоят дальше к краю крыла (без веера, иначе на
+## 3-м уровне корабль накрывает огнём полэкрана).
 func _fire_wings() -> void:
 	if projectile_container == null:
 		return
@@ -154,8 +156,8 @@ func _fire_wings() -> void:
 		for side in [-1.0, 1.0]:
 			var mount := Vector2(ship.wing_gun.x * side, ship.wing_gun.y) * ship.visual_scale
 			for k in _wing_guns:
-				var offset: Vector2 = mount + Vector2(side * 5.0 * k, 4.0 * k)
-				_spawn_bullet(wing_bullet_scene, offset, Vector2.UP.rotated(side * (0.03 + 0.08 * k)), _wing_damage, bullet_speed)
+				var offset: Vector2 = mount + Vector2(side * 9.0 * k, 4.0 * k)
+				_spawn_bullet(wing_bullet_scene, offset, Vector2.UP, _wing_damage, bullet_speed)
 			FX.muzzle(global_position + mount, 0.6)
 
 
@@ -200,7 +202,10 @@ func _move(delta: float) -> void:
 	# Крен на вираже: корабль заваливается на бок (сужение + перекос силуэта)
 	# и чуть наклоняется, но нос продолжает смотреть вперёд.
 	var bank := clampf(velocity.x / _max_speed, -1.0, 1.0)
-	PatternMotion.apply_bank($Visual, bank, Vector2.ONE * ship.visual_scale)
+	# Спрайт игрока нарисован носом вверх, а враги — носом вниз, поэтому
+	# перекос у игрока зеркальный: летим вправо — нос заваливается вправо,
+	# в сторону виража (как и наклон ниже), а не против него.
+	PatternMotion.apply_bank($Visual, -bank, Vector2.ONE * ship.visual_scale)
 	$Visual.rotation = bank * max_bank
 
 
