@@ -1,20 +1,8 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/fx/one_shot_fx.gd" id="1_script"]
-
-[sub_resource type="Gradient" id="Gradient_soft"]
-colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
-
-[sub_resource type="GradientTexture2D" id="Texture_soft"]
-gradient = SubResource("Gradient_soft")
-width = 32
-height = 32
-fill = 1
-fill_from = Vector2(0.5, 0.5)
-fill_to = Vector2(1, 0.5)
-
-[sub_resource type="CanvasItemMaterial" id="Material_add"]
-blend_mode = 1
+[ext_resource type="Texture2D" path="res://fx/soft_glow.tres" id="fx_glow"]
+[ext_resource type="Material" path="res://fx/additive.tres" id="fx_add"]
 
 [sub_resource type="Gradient" id="Gradient_spark"]
 offsets = PackedFloat32Array(0, 0.5, 1)
@@ -26,7 +14,7 @@ duration = 0.4
 flash_scale = 1.2
 
 [node name="Sparks" type="CPUParticles2D" parent="."]
-material = SubResource("Material_add")
+material = ExtResource("fx_add")
 emitting = false
 amount = 8
 lifetime = 0.25
@@ -44,7 +32,7 @@ scale_amount_max = 5.0
 color_ramp = SubResource("Gradient_spark")
 
 [node name="Flash" type="Sprite2D" parent="."]
-material = SubResource("Material_add")
+material = ExtResource("fx_add")
 modulate = Color(1, 0.95, 0.7, 0.8)
 scale = Vector2(0.5, 0.5)
-texture = SubResource("Texture_soft")
+texture = ExtResource("fx_glow")

@@ -34,6 +34,7 @@ var _base_x := 0.0
 var _fire_cooldown := 0.0
 var _alive_time := 0.0
 var _was_on_screen := false
+var _flash_tween: Tween
 
 var _motion: PatternMotion
 
@@ -74,7 +75,7 @@ func _process(delta: float) -> void:
 		queue_free()
 		return
 
-	if fire_interval > 0.0 and position.y > 0.0:
+	if fire_interval > 0.0 and _can_fire():
 		_fire_cooldown -= delta
 		if _fire_cooldown <= 0.0:
 			_fire_cooldown = fire_interval
@@ -86,7 +87,11 @@ func take_damage(amount: int) -> void:
 		return
 	_hp -= amount
 	modulate = Color(3, 3, 3)
-	create_tween().tween_property(self, "modulate", Color.WHITE, 0.1)
+	# Один твин на врага: под плотным огнём новый не плодим, а перезапускаем.
+	if _flash_tween:
+		_flash_tween.kill()
+	_flash_tween = create_tween()
+	_flash_tween.tween_property(self, "modulate", Color.WHITE, 0.1)
 	if _hp <= 0:
 		_die()
 
@@ -96,6 +101,15 @@ func _die() -> void:
 	FX.explosion(global_position, explosion_size)
 	destroyed.emit(self)
 	queue_free()
+
+
+## Стреляет только из кадра и только перед игроком: пролетевшие мимо
+## и ушедшие за край экрана в спину не бьют.
+func _can_fire() -> bool:
+	if not get_viewport_rect().grow(-24.0).has_point(position):
+		return false
+	var player := get_tree().get_first_node_in_group("player") as Node2D
+	return player == null or position.y < player.position.y - 60.0
 
 
 func _fire() -> void:

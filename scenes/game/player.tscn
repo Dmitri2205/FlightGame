@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/game/player.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://scenes/game/player_bullet.tscn" id="2_bullet"]
@@ -7,20 +7,8 @@
 [ext_resource type="PackedScene" path="res://scenes/game/missile.tscn" id="7_missile"]
 [ext_resource type="Script" path="res://scenes/fx/shadow.gd" id="3_shadow"]
 [ext_resource type="Texture2D" path="res://art/sprites/ship_falcon.png" id="4_tex"]
-
-[sub_resource type="Gradient" id="Gradient_soft"]
-colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
-
-[sub_resource type="GradientTexture2D" id="Texture_soft"]
-gradient = SubResource("Gradient_soft")
-width = 32
-height = 32
-fill = 1
-fill_from = Vector2(0.5, 0.5)
-fill_to = Vector2(1, 0.5)
-
-[sub_resource type="CanvasItemMaterial" id="Material_add"]
-blend_mode = 1
+[ext_resource type="Texture2D" path="res://fx/soft_glow.tres" id="fx_glow"]
+[ext_resource type="Material" path="res://fx/additive.tres" id="fx_add"]
 
 [sub_resource type="Curve" id="Curve_shrink"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -47,11 +35,11 @@ script = ExtResource("3_shadow")
 [node name="Visual" type="Node2D" parent="."]
 
 [node name="EngineTrail" type="CPUParticles2D" parent="Visual"]
-material = SubResource("Material_add")
+material = ExtResource("fx_add")
 position = Vector2(0, 41)
 amount = 32
 lifetime = 0.3
-texture = SubResource("Texture_soft")
+texture = ExtResource("fx_glow")
 direction = Vector2(0, 1)
 spread = 10.0
 gravity = Vector2(0, 220)
