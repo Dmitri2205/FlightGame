@@ -52,6 +52,12 @@ var _model_cache := {}
 var _player_bullets: MultiMeshInstance3D
 var _enemy_bullets: MultiMeshInstance3D
 var _pickups: MultiMeshInstance3D
+## Декор земли (скалы, кратеры): едет вместе с землёй и возвращается вперёд.
+var _decor: Array[Node3D] = []
+const DECOR_MODELS := ["rock_largeA", "rock_largeB", "rocks_smallA", "crater", "craterLarge", "meteor"]
+const DECOR_COUNT := 36
+const DECOR_NEAR := 16.0
+const DECOR_FAR := -50.0
 
 
 ## Без экрана (CI) рендер-заглушка не создаёт примитивные меши и ругается на
@@ -66,6 +72,7 @@ func setup(p_level) -> void:
 	if not _headless:
 		_build_environment()
 		_build_ground()
+		_build_decor()
 		_build_space()
 		_player_bullets = _make_multimesh(_glow_sphere(0.05, Color(1.0, 0.75, 0.3)))
 		_enemy_bullets = _make_multimesh(_glow_sphere(0.08, Color(1.0, 0.35, 0.85)))
@@ -95,6 +102,7 @@ func _process(delta: float) -> void:
 	if _headless:
 		return
 	_ground_material.uv1_offset = Vector3(0.0, -_scroll * S / 9.0, 0.0)
+	_move_decor(_scroll_speed * delta * S)
 	_sync_multimeshes()
 
 
@@ -113,7 +121,8 @@ func _build_environment() -> void:
 	env.ambient_light_energy = 0.6
 	env.fog_enabled = true
 	env.fog_light_color = Color(0.16, 0.1, 0.22)
-	env.fog_density = 0.025
+	# Дымка гуще: дальние волны проступают из неё, а не видны с горизонта.
+	env.fog_density = 0.05
 	var world := WorldEnvironment.new()
 	world.environment = env
 	add_child(world)
@@ -162,6 +171,34 @@ func _build_ground() -> void:
 	ground.mesh = plane
 	ground.position = Vector3(0.0, 0.0, -20.0)
 	add_child(ground)
+
+
+func _build_decor() -> void:
+	var tint := GameState.current_chapter_data().ground_color
+	for i in DECOR_COUNT:
+		var model := _instance_model(DECOR_MODELS.pick_random())
+		if model == null:
+			continue
+		_tint(model, {"rock": tint.lightened(0.15), "rockDark": tint.darkened(0.25), "rockTrack": tint})
+		model.scale = Vector3.ONE * randf_range(0.5, 1.6)
+		model.rotation.y = randf() * TAU
+		_place_decor(model, randf_range(DECOR_FAR, DECOR_NEAR))
+		add_child(model)
+		_decor.append(model)
+
+
+func _place_decor(model: Node3D, z: float) -> void:
+	# Реже — на самой полосе боя, чаще — по краям.
+	var side := 1.0 if randf() < 0.5 else -1.0
+	var x := randf_range(-4.0, 4.0) if randf() < 0.3 else side * randf_range(4.5, 18.0)
+	model.position = Vector3(x, 0.0, z)
+
+
+func _move_decor(distance: float) -> void:
+	for model in _decor:
+		model.position.z += distance
+		if model.position.z > DECOR_NEAR:
+			_place_decor(model, DECOR_FAR)
 
 
 func _build_space() -> void:
@@ -277,8 +314,12 @@ func _make_proxy(node) -> Node3D:
 	# Масштаб под размер спрайта: большая сторона модели = size px.
 	var aabb := _model_aabb(model)
 	var longest := maxf(aabb.size.x, aabb.size.z)
-	if longest > 0.0:
-		model.scale = Vector3.ONE * (float(info.size) * S / longest)
+	var factor := float(info.size) * S / longest if longest > 0.0 else 1.0
+	model.scale = Vector3.ONE * factor
+	# У моделей пака начало координат на днище, а не в центре — сдвигаем
+	# модель так, чтобы центр габаритов совпал с точкой 2D-объекта (и крен
+	# вращал корабль вокруг его середины, а не вокруг края).
+	model.position = -aabb.get_center() * factor
 	match str(info.get("palette", "")):
 		"enemy":
 			_tint(model, ENEMY)
@@ -286,8 +327,11 @@ func _make_proxy(node) -> Node3D:
 			_tint(model, BOSS)
 		"player":
 			_tint(model, {"metalRed": info.color})
-	model.name = "Model"
-	holder.add_child(model)
+	# Крен и повороты — у промежуточного узла в центре модели.
+	var pivot := Node3D.new()
+	pivot.name = "Model"
+	pivot.add_child(model)
+	holder.add_child(pivot)
 	holder.set_meta("info", info)
 	return holder
 
@@ -300,6 +344,8 @@ func _update_proxy(node, proxy: Node3D) -> void:
 	var model: Node3D = proxy.get_node("Model")
 	if info.get("player", false):
 		# Игрок нарисован носом вверх (к горизонту), крен — вращение модели.
+		# Мигание при уроне — как у 2D-узла.
+		proxy.visible = node.visible
 		proxy.rotation = Vector3(0.0, PI, 0.0)
 		model.rotation = Vector3(0.0, 0.0, -float(node.visual_bank) * 0.7)
 		return
