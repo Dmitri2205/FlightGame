@@ -275,6 +275,8 @@ func _describe_step(step: FlightStep) -> String:
 			return "доворот на игрока %.1f с (%d°/с)" % [step.duration, step.turn_rate]
 		FlightStep.Type.HOVER:
 			return "зависание %.1f с" % step.duration
+		FlightStep.Type.PARK:
+			return "остановиться и стоять"
 	return "?"
 
 

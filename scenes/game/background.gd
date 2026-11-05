@@ -33,6 +33,8 @@ var _decor_textures: Array[Texture2D] = []
 
 
 func _ready() -> void:
+	# По группе наземные враги узнают скорость прокрутки земли.
+	add_to_group("background")
 	if use_current_chapter:
 		apply_chapter(GameState.current_chapter_data())
 	else:

@@ -168,7 +168,7 @@ func _launch_missiles() -> void:
 		var side := -1.0 if i % 2 == 0 else 1.0
 		var row := i / 2
 		var mount := Vector2(ship.wing_gun.x * 0.6 * side, ship.wing_gun.y + 10.0 + 8.0 * row) * ship.visual_scale
-		var missile = missile_scene.instantiate()
+		var missile = Pool.take(missile_scene)
 		missile.position = global_position + mount
 		missile.velocity = Vector2.UP.rotated(side * (0.7 + 0.25 * row))
 		missile.damage = _missile_damage

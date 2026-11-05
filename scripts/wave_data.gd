@@ -22,6 +22,9 @@ enum Mirror {
 ## Случайная точка появления по горизонтали (вместо start.x траектории).
 @export var random_x := false
 
+## Скорость прокрутки земли по умолчанию (как у фона уровня), px/с.
+const GROUND_SCROLL := 120.0
+
 ## Скорость врага по сцене — кэш, чтобы не создавать врага каждый раз.
 static var _speed_cache := {}
 
@@ -34,4 +37,8 @@ func spawn_interval() -> float:
 		var node = enemy.instantiate()
 		_speed_cache[enemy] = float(node.speed) if "speed" in node else 200.0
 		node.free()
-	return spacing / maxf(_speed_cache[enemy], 1.0)
+	# Неподвижные наземные (турели) едут вниз только вместе с землёй.
+	var speed: float = _speed_cache[enemy]
+	if speed <= 0.0:
+		speed = GROUND_SCROLL
+	return spacing / speed

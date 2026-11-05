@@ -18,17 +18,33 @@ var _age := 0.0
 var _speed := 0.0
 
 
+## Ракеты переиспользуются через Pool (как пули): берутся Pool.take(),
+## возвращаются Pool.release(). Сброс на каждый пуск — в _enter_tree.
+var _spent := false
+
+
 func _ready() -> void:
 	area_entered.connect(_on_area_entered)
+
+
+func _enter_tree() -> void:
+	_spent = false
+	_age = 0.0
+	_target = null
 	_speed = start_speed
 	velocity = velocity.normalized() * _speed
 	rotation = velocity.angle() + PI / 2.0
+	for child in get_children():
+		if child is CPUParticles2D:
+			child.restart()
 
 
 func _process(delta: float) -> void:
+	if _spent:
+		return
 	_age += delta
 	if _age > lifetime:
-		queue_free()
+		_spend()
 		return
 
 	if not is_instance_valid(_target):
@@ -44,7 +60,7 @@ func _process(delta: float) -> void:
 	rotation = velocity.angle() + PI / 2.0
 
 	if not get_viewport_rect().grow(200.0).has_point(position):
-		queue_free()
+		_spend()
 
 
 func _find_target() -> Node2D:
@@ -62,7 +78,14 @@ func _find_target() -> Node2D:
 
 
 func _on_area_entered(area) -> void:
+	if _spent:
+		return
 	if area.has_method("take_damage"):
 		area.take_damage(damage)
 		FX.explosion(global_position, 0.45, false)
-		queue_free()
+		_spend()
+
+
+func _spend() -> void:
+	_spent = true
+	Pool.release(self)

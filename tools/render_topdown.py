@@ -61,6 +61,13 @@ SPRITES = {
     "enemy_fighter": dict(model="craft_speederB", size=64, rotation=0, tilt=30, outline=True, recolor=ENEMY),
     "enemy_gunship": dict(model="craft_miner", size=88, rotation=0, tilt=30, outline=True, recolor=ENEMY),
     "boss": dict(model="craft_cargoB", size=200, rotation=0, tilt=30, outline=True, recolor=BOSS),
+    # наземные враги — строго сверху (в игре поворачиваются целиком).
+    # Танк — нос вниз. Турель — две части: основание и вращающаяся башня;
+    # axis=R — квадратный кадр ±R вокруг оси модели, чтобы центр картинки
+    # совпадал с осью вращения и башня садилась ровно на основание.
+    "ground_tank": dict(model="rover", size=50, rotation=0, tilt=0, outline=True, recolor=ENEMY),
+    "ground_turret_base": dict(model="turret_double", size=84, tilt=0, outline=True, recolor=ENEMY, part=("below", 0.2), axis=0.5),
+    "ground_turret_head": dict(model="turret_double", size=84, tilt=0, outline=True, recolor=ENEMY, part=("above", 0.2), axis=0.5),
 }
 
 # Декор поверхности планет. Для каждого биома — свой набор с перекраской
@@ -143,7 +150,7 @@ def rotation_y(degrees):
     return np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
 
 
-def render(tris, colors, size_px, screen_rotation, tilt, outline=False):
+def render(tris, colors, size_px, screen_rotation, tilt, outline=False, axis=None):
     # Мир: Y — вверх. Смотрим сверху вниз: экран x = X, экран y = Z.
     # Поворот на экране = поворот модели вокруг вертикальной оси Y,
     # наклон камеры = поворот вокруг X (верх экрана уходит от зрителя).
@@ -162,9 +169,12 @@ def render(tris, colors, size_px, screen_rotation, tilt, outline=False):
     face_colors = np.clip(colors * shade[:, None] + highlight[:, None], 0, 1)
 
     xy = tris[:, :, [0, 2]]
-    lo, hi = xy.reshape(-1, 2).min(0), xy.reshape(-1, 2).max(0)
+    if axis:
+        lo, hi = np.array([-axis, -axis]), np.array([axis, axis])
+    else:
+        lo, hi = xy.reshape(-1, 2).min(0), xy.reshape(-1, 2).max(0)
     span = (hi - lo).max()
-    pad = 0.04 * span
+    pad = 0.0 if axis else 0.04 * span
     scale = (size_px * SUPERSAMPLE) / (span + 2 * pad)
     w = int(np.ceil((hi[0] - lo[0] + 2 * pad) * scale))
     h = int(np.ceil((hi[1] - lo[1] + 2 * pad) * scale))
@@ -233,7 +243,13 @@ def main(names):
         for name in names or SPRITES:
             spec = SPRITES[name]
             tris, colors = load_obj(zf, spec["model"], spec.get("recolor"))
-            image = render(tris, colors, spec["size"], spec.get("rotation", 0), spec.get("tilt", 0), spec.get("outline", False))
+            if "part" in spec:
+                # Часть модели по высоте: грани ниже / не ниже порога (по нижней точке).
+                side, threshold = spec["part"]
+                below = tris[:, :, 1].min(1) < threshold
+                keep = below if side == "below" else ~below
+                tris, colors = tris[keep], colors[keep]
+            image = render(tris, colors, spec["size"], spec.get("rotation", 0), spec.get("tilt", 0), spec.get("outline", False), spec.get("axis"))
             image.save(OUT_DIR / f"{name}.png")
             print(f"{name}: {image.size[0]}x{image.size[1]}")
 
