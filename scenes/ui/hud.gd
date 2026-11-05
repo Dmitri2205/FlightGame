@@ -132,7 +132,8 @@ func _build_blueprint_badge() -> void:
 	label.add_theme_font_size_override("font_size", 24)
 	label.add_theme_color_override("font_color", Color(0.6, 0.8, 1.0))
 	_blueprint_badge.add_child(label)
-	%StarsRow.get_parent().add_child(_blueprint_badge)
+	# Под строкой звёзд (StarsLabel → StarsRow → Top).
+	stars_label.get_parent().get_parent().add_child(_blueprint_badge)
 	_blueprint_badge.hide()
 
 
