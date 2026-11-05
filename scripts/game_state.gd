@@ -391,14 +391,15 @@ func wing_guns_per_side() -> int:
 	return module_tier("wing_cannons")
 
 
-## Крыльевые бьют редко, но тяжело: урон в разы выше основной пушки.
+## Крыльевые бьют очень редко, но тяжело: снаряд — как залп основной пушки.
+## (Потом их заменят навесные орудия из чертежей со своими характеристиками.)
 func wing_cannon_damage() -> int:
-	return 4 + stat_total("wing_cannons", "damage") / 2
+	return 8 + stat_total("wing_cannons", "damage")
 
 
 ## Свой темп у крыльевых пушек (характеристика «Скорострельность»).
 func wing_fire_interval() -> float:
-	return 1.1 * pow(0.96, stat_total("wing_cannons", "rate")) / get_selected_ship().fire_rate_mult
+	return 2.4 * pow(0.97, stat_total("wing_cannons", "rate")) / get_selected_ship().fire_rate_mult
 
 
 ## Ракет в залпе = уровень модуля (0 — не установлены).
@@ -428,7 +429,7 @@ func describe_stat(id: String, stat: String) -> String:
 		["wing_cannons", "damage"]:
 			return "урон %d" % wing_cannon_damage()
 		["wing_cannons", "rate"]:
-			return "%.1f выстр/с" % (1.0 / wing_fire_interval())
+			return "раз в %.1f с" % wing_fire_interval()
 		["missiles", "damage"]:
 			return "урон %d" % missile_damage()
 		["missiles", "reload"]:

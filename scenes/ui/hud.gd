@@ -55,7 +55,8 @@ func set_stars(value: int) -> void:
 	stars_label.text = "%d" % value
 
 
-func show_boss(max_hp: int) -> void:
+func show_boss(max_hp: int, title := "БОСС") -> void:
+	(%BossLabel as Label).text = title
 	boss_bar.max_value = max_hp
 	boss_bar.value = max_hp
 	boss_box.show()

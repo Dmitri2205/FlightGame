@@ -29,6 +29,25 @@ const GROUND_SCROLL := 120.0
 static var _speed_cache := {}
 
 
+## Наземная ли волна (танки, турели) — по сцене врага, с кэшем.
+static var _ground_cache := {}
+
+
+func is_ground() -> bool:
+	if enemy == null:
+		return false
+	if not _ground_cache.has(enemy):
+		var node = enemy.instantiate()
+		_ground_cache[enemy] = "is_ground" in node
+		node.free()
+	return _ground_cache[enemy]
+
+
+## Сколько секунд выпускается вся волна (от первого врага до последнего).
+func duration() -> float:
+	return spawn_interval() * (count - 1)
+
+
 ## Через сколько секунд выпускать следующего врага «паровозика».
 func spawn_interval() -> float:
 	if enemy == null:
