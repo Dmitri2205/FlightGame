@@ -60,3 +60,16 @@ func _apply_enabled(enabled: bool) -> void:
 		tween.tween_property(player, "volume_db", VOLUME_DB if audible else SILENT_DB, FADE)
 		if not enabled:
 			tween.tween_callback(player.stop)
+
+
+## При выходе из игры: остановить дорожки и отпустить потоки — иначе движок
+## считает их «ресурсами, оставшимися в памяти» (ошибка в логе выхода).
+func _exit_tree() -> void:
+	for key in _tweens:
+		if _tweens[key].is_valid():
+			_tweens[key].kill()
+	_tweens.clear()
+	for key in _players:
+		var player: AudioStreamPlayer = _players[key]
+		player.stop()
+		player.stream = null
