@@ -6,6 +6,7 @@ signal stars_changed(total: int)
 signal upgrade_changed(id: String, tier: int)
 signal ship_changed(id: String)
 signal chapter_changed(index: int)
+signal music_changed(enabled: bool)
 
 const SAVE_PATH := "user://save.json"
 
@@ -94,6 +95,8 @@ var current_level := 0
 ## Инструменты разработчика (превью волн, тесты) в меню. Скрыты от игрока:
 ## включаются 7 тапами по названию в главном меню; в отладочной сборке — всегда.
 var dev_mode := false
+## Музыка включена (переключатель в меню паузы).
+var music_on := true
 ## Отладка: следующий запуск уровня начнётся сразу с босса.
 var boss_test := false
 ## Отладка: волны с разными траекториями идут по очереди.
@@ -473,6 +476,7 @@ func save_game() -> void:
 		"completed_levels": completed_levels,
 		"current_chapter": current_chapter,
 		"dev_mode": dev_mode,
+		"music_on": music_on,
 	}))
 
 
@@ -499,10 +503,17 @@ func load_game() -> void:
 	completed_levels = data.get("completed_levels", {})
 	current_chapter = clampi(int(data.get("current_chapter", 0)), 0, chapters.size() - 1)
 	dev_mode = bool(data.get("dev_mode", false))
+	music_on = bool(data.get("music_on", true))
 
 
 func dev_tools_available() -> bool:
 	return dev_mode or OS.is_debug_build()
+
+
+func set_music(enabled: bool) -> void:
+	music_on = enabled
+	music_changed.emit(enabled)
+	save_game()
 
 
 func set_dev_mode(enabled: bool) -> void:

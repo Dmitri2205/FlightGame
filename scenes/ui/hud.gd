@@ -24,6 +24,8 @@ func _ready() -> void:
 	%ResumeButton.pressed.connect(resume)
 	%PauseRetryButton.pressed.connect(retry_requested.emit)
 	%PauseMapButton.pressed.connect(menu_requested.emit)
+	%MusicButton.pressed.connect(_toggle_music)
+	_update_music_button()
 	%PausePanel.hide()
 	%ResultsMenuButton.pressed.connect(menu_requested.emit)
 	%RetryButton.pressed.connect(retry_requested.emit)
@@ -95,6 +97,15 @@ func pause() -> void:
 func resume() -> void:
 	get_tree().paused = false
 	%PausePanel.hide()
+
+
+func _toggle_music() -> void:
+	GameState.set_music(not GameState.music_on)
+	_update_music_button()
+
+
+func _update_music_button() -> void:
+	(%MusicButton as Button).text = "Музыка: вкл" if GameState.music_on else "Музыка: выкл"
 
 
 func is_paused() -> bool:

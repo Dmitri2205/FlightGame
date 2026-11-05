@@ -44,6 +44,7 @@ func _ready() -> void:
 	hud.next_requested.connect(_next_level)
 	director.enemy_requested.connect(_spawn_enemy)
 	director.miniboss_requested.connect(_spawn_miniboss)
+	Music.play("assault")
 
 	hud.set_health(player.health, player.max_health)
 	hud.set_score(score)
@@ -117,6 +118,7 @@ func _spawn_boss() -> void:
 	boss.health_changed.connect(hud.set_boss_health)
 	enemies.add_child(boss)
 	hud.show_boss(boss.max_hp)
+	Music.play("showdown")
 
 
 ## Мини-босс: время уровня стоит, пока он жив (WaveDirector ждёт resume()).
@@ -133,10 +135,12 @@ func _spawn_miniboss(_index: int) -> void:
 	boss.health_changed.connect(hud.set_boss_health)
 	enemies.add_child(boss)
 	hud.show_boss(boss.max_hp, "МИНИБОСС")
+	Music.play("showdown")
 
 
 func _on_miniboss_destroyed(_boss) -> void:
 	hud.hide_boss()
+	Music.play("assault")
 	director.resume()
 
 
