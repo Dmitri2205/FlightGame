@@ -41,6 +41,18 @@ func _ready() -> void:
 		GameState.save_game()
 		view_button.text = "3D-вид: вкл" if GameState.view_3d else "3D-вид: выкл")
 	%DevPanel.add_child(view_button)
+
+	# Версия сборки в углу: если на сайте новое, а тут старое — это кэш браузера.
+	var version := Label.new()
+	var version_text := "dev"
+	if FileAccess.file_exists("res://build_version.txt"):
+		version_text = FileAccess.get_file_as_string("res://build_version.txt").strip_edges()
+	version.text = "сборка " + version_text
+	version.add_theme_font_size_override("font_size", 18)
+	version.add_theme_color_override("font_color", Color(1, 1, 1, 0.45))
+	version.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT, Control.PRESET_MODE_MINSIZE, 12)
+	version.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$UI.add_child(version)
 	%ChapterLabel.text = "%s · %s" % [chapter.title, chapter.planet]
 	%ChapterLabel.add_theme_color_override("font_color", chapter.color)
 	%NextLabel.text = "Следующий: %s · %d. %s" % [next_chapter.planet, next[1] + 1, next_level.title]
