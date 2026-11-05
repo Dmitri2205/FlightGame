@@ -19,6 +19,9 @@
 [ext_resource type="Resource" path="res://data/waves/tanks_cross.tres" id="g_tanks_cross"]
 [ext_resource type="Resource" path="res://data/waves/tanks_column.tres" id="g_tanks_column"]
 [ext_resource type="Texture2D" path="res://art/ground/toxic.jpg" id="ground_tex"]
+[ext_resource type="Resource" path="res://data/waves/tease.tres" id="n_tease"]
+[ext_resource type="Resource" path="res://data/waves/orbit.tres" id="n_orbit"]
+[ext_resource type="Resource" path="res://data/waves/figure8.tres" id="n_figure8"]
 [ext_resource type="Script" path="res://scripts/chapter_data.gd" id="99_chapter"]
 
 [sub_resource type="Resource" id="Entry_1"]
@@ -126,7 +129,7 @@ script = ExtResource("1_level")
 title = "Кислотные болота"
 duration = 180.0
 timeline = [SubResource("Entry_1"), SubResource("Entry_2"), SubResource("Entry_3"), SubResource("Entry_4"), SubResource("Entry_g0")]
-filler_waves = [ExtResource("14_zigzag"), ExtResource("6_hunter"), ExtResource("8_pincer"), ExtResource("5_drift"), ExtResource("11_spiral"), ExtResource("g_turret")]
+filler_waves = [ExtResource("14_zigzag"), ExtResource("6_hunter"), ExtResource("8_pincer"), ExtResource("5_drift"), ExtResource("11_spiral"), ExtResource("g_turret"), ExtResource("n_tease")]
 filler_from = 11.0
 group_min = 1
 group_max = 2
@@ -146,7 +149,7 @@ script = ExtResource("1_level")
 title = "Ядовитые туманы"
 duration = 240.0
 timeline = [SubResource("Entry_5"), SubResource("Entry_6"), SubResource("Entry_7"), SubResource("Entry_8"), SubResource("Entry_g1")]
-filler_waves = [ExtResource("10_side_sweep"), ExtResource("7_loop"), ExtResource("6_hunter"), ExtResource("5_drift"), ExtResource("12_swoop"), ExtResource("8_pincer"), ExtResource("g_turret"), ExtResource("g_tanks_cross")]
+filler_waves = [ExtResource("10_side_sweep"), ExtResource("7_loop"), ExtResource("6_hunter"), ExtResource("5_drift"), ExtResource("12_swoop"), ExtResource("8_pincer"), ExtResource("g_turret"), ExtResource("g_tanks_cross"), ExtResource("n_tease"), ExtResource("n_orbit")]
 filler_from = 11.0
 group_min = 1
 group_max = 3
@@ -166,7 +169,7 @@ script = ExtResource("1_level")
 title = "Улей"
 duration = 300.0
 timeline = [SubResource("Entry_9"), SubResource("Entry_10"), SubResource("Entry_11"), SubResource("Entry_12"), SubResource("Entry_g2")]
-filler_waves = [ExtResource("3_diagonal"), ExtResource("7_loop"), ExtResource("12_swoop"), ExtResource("10_side_sweep"), ExtResource("14_zigzag"), ExtResource("9_s_curve"), ExtResource("6_hunter"), ExtResource("4_dive"), ExtResource("5_drift"), ExtResource("11_spiral"), ExtResource("13_wide_arc"), ExtResource("8_pincer"), ExtResource("g_turret"), ExtResource("g_tanks_cross"), ExtResource("g_tanks_column"), ExtResource("g_turret_pair")]
+filler_waves = [ExtResource("3_diagonal"), ExtResource("7_loop"), ExtResource("12_swoop"), ExtResource("10_side_sweep"), ExtResource("14_zigzag"), ExtResource("9_s_curve"), ExtResource("6_hunter"), ExtResource("4_dive"), ExtResource("5_drift"), ExtResource("11_spiral"), ExtResource("13_wide_arc"), ExtResource("8_pincer"), ExtResource("g_turret"), ExtResource("g_tanks_cross"), ExtResource("g_tanks_column"), ExtResource("g_turret_pair"), ExtResource("n_tease"), ExtResource("n_orbit"), ExtResource("n_figure8")]
 filler_from = 11.0
 group_min = 1
 group_max = 3
@@ -186,7 +189,7 @@ script = ExtResource("1_level")
 title = "Королева улья"
 duration = 300.0
 timeline = [SubResource("Entry_13"), SubResource("Entry_14"), SubResource("Entry_15"), SubResource("Entry_16"), SubResource("Entry_g3")]
-filler_waves = [ExtResource("6_hunter"), ExtResource("8_pincer"), ExtResource("5_drift"), ExtResource("9_s_curve"), ExtResource("11_spiral"), ExtResource("g_turret"), ExtResource("g_tanks_cross"), ExtResource("g_tanks_column"), ExtResource("g_turret_pair")]
+filler_waves = [ExtResource("6_hunter"), ExtResource("8_pincer"), ExtResource("5_drift"), ExtResource("9_s_curve"), ExtResource("11_spiral"), ExtResource("g_turret"), ExtResource("g_tanks_cross"), ExtResource("g_tanks_column"), ExtResource("g_turret_pair"), ExtResource("n_tease"), ExtResource("n_figure8")]
 filler_from = 11.0
 group_min = 1
 group_max = 3

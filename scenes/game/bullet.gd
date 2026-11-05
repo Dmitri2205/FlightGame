@@ -25,7 +25,7 @@ func _process(delta: float) -> void:
 	if _spent:
 		return
 	position += velocity * delta
-	if not get_viewport_rect().grow(100.0).has_point(position):
+	if not Arena.rect().grow(100.0).has_point(position):
 		_spend()
 
 

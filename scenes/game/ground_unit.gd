@@ -60,7 +60,7 @@ func _ready() -> void:
 	if background and "scroll_speed" in background:
 		_scroll_speed = background.scroll_speed
 	if pattern:
-		_motion = PatternMotion.new(pattern, mirrored, speed, get_viewport_rect().size.x)
+		_motion = PatternMotion.new(pattern, mirrored, speed, Arena.rect().size.x)
 		position = _motion.position
 		rotation = _motion.sprite_rotation()
 
@@ -78,7 +78,7 @@ func _process(delta: float) -> void:
 		position.y += _scroll_speed * delta
 
 	# Уехал вниз вместе с землёй.
-	if position.y > get_viewport_rect().size.y + 120.0 or _alive_time > 60.0:
+	if position.y > Arena.rect().size.y + 120.0 or _alive_time > 60.0:
 		queue_free()
 		return
 
@@ -123,7 +123,7 @@ func _aim(delta: float) -> void:
 
 
 func _can_fire() -> bool:
-	if not get_viewport_rect().grow(-24.0).has_point(position):
+	if not Arena.rect().grow(-24.0).has_point(position):
 		return false
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	return player == null or position.y < player.position.y - 60.0

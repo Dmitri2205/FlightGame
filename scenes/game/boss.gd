@@ -87,7 +87,7 @@ func take_damage(amount: int) -> void:
 
 
 func _move(delta: float) -> void:
-	var width := get_viewport_rect().size.x
+	var width := Arena.rect().size.x
 	var speed := move_speed * (1.6 if is_enraged() else 1.0)
 	position.x += _dir * speed * delta
 	if position.x < 130.0:

@@ -70,7 +70,7 @@ func _load_decor(prefix: String) -> void:
 func _build() -> void:
 	_patches.clear()
 	_decor.clear()
-	var size := get_viewport_rect().size
+	var size := Arena.rect().size
 	for i in patch_count:
 		var patch := Patch.new()
 		patch.pos = Vector2(randf() * size.x, randf() * size.y)
@@ -83,7 +83,7 @@ func _build() -> void:
 
 
 func _process(delta: float) -> void:
-	var size := get_viewport_rect().size
+	var size := Arena.rect().size
 	_scrolled += scroll_speed * delta
 	for patch in _patches:
 		patch.pos.y += scroll_speed * delta
@@ -98,7 +98,7 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	var screen := get_viewport_rect().size
+	var screen := Arena.rect().size
 	if ground_texture:
 		# Текстура растянута на ширину экрана и повторяется по вертикали.
 		var tile := ground_texture.get_size() * (screen.x / ground_texture.get_width())
@@ -132,5 +132,5 @@ func _randomize_patch(patch: Patch) -> void:
 
 func _randomize_decor(decor: Decor, y: float) -> void:
 	decor.texture = _decor_textures.pick_random()
-	decor.pos = Vector2(randf() * get_viewport_rect().size.x, y)
+	decor.pos = Vector2(randf() * Arena.rect().size.x, y)
 	decor.flip = randf() < 0.5

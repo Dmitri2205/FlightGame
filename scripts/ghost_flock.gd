@@ -29,7 +29,7 @@ func spawn(pattern: FlightPattern, mirrored: bool, speed: float, texture: Textur
 	sprite.texture = texture if texture else DEFAULT_TEXTURE
 	sprite.modulate = Color(1, 1, 1, opacity)
 	add_child(sprite)
-	var motion := PatternMotion.new(pattern, mirrored, speed, get_viewport_rect().size.x)
+	var motion := PatternMotion.new(pattern, mirrored, speed, Arena.rect().size.x)
 	sprite.position = motion.position
 	sprite.rotation = motion.sprite_rotation()
 	if ground:
@@ -39,7 +39,7 @@ func spawn(pattern: FlightPattern, mirrored: bool, speed: float, texture: Textur
 
 ## Сдвинуть всех на dt секунд и убрать улетевших за экран.
 func advance(dt: float) -> void:
-	var screen := get_viewport_rect()
+	var screen := Arena.rect()
 	var alive: Array[Dictionary] = []
 	for ghost in _ghosts:
 		var motion: PatternMotion = ghost.motion

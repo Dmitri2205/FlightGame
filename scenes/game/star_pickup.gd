@@ -24,7 +24,7 @@ func _process(delta: float) -> void:
 	position += velocity * delta
 	rotation += delta * 3.0
 
-	if position.y > get_viewport_rect().size.y + 40.0:
+	if position.y > Arena.rect().size.y + 40.0:
 		queue_free()
 
 

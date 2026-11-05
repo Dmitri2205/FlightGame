@@ -59,7 +59,7 @@ func _process(delta: float) -> void:
 	position += velocity * delta
 	rotation = velocity.angle() + PI / 2.0
 
-	if not get_viewport_rect().grow(200.0).has_point(position):
+	if not Arena.rect().grow(200.0).has_point(position):
 		_spend()
 
 
@@ -68,7 +68,7 @@ func _find_target() -> Node2D:
 	var best_distance := INF
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		var node := enemy as Node2D
-		if node == null or not get_viewport_rect().has_point(node.global_position):
+		if node == null or not Arena.rect().has_point(node.global_position):
 			continue
 		var distance := global_position.distance_squared_to(node.global_position)
 		if distance < best_distance:

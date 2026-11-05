@@ -23,7 +23,7 @@ func _ready() -> void:
 	_texture.fill_from = Vector2(0.5, 0.5)
 	_texture.fill_to = Vector2(1.0, 0.5)
 
-	var size := get_viewport_rect().size
+	var size := Arena.rect().size
 	for i in cloud_count:
 		var cloud := Cloud.new()
 		_reset(cloud, randf() * size.y)
@@ -31,7 +31,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	var size := get_viewport_rect().size
+	var size := Arena.rect().size
 	for cloud in _clouds:
 		cloud.pos.y += scroll_speed * delta
 		if cloud.pos.y > size.y + 300.0:
@@ -49,7 +49,7 @@ func _draw() -> void:
 
 
 func _reset(cloud: Cloud, y: float) -> void:
-	cloud.pos = Vector2(randf() * get_viewport_rect().size.x, y)
+	cloud.pos = Vector2(randf() * Arena.rect().size.x, y)
 	cloud.blobs.clear()
 	for i in randi_range(4, 7):
 		cloud.blobs.append(Vector3(randf_range(-140, 140), randf_range(-60, 60), randf_range(70, 150)))

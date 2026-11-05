@@ -73,7 +73,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	# Мышь эмулирует тач (см. project.godot), поэтому одного обработчика достаточно.
 	# Палец двигает цель 1:1, а корабль догоняет её со своей инерцией.
 	if event is InputEventScreenDrag:
-		_target = _clamp_point(_target + event.relative)
+		# Палец двигается по экрану, а мир отдалён — переводим в мировые единицы.
+		_target = _clamp_point(_target + event.relative / Arena.zoom())
 
 
 ## Мгновенно поставить корабль в точку (старт уровня).
@@ -217,7 +218,7 @@ func _apply_visuals() -> void:
 
 
 func _clamp_point(point: Vector2) -> Vector2:
-	var rect := get_viewport_rect()
+	var rect := Arena.rect()
 	return Vector2(
 		clampf(point.x, 30.0, rect.size.x - 30.0),
 		clampf(point.y, 60.0, rect.size.y - 40.0),

@@ -73,6 +73,12 @@ SPRITES = {
     "prop_barrel_large": dict(model="machine_barrelLarge", size=64, tilt=0, outline=True, recolor=ENEMY),
     "prop_generator": dict(model="machine_generator", size=76, tilt=0, outline=True, recolor=ENEMY),
     "prop_antenna": dict(model="machine_wireless", size=64, tilt=0, outline=True, recolor=ENEMY),
+    # крупные постройки баз захватчиков
+    "prop_hangar_large": dict(model="hangar_largeA", size=170, tilt=0, outline=True, recolor=ENEMY),
+    "prop_hangar_round": dict(model="hangar_roundA", size=140, tilt=0, outline=True, recolor=ENEMY),
+    "prop_hangar_small": dict(model="hangar_smallA", size=110, tilt=0, outline=True, recolor=ENEMY),
+    "prop_dish": dict(model="satelliteDish_large", size=120, tilt=0, outline=True, recolor=ENEMY),
+    "prop_generator_large": dict(model="machine_generatorLarge", size=110, tilt=0, outline=True, recolor=ENEMY),
 }
 
 # Декор поверхности планет. Для каждого биома — свой набор с перекраской
