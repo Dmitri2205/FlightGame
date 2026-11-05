@@ -15,6 +15,11 @@ extends Node2D
 ## Разрушаемые объекты на земле и выпадающий из них чертёж.
 @export var prop_scene: PackedScene
 @export var blueprint_scene: PackedScene
+## Мир шире экрана: камера плавно едет за игроком влево-вправо (как в
+## Sky Force), по бокам остаётся запас. Ширина мира, px.
+@export var world_width := 900.0
+## Насколько быстро камера догоняет игрока по горизонтали.
+@export var camera_follow := 4.0
 ## Пауза между группами разрушаемых объектов, секунд.
 @export var prop_interval_min := 5.0
 @export var prop_interval_max := 9.0
@@ -45,10 +50,13 @@ var _found_blueprint := ""
 
 
 func _ready() -> void:
+	Arena.world_width = world_width
+	tree_exiting.connect(func() -> void: Arena.world_width = 0.0)
 	_apply_cli_level()
 	level_data = GameState.current_level_data()
 
 	player.place_at(Vector2(Arena.rect().size.x / 2.0, Arena.rect().size.y - 200.0))
+	$Camera.position.x = maxf(Arena.rect().size.x - Arena.visible_size().x, 0.0) / 2.0
 	player.projectile_container = projectiles
 	player.health_changed.connect(hud.set_health)
 	player.died.connect(_finish.bind(false))
@@ -90,6 +98,7 @@ func _process(delta: float) -> void:
 		return
 	hud.set_progress(director.time / level_data.duration)
 	_update_props(delta)
+	_follow_camera(delta)
 	# Сначала добиваем оставшиеся волны, потом выходит босс.
 	if director.is_finished() and not _boss_spawned and enemies.get_child_count() == 0:
 		if boss_scene and (level_data.boss or _force_boss):
@@ -111,6 +120,18 @@ func _apply_cli_level() -> void:
 		if arg.begins_with("--level="):
 			var parts := arg.trim_prefix("--level=").split(":")
 			GameState.select_level(int(parts[0]), int(parts[1]) if parts.size() > 1 else 0)
+
+
+## Камера по горизонтали: центр экрана тянется к игроку, но не выходит за мир.
+func _follow_camera(delta: float) -> void:
+	if not is_instance_valid(player):
+		return
+	var camera := $Camera as Camera2D
+	var span := Arena.rect().size.x - Arena.visible_size().x
+	if span <= 0.0:
+		return
+	var target := clampf(player.position.x - Arena.visible_size().x / 2.0, 0.0, span)
+	camera.position.x = lerpf(camera.position.x, target, 1.0 - exp(-camera_follow * delta))
 
 
 # --- 2.5D-вид (прототип) -------------------------------------------------------
