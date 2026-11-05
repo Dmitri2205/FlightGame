@@ -27,6 +27,10 @@ var _current := ""
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# Без экрана (CI, тесты) звука всё равно нет, а незавершённое
+	# воспроизведение при выходе движок считает утечкой ресурсов.
+	if DisplayServer.get_name() == "headless":
+		return
 	for key in TRACKS:
 		var stream = TRACKS[key].duplicate()
 		stream.loop = true
