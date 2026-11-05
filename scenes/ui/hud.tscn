@@ -178,6 +178,12 @@ custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
 text = "На карту"
 
+[node name="MusicButton" type="Button" parent="Root/PausePanel/Box"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+text = "Музыка: вкл"
+
 [node name="PauseHint" type="Label" parent="Root/PausePanel/Box"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 0.6)

@@ -68,6 +68,11 @@ SPRITES = {
     "ground_tank": dict(model="rover", size=50, rotation=0, tilt=0, outline=True, recolor=ENEMY),
     "ground_turret_base": dict(model="turret_double", size=84, tilt=0, outline=True, recolor=ENEMY, part=("below", 0.2), axis=0.5),
     "ground_turret_head": dict(model="turret_double", size=84, tilt=0, outline=True, recolor=ENEMY, part=("above", 0.2), axis=0.5),
+    # разрушаемые объекты на земле (базы захватчиков): строго сверху
+    "prop_barrel": dict(model="machine_barrel", size=52, tilt=0, outline=True, recolor=ENEMY),
+    "prop_barrel_large": dict(model="machine_barrelLarge", size=64, tilt=0, outline=True, recolor=ENEMY),
+    "prop_generator": dict(model="machine_generator", size=76, tilt=0, outline=True, recolor=ENEMY),
+    "prop_antenna": dict(model="machine_wireless", size=64, tilt=0, outline=True, recolor=ENEMY),
 }
 
 # Декор поверхности планет. Для каждого биома — свой набор с перекраской

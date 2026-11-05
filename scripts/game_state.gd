@@ -6,6 +6,9 @@ signal stars_changed(total: int)
 signal upgrade_changed(id: String, tier: int)
 signal ship_changed(id: String)
 signal chapter_changed(index: int)
+signal music_changed(enabled: bool)
+signal crystals_changed(total: int)
+signal blueprints_changed(ship_id: String, count: int)
 
 const SAVE_PATH := "user://save.json"
 
@@ -78,6 +81,12 @@ const LEGACY_UPGRADE_COSTS := {
 }
 
 var stars := 0
+## Кристаллы — редкая («твёрдая») валюта: докупка чертежей, потом — ускорения.
+var crystals := 0
+## Собранные чертежи кораблей: id корабля → сколько кусков.
+var blueprints := {}
+## Скрытая защита от невезения: сколько пройденных уровней подряд без чертежа.
+var blueprint_pity := 0
 ## Прогресс модулей: id → {"tier": уровень (0 — не установлен), "steps": {stat: делений}}.
 var modules := {}
 ## Сколько звёзд вернули при переходе на уровни модулей (показать в ангаре один раз).
@@ -94,6 +103,8 @@ var current_level := 0
 ## Инструменты разработчика (превью волн, тесты) в меню. Скрыты от игрока:
 ## включаются 7 тапами по названию в главном меню; в отладочной сборке — всегда.
 var dev_mode := false
+## Музыка включена (переключатель в меню паузы).
+var music_on := true
 ## Отладка: следующий запуск уровня начнётся сразу с босса.
 var boss_test := false
 ## Отладка: волны с разными траекториями идут по очереди.
@@ -115,6 +126,99 @@ func add_stars(amount: int) -> void:
 	stars += amount
 	stars_changed.emit(stars)
 	save_game()
+
+
+# --- Кристаллы и чертежи ------------------------------------------------------
+## Чертёж на уровне спрятан так: при старте уровня с шансом
+## blueprint_level_chance() решается, есть ли тут чертёж (и для какого
+## корабля), а потом каждый разрушенный объект на земле с шансом
+## BLUEPRINT_PROP_CHANCE роняет его. Подобранный чертёж засчитывается только
+## при прохождении уровня. Где лежат чертежи, игроку не говорим.
+
+## Базовый шанс, что на уровне вообще есть чертёж.
+const BLUEPRINT_LEVEL_CHANCE := 0.18
+## Прибавка к шансу за каждый пустой пройденный уровень (скрытая).
+const BLUEPRINT_PITY_STEP := 0.04
+const BLUEPRINT_LEVEL_CHANCE_MAX := 0.6
+## Шанс выпасть из одного разрушенного объекта, если на уровне чертёж есть.
+const BLUEPRINT_PROP_CHANCE := 0.15
+## Награды кристаллами.
+const CRYSTALS_MINIBOSS := 1
+const CRYSTALS_BOSS := 3
+const CRYSTALS_FIRST_CLEAR := 2
+
+
+func add_crystals(amount: int) -> void:
+	crystals += amount
+	crystals_changed.emit(crystals)
+	save_game()
+
+
+func blueprint_count(ship_id: String) -> int:
+	return int(blueprints.get(ship_id, 0))
+
+
+func blueprints_required(ship_id: String) -> int:
+	return get_ship(ship_id).blueprints_required
+
+
+func blueprints_complete(ship_id: String) -> bool:
+	return blueprint_count(ship_id) >= blueprints_required(ship_id)
+
+
+## Корабли, для которых ещё нужны чертежи (не куплены и не собраны).
+func ships_needing_blueprints() -> Array:
+	var result := []
+	for ship in ships:
+		if ship.blueprints_required > 0 and not is_ship_unlocked(ship.id) and not blueprints_complete(ship.id):
+			result.append(ship.id)
+	return result
+
+
+## Цена одного куска чертежа в кристаллах (дороже у редких кораблей).
+func blueprint_crystal_cost(ship_id: String) -> int:
+	return maxi(1, blueprints_required(ship_id) / 2)
+
+
+func add_blueprint(ship_id: String) -> void:
+	blueprints[ship_id] = mini(blueprint_count(ship_id) + 1, blueprints_required(ship_id))
+	blueprints_changed.emit(ship_id, blueprint_count(ship_id))
+	save_game()
+
+
+func try_buy_blueprint(ship_id: String) -> bool:
+	var cost := blueprint_crystal_cost(ship_id)
+	if blueprints_complete(ship_id) or is_ship_unlocked(ship_id) or crystals < cost:
+		return false
+	crystals -= cost
+	crystals_changed.emit(crystals)
+	add_blueprint(ship_id)
+	return true
+
+
+## Шанс чертежа на уровне с учётом скрытой защиты от невезения.
+func blueprint_level_chance() -> float:
+	return minf(BLUEPRINT_LEVEL_CHANCE + BLUEPRINT_PITY_STEP * blueprint_pity, BLUEPRINT_LEVEL_CHANCE_MAX)
+
+
+## Бросок при старте уровня: id корабля, чей чертёж тут спрятан, или "".
+func roll_level_blueprint() -> String:
+	var candidates := ships_needing_blueprints()
+	if candidates.is_empty() or randf() >= blueprint_level_chance():
+		return ""
+	return candidates.pick_random()
+
+
+## Итог уровня по чертежам: found — id найденного (или ""), victory — пройден ли.
+func finish_level_blueprint(found: String, victory: bool) -> void:
+	if not victory:
+		return
+	if found != "":
+		blueprint_pity = 0
+		add_blueprint(found)
+	else:
+		blueprint_pity += 1
+		save_game()
 
 
 # --- Модули: уровни и деления --------------------------------------------------
@@ -245,9 +349,14 @@ func is_ship_unlocked(id: String) -> bool:
 	return id in unlocked_ships
 
 
+## Купить можно, только когда собраны все чертежи корабля.
+func can_unlock_ship(id: String) -> bool:
+	return not is_ship_unlocked(id) and blueprints_complete(id) and stars >= get_ship(id).cost
+
+
 func try_unlock_ship(id: String) -> bool:
 	var ship := get_ship(id)
-	if is_ship_unlocked(id) or stars < ship.cost:
+	if not can_unlock_ship(id):
 		return false
 	stars -= ship.cost
 	unlocked_ships.append(id)
@@ -330,6 +439,9 @@ func complete_current_level(score: int) -> int:
 	var first_time := not completed_levels.has(key)
 	completed_levels[key] = maxi(score, int(completed_levels.get(key, 0)))
 	var bonus := current_level_data().completion_bonus if first_time else 0
+	if first_time:
+		crystals += CRYSTALS_FIRST_CLEAR
+		crystals_changed.emit(crystals)
 	stars += bonus
 	stars_changed.emit(stars)
 	save_game()
@@ -467,12 +579,16 @@ func save_game() -> void:
 		return
 	file.store_string(JSON.stringify({
 		"stars": stars,
+		"crystals": crystals,
+		"blueprints": blueprints,
+		"blueprint_pity": blueprint_pity,
 		"modules": modules,
 		"unlocked_ships": unlocked_ships,
 		"selected_ship": selected_ship_id,
 		"completed_levels": completed_levels,
 		"current_chapter": current_chapter,
 		"dev_mode": dev_mode,
+		"music_on": music_on,
 	}))
 
 
@@ -484,6 +600,9 @@ func load_game() -> void:
 		push_warning("Файл сохранения повреждён, начинаем заново")
 		return
 	stars = int(data.get("stars", 0))
+	crystals = int(data.get("crystals", 0))
+	blueprints = data.get("blueprints", {})
+	blueprint_pity = int(data.get("blueprint_pity", 0))
 	modules = data.get("modules", {})
 	# Переход со старой прокачки (уровни 0..10) — возвращаем потраченные звёзды.
 	if not data.has("modules") and data.has("upgrades"):
@@ -499,10 +618,17 @@ func load_game() -> void:
 	completed_levels = data.get("completed_levels", {})
 	current_chapter = clampi(int(data.get("current_chapter", 0)), 0, chapters.size() - 1)
 	dev_mode = bool(data.get("dev_mode", false))
+	music_on = bool(data.get("music_on", true))
 
 
 func dev_tools_available() -> bool:
 	return dev_mode or OS.is_debug_build()
+
+
+func set_music(enabled: bool) -> void:
+	music_on = enabled
+	music_changed.emit(enabled)
+	save_game()
 
 
 func set_dev_mode(enabled: bool) -> void:
@@ -512,10 +638,14 @@ func set_dev_mode(enabled: bool) -> void:
 
 func reset_progress() -> void:
 	stars = 0
+	crystals = 0
+	blueprints = {}
+	blueprint_pity = 0
 	modules = {}
 	completed_levels = {}
 	current_chapter = 0
 	current_level = 0
 	_reset_ships()
 	stars_changed.emit(stars)
+	crystals_changed.emit(crystals)
 	save_game()

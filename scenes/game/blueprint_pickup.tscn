@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/game/blueprint_pickup.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://fx/soft_glow.tres" id="2_glow"]
+[ext_resource type="Material" path="res://fx/additive.tres" id="3_add"]
+[ext_resource type="Texture2D" path="res://ui/blueprint.svg" id="4_icon"]
+
+[sub_resource type="CircleShape2D" id="Shape_hit"]
+radius = 28.0
+
+[node name="BlueprintPickup" type="Area2D"]
+collision_layer = 16
+collision_mask = 1
+script = ExtResource("1_script")
+
+[node name="Glow" type="Sprite2D" parent="."]
+material = ExtResource("3_add")
+modulate = Color(0.4, 0.7, 1, 0.9)
+scale = Vector2(1.6, 1.6)
+texture = ExtResource("2_glow")
+
+[node name="Icon" type="Sprite2D" parent="."]
+scale = Vector2(1.3, 1.3)
+texture = ExtResource("4_icon")
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("Shape_hit")

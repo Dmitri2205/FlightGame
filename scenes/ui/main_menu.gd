@@ -25,6 +25,13 @@ func _ready() -> void:
 	var next_level: LevelData = next_chapter.levels[next[1]]
 
 	%StarsLabel.text = "%d" % GameState.stars
+	UiKit.add_crystal_counter(%StarsLabel.get_parent(), 36)
+	# Разработчику: кристаллы для проверки докупки чертежей.
+	var crystals_button := Button.new()
+	crystals_button.text = "+20 кристаллов"
+	crystals_button.custom_minimum_size = Vector2(0, 64)
+	crystals_button.pressed.connect(GameState.add_crystals.bind(20))
+	%DevPanel.add_child(crystals_button)
 	%ChapterLabel.text = "%s · %s" % [chapter.title, chapter.planet]
 	%ChapterLabel.add_theme_color_override("font_color", chapter.color)
 	%NextLabel.text = "Следующий: %s · %d. %s" % [next_chapter.planet, next[1] + 1, next_level.title]

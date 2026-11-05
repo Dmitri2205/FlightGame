@@ -16,6 +16,7 @@ GameState="*res://scripts/game_state.gd"
 FX="*res://scripts/fx.gd"
 Router="*res://scripts/router.gd"
 Pool="*res://scripts/pool.gd"
+Music="*res://scripts/music.gd"
 
 [display]
 
