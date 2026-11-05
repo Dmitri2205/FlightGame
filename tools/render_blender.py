@@ -229,12 +229,7 @@ def import_model(zf, model, recolor, part):
     # «впекаем» его в геометрию, чтобы дальше крутить объект с нуля.
     bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
 
-    # Заменяем материалы из .mtl на свои (имя материала = имя в паке).
-    model_size = max(obj.dimensions)
-    for slot in obj.material_slots:
-        name = slot.material.name.split(".")[0] if slot.material else "metal"
-        rgb = tuple(colors.get(name, (0.8, 0.8, 0.8)))
-        slot.material = make_material(name, rgb, model_size)
+    _apply_materials(obj, colors)
 
     if part:
         side, threshold = part
@@ -255,9 +250,59 @@ def import_model(zf, model, recolor, part):
     return obj
 
 
+def _apply_materials(obj, colors):
+    """Заменяем материалы из .mtl на свои (имя материала = имя в паке)."""
+    model_size = max(obj.dimensions)
+    for slot in obj.material_slots:
+        name = slot.material.name.split(".")[0] if slot.material else "metal"
+        rgb = tuple(colors.get(name, (0.8, 0.8, 0.8)))
+        slot.material = make_material(name, rgb, model_size)
+
+
+def import_parts(zf, parts, recolor):
+    """Композиция из нескольких моделей пака (босс): каждая часть со своим
+    сдвигом, поворотом и масштабом, потом всё сливается в один объект.
+    Координаты Blender: x — вправо, y — к хвосту (вверх кадра), z — вверх."""
+    colors = {}
+    pieces = []
+    for part in parts:
+        model = part["model"]
+        colors.update(base.load_mtl(zf.read(f"{base.OBJ_DIR}{model}.mtl").decode()))
+        before = set(bpy.context.scene.objects)
+        with tempfile.TemporaryDirectory() as tmp:
+            for ext in ("obj", "mtl"):
+                (Path(tmp) / f"{model}.{ext}").write_bytes(zf.read(f"{base.OBJ_DIR}{model}.{ext}"))
+            bpy.ops.wm.obj_import(filepath=str(Path(tmp) / f"{model}.obj"))
+        for obj in [o for o in bpy.context.scene.objects if o not in before and o.type == "MESH"]:
+            bpy.ops.object.select_all(action="DESELECT")
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+            obj.scale = Vector((1.0, 1.0, 1.0)) * part.get("scale", 1.0)
+            obj.rotation_euler = (0.0, 0.0, math.radians(part.get("rotation", 0)))
+            obj.location = Vector(part.get("offset", (0.0, 0.0, 0.0)))
+            bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+            pieces.append(obj)
+    for material, rgb in (recolor or {}).items():
+        colors[material] = tuple(rgb)
+    bpy.ops.object.select_all(action="DESELECT")
+    for obj in pieces:
+        obj.select_set(True)
+    bpy.context.view_layer.objects.active = pieces[0]
+    bpy.ops.object.join()
+    obj = bpy.context.view_layer.objects.active
+    _apply_materials(obj, colors)
+    for poly in obj.data.polygons:
+        poly.use_smooth = False
+    return obj
+
+
 def render_sprite(name, spec, zf, out_dir):
     reset_scene()
-    obj = import_model(zf, spec["model"], spec.get("recolor"), spec.get("part"))
+    if "parts" in spec:
+        obj = import_parts(zf, spec["parts"], spec.get("recolor"))
+    else:
+        obj = import_model(zf, spec["model"], spec.get("recolor"), spec.get("part"))
     # Поворот на экране — вокруг вертикали; наклон — вокруг X (верх экрана уходит от зрителя).
     obj.rotation_euler = (math.radians(-spec.get("tilt", 0)), 0, math.radians(spec.get("rotation", 0)))
     bpy.context.view_layer.update()

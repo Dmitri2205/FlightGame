@@ -6,12 +6,15 @@
 [ext_resource type="Texture2D" path="res://art/sprites/boss.png" id="4_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
-size = Vector2(115, 175)
+size = Vector2(190, 150)
 
 [node name="Boss" type="Area2D"]
 collision_layer = 2
 collision_mask = 1
 script = ExtResource("1_script")
+nose = Vector2(0, 84)
+gun_left = Vector2(-87, 45)
+gun_right = Vector2(87, 45)
 bullet_scene = ExtResource("2_bullet")
 
 [node name="Shadow" type="Sprite2D" parent="."]

@@ -56,11 +56,20 @@ SPRITES = {
     # корабли игрока — нос вверх
     "ship_falcon": dict(model="craft_speederA", size=84, rotation=180, tilt=30, outline=True, recolor=PLAYER_FALCON),
     "ship_swift": dict(model="craft_racer", size=86, rotation=180, tilt=30, outline=True, recolor=PLAYER_SWIFT),
-    "ship_bastion": dict(model="craft_cargoA", size=80, rotation=180, tilt=30, outline=True, recolor=PLAYER_BASTION),
+    "ship_bastion": dict(model="craft_cargoB", size=84, rotation=180, tilt=30, outline=True, recolor=PLAYER_BASTION),
     # враги — нос вниз, летят на игрока
     "enemy_fighter": dict(model="craft_speederB", size=64, rotation=0, tilt=30, outline=True, recolor=ENEMY),
     "enemy_gunship": dict(model="craft_miner", size=88, rotation=0, tilt=30, outline=True, recolor=ENEMY),
-    "boss": dict(model="craft_cargoB", size=200, rotation=0, tilt=30, outline=True, recolor=BOSS),
+    # Босс — композиция из нескольких моделей (только render_blender.py):
+    # корпус-грузовик, крылья перехватчика за ним, боковые гондолы, две башни.
+    "boss": dict(size=210, rotation=0, tilt=30, outline=True, recolor=BOSS, parts=[
+        dict(model="craft_speederC", offset=(0.0, 1.05, -0.05), scale=1.35),
+        dict(model="craft_cargoA", offset=(0.0, 0.0, 0.0), scale=1.2),
+        dict(model="craft_miner", offset=(-1.55, 0.1, 0.0), scale=0.6),
+        dict(model="craft_miner", offset=(1.55, 0.1, 0.0), scale=0.6),
+        dict(model="turret_double", offset=(-0.45, -0.55, 0.9), scale=0.9),
+        dict(model="turret_double", offset=(0.45, -0.55, 0.9), scale=0.9),
+    ]),
     # наземные враги — строго сверху (в игре поворачиваются целиком).
     # Танк — нос вниз. Турель — две части: основание и вращающаяся башня;
     # axis=R — квадратный кадр ±R вокруг оси модели, чтобы центр картинки
@@ -253,6 +262,9 @@ def main(names):
     with zipfile.ZipFile(ARCHIVE) as zf:
         for name in names or SPRITES:
             spec = SPRITES[name]
+            if "parts" in spec:
+                print(f"{name}: композиция — только tools/render_blender.py")
+                continue
             tris, colors = load_obj(zf, spec["model"], spec.get("recolor"))
             if "part" in spec:
                 # Часть модели по высоте: грани ниже / не ниже порога (по нижней точке).
