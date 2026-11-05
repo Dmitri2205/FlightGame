@@ -280,8 +280,9 @@ Blender); в нём же список спрайтов `SPRITES`, который
 
 | Спрайт | Модель |
 |---|---|
-| Сокол / Стриж / Бастион | craft_speederA / craft_racer / craft_cargoA |
-| Истребитель / тяжёлый / босс | craft_speederB / craft_miner / craft_cargoB |
+| Сокол / Стриж / Бастион | craft_speederA / craft_racer / craft_cargoB |
+| Истребитель / тяжёлый | craft_speederB / craft_miner |
+| Босс | композиция: craft_cargoA (корпус) + craft_speederC (крылья) + 2 × craft_miner (гондолы) + 2 × turret_double (`parts` в `SPRITES`, только Blender-рендер) |
 | Танк / турель (основание + башня) | rover / turret_double (разрезана по высоте) |
 | Декор поверхности | crater, craterLarge, rock*, rocks_small*, rock_crystals*, meteor |
 
