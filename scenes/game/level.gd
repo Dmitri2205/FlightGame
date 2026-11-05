@@ -118,10 +118,16 @@ func _apply_cli_level() -> void:
 ## Картинку рисует 3D-сцена (View3D), 2D-узлы уровня работают как раньше,
 ## но не видны. HUD — на своём слое, остаётся.
 func _enable_view_3d() -> void:
-	for node_name in ["Background", "Props", "Pickups", "Enemies", "Projectiles", "Player", "Effects", "Clouds"]:
+	for node_name in ["Background", "Props", "Pickups", "Enemies", "Projectiles", "Effects", "Clouds"]:
 		var node := get_node_or_null(node_name) as CanvasItem
 		if node:
 			node.visible = false
+	# Сам узел игрока прятать нельзя — он мигает `visible` при уроне и снова
+	# показался бы. Прячем его картинку (корабль и тень).
+	for node_name in ["Visual", "Shadow"]:
+		var part := player.get_node_or_null(node_name) as CanvasItem
+		if part:
+			part.hide()
 	var view := View3D.new()
 	add_child(view)
 	view.setup(self)
