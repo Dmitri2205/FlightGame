@@ -77,6 +77,9 @@ func _ready() -> void:
 		director.skip_to_end()
 		_force_boss = true
 
+	if GameState.view_3d or "--3d" in OS.get_cmdline_user_args():
+		_enable_view_3d()
+
 	# Тайный бросок: есть ли на этом заходе чертёж (игроку не показываем).
 	if not _force_boss:
 		_hidden_blueprint = GameState.roll_level_blueprint()
@@ -108,6 +111,20 @@ func _apply_cli_level() -> void:
 		if arg.begins_with("--level="):
 			var parts := arg.trim_prefix("--level=").split(":")
 			GameState.select_level(int(parts[0]), int(parts[1]) if parts.size() > 1 else 0)
+
+
+# --- 2.5D-вид (прототип) -------------------------------------------------------
+
+## Картинку рисует 3D-сцена (View3D), 2D-узлы уровня работают как раньше,
+## но не видны. HUD — на своём слое, остаётся.
+func _enable_view_3d() -> void:
+	for node_name in ["Background", "Props", "Pickups", "Enemies", "Projectiles", "Player", "Effects", "Clouds"]:
+		var node := get_node_or_null(node_name) as CanvasItem
+		if node:
+			node.visible = false
+	var view := View3D.new()
+	add_child(view)
+	view.setup(self)
 
 
 # --- Разрушаемые объекты и чертежи --------------------------------------------

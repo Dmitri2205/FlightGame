@@ -74,6 +74,8 @@ jobs:
           done
           run "all flight patterns (25s)" res://scenes/game/level.tscn --quit-after 1500 -- --patterns
           run "boss fight (20s)" res://scenes/game/level.tscn --quit-after 1200 -- --boss
+          run "3D view prototype (15s)" res://scenes/game/level.tscn --quit-after 900 -- --level=0:2 --3d
+          run "3D view boss (10s)" res://scenes/game/level.tscn --quit-after 600 -- --boss --3d
           exit $status
 
       - name: Export Web

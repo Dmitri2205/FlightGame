@@ -7,6 +7,9 @@ extends Node
 ## (LIMITS) — лишние пропускаются: в куче вспышек разницы не видно, а кадр
 ## не проседает. У взрывов лимит большой, чтобы гибель врага не осталась без взрыва.
 
+## Эффект появился (для 3D-вида: он рисует свой взрыв/искры там же).
+signal spawned(kind: String, pos: Vector2, size: float)
+
 const EXPLOSION := preload("res://scenes/fx/explosion.tscn")
 const HIT_SPARK := preload("res://scenes/fx/hit_spark.tscn")
 const MUZZLE_FLASH := preload("res://scenes/fx/muzzle_flash.tscn")
@@ -25,6 +28,7 @@ var _busy := {}
 ## Взрыв размера `size` (1 — истребитель, 2+ — крупные цели).
 ## shake_screen = false — без тряски (частые мелкие взрывы, например ракеты).
 func explosion(pos: Vector2, size := 1.0, shake_screen := true) -> void:
+	spawned.emit("explosion", pos, size)
 	_spawn_pooled(EXPLOSION, pos, size)
 	if shake_screen:
 		shake(3.0 * size, 0.15 + 0.08 * size)
@@ -39,6 +43,7 @@ func chain_explosions(pos: Vector2, count: int, radius: float, size := 1.2) -> v
 
 ## Искры попадания пули.
 func hit(pos: Vector2) -> void:
+	spawned.emit("hit", pos, 1.0)
 	_spawn_pooled(HIT_SPARK, pos, 1.0)
 
 

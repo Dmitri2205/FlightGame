@@ -32,6 +32,15 @@ func _ready() -> void:
 	crystals_button.custom_minimum_size = Vector2(0, 64)
 	crystals_button.pressed.connect(GameState.add_crystals.bind(20))
 	%DevPanel.add_child(crystals_button)
+	# Разработчику: прототип 2.5D-вида уровня.
+	var view_button := Button.new()
+	view_button.custom_minimum_size = Vector2(0, 64)
+	view_button.text = "3D-вид: вкл" if GameState.view_3d else "3D-вид: выкл"
+	view_button.pressed.connect(func() -> void:
+		GameState.view_3d = not GameState.view_3d
+		GameState.save_game()
+		view_button.text = "3D-вид: вкл" if GameState.view_3d else "3D-вид: выкл")
+	%DevPanel.add_child(view_button)
 	%ChapterLabel.text = "%s · %s" % [chapter.title, chapter.planet]
 	%ChapterLabel.add_theme_color_override("font_color", chapter.color)
 	%NextLabel.text = "Следующий: %s · %d. %s" % [next_chapter.planet, next[1] + 1, next_level.title]

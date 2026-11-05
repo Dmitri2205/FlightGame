@@ -105,6 +105,8 @@ var current_level := 0
 var dev_mode := false
 ## Музыка включена (переключатель в меню паузы).
 var music_on := true
+## Прототип 2.5D-вида (камера сзади-сверху), переключатель в меню разработчика.
+var view_3d := false
 ## Отладка: следующий запуск уровня начнётся сразу с босса.
 var boss_test := false
 ## Отладка: волны с разными траекториями идут по очереди.
@@ -603,6 +605,7 @@ func save_game() -> void:
 		"current_chapter": current_chapter,
 		"dev_mode": dev_mode,
 		"music_on": music_on,
+		"view_3d": view_3d,
 	}))
 
 
@@ -633,6 +636,7 @@ func load_game() -> void:
 	current_chapter = clampi(int(data.get("current_chapter", 0)), 0, chapters.size() - 1)
 	dev_mode = bool(data.get("dev_mode", false))
 	music_on = bool(data.get("music_on", true))
+	view_3d = bool(data.get("view_3d", false))
 
 
 func dev_tools_available() -> bool:
