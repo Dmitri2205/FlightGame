@@ -57,6 +57,8 @@ jobs:
             echo "::endgroup::"
             if [ "$code" -ne 0 ] || grep -qE "SCRIPT ERROR|Parse Error|ERROR:" run.log; then
               echo "::error::Ошибки: $name"
+              # Первые уникальные ошибки (с местом) — повторяющиеся каждый кадр не забивают лог.
+              grep -A1 -E "SCRIPT ERROR|Parse Error|ERROR:" run.log | grep -v '^--$' | awk '!seen[$0]++' | head -20
               status=1
             fi
           }
