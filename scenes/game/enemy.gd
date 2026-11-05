@@ -47,7 +47,7 @@ func _ready() -> void:
 	_fire_cooldown = randf_range(0.5, maxf(fire_interval, 0.5))
 	area_entered.connect(_on_area_entered)
 	if pattern:
-		_motion = PatternMotion.new(pattern, mirrored, speed, get_viewport_rect().size.x)
+		_motion = PatternMotion.new(pattern, mirrored, speed, Arena.rect().size.x)
 		position = _motion.position
 		rotation = _motion.sprite_rotation()
 
@@ -69,9 +69,9 @@ func _process(delta: float) -> void:
 
 	# Удаляем, когда улетел за экран (появляются враги тоже за экраном,
 	# поэтому сначала ждём, пока он хоть раз окажется в кадре).
-	if get_viewport_rect().grow(-20.0).has_point(position):
+	if Arena.rect().grow(-20.0).has_point(position):
 		_was_on_screen = true
-	elif (_was_on_screen and not get_viewport_rect().grow(150.0).has_point(position)) or _alive_time > 30.0:
+	elif (_was_on_screen and not Arena.rect().grow(150.0).has_point(position)) or _alive_time > 30.0:
 		queue_free()
 		return
 
@@ -106,7 +106,7 @@ func _die() -> void:
 ## Стреляет только из кадра и только перед игроком: пролетевшие мимо
 ## и ушедшие за край экрана в спину не бьют.
 func _can_fire() -> bool:
-	if not get_viewport_rect().grow(-24.0).has_point(position):
+	if not Arena.rect().grow(-24.0).has_point(position):
 		return false
 	var player := get_tree().get_first_node_in_group("player") as Node2D
 	return player == null or position.y < player.position.y - 60.0

@@ -17,6 +17,7 @@ FX="*res://scripts/fx.gd"
 Router="*res://scripts/router.gd"
 Pool="*res://scripts/pool.gd"
 Music="*res://scripts/music.gd"
+Arena="*res://scripts/arena.gd"
 
 [display]
 

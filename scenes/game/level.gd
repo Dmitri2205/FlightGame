@@ -48,7 +48,7 @@ func _ready() -> void:
 	_apply_cli_level()
 	level_data = GameState.current_level_data()
 
-	player.place_at(Vector2(get_viewport_rect().size.x / 2.0, get_viewport_rect().size.y - 200.0))
+	player.place_at(Vector2(Arena.rect().size.x / 2.0, Arena.rect().size.y - 200.0))
 	player.projectile_container = projectiles
 	player.health_changed.connect(hud.set_health)
 	player.died.connect(_finish.bind(false))
@@ -120,13 +120,26 @@ func _update_props(delta: float) -> void:
 	if _prop_cooldown > 0.0:
 		return
 	_prop_cooldown = randf_range(prop_interval_min, prop_interval_max)
-	var width := get_viewport_rect().size.x
-	var center := randf_range(100.0, width - 100.0)
-	for i in randi_range(1, 3):
-		var prop = prop_scene.instantiate()
-		prop.position = Vector2(clampf(center + randf_range(-110.0, 110.0), 50.0, width - 50.0), -50.0 - 70.0 * i)
-		prop.destroyed.connect(_on_prop_destroyed)
-		props.add_child(prop)
+	var width := Arena.rect().size.x
+	var center := randf_range(140.0, width - 140.0)
+	if randf() < 0.45:
+		# «База»: крупная постройка, вокруг неё 2–4 мелких.
+		_spawn_prop(Vector2(center, -260.0), true)
+		for i in randi_range(2, 4):
+			var angle := randf() * TAU
+			var offset := Vector2(cos(angle), sin(angle)) * randf_range(120.0, 170.0)
+			_spawn_prop(Vector2(clampf(center + offset.x, 50.0, width - 50.0), -260.0 + offset.y), false)
+	else:
+		for i in randi_range(1, 3):
+			_spawn_prop(Vector2(clampf(center + randf_range(-110.0, 110.0), 50.0, width - 50.0), -50.0 - 70.0 * i), false)
+
+
+func _spawn_prop(pos: Vector2, is_large: bool) -> void:
+	var prop = prop_scene.instantiate()
+	prop.large = is_large
+	prop.position = pos
+	prop.destroyed.connect(_on_prop_destroyed)
+	props.add_child(prop)
 
 
 func _on_prop_destroyed(prop) -> void:
@@ -155,7 +168,7 @@ func _spawn_enemy(wave: WaveData, pattern: FlightPattern, mirrored: bool) -> voi
 	enemy.pattern = pattern
 	enemy.mirrored = mirrored
 	enemy.max_hp = ceili(enemy.max_hp * level_data.enemy_hp_mult)
-	enemy.position = pattern.start_position(get_viewport_rect().size.x, mirrored)
+	enemy.position = pattern.start_position(Arena.rect().size.x, mirrored)
 	enemy.projectile_container = projectiles
 	enemy.destroyed.connect(_on_enemy_destroyed)
 	enemies.add_child(enemy)
@@ -165,7 +178,7 @@ func _spawn_boss() -> void:
 	_boss_spawned = true
 	var boss = boss_scene.instantiate()
 	boss.max_hp = level_data.boss_hp
-	boss.position = Vector2(get_viewport_rect().size.x / 2.0, -150.0)
+	boss.position = Vector2(Arena.rect().size.x / 2.0, -150.0)
 	boss.projectile_container = projectiles
 	boss.destroyed.connect(_on_enemy_destroyed)
 	boss.destroyed.connect(_on_boss_destroyed)
@@ -182,7 +195,7 @@ func _spawn_miniboss(_index: int) -> void:
 		return
 	var boss = miniboss_scene.instantiate()
 	boss.max_hp = level_data.miniboss_hp
-	boss.position = Vector2(get_viewport_rect().size.x / 2.0, -120.0)
+	boss.position = Vector2(Arena.rect().size.x / 2.0, -120.0)
 	boss.projectile_container = projectiles
 	boss.destroyed.connect(_on_enemy_destroyed)
 	boss.destroyed.connect(_on_miniboss_destroyed)

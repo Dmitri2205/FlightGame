@@ -26,7 +26,7 @@ func _process(delta: float) -> void:
 		velocity = velocity.move_toward(Vector2(0, 120), 400.0 * delta)
 	position += velocity * delta
 	$Glow.scale = Vector2.ONE * (1.6 + 0.3 * sin(_age * 8.0))
-	if position.y > get_viewport_rect().size.y + 60.0:
+	if position.y > Arena.rect().size.y + 60.0:
 		queue_free()
 
 
