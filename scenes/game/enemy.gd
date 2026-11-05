@@ -119,7 +119,7 @@ func _fire() -> void:
 	var direction := Vector2.DOWN
 	if player:
 		direction = global_position.direction_to(player.global_position)
-	var bullet = bullet_scene.instantiate()
+	var bullet = Pool.take(bullet_scene)
 	bullet.position = global_position
 	bullet.velocity = direction * bullet_speed
 	bullet.damage = bullet_damage

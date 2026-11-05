@@ -137,7 +137,7 @@ func _ring(count: int, angle_offset: float) -> void:
 func _shoot(offset: Vector2, direction: Vector2) -> void:
 	if bullet_scene == null or projectile_container == null:
 		return
-	var bullet = bullet_scene.instantiate()
+	var bullet = Pool.take(bullet_scene)
 	bullet.position = global_position + offset
 	bullet.velocity = direction * bullet_speed
 	bullet.damage = bullet_damage

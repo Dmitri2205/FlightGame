@@ -32,7 +32,7 @@ bullet_speed = 330.0
 sway_amplitude = 40.0
 explosion_size = 0.8
 
-[node name="Shadow" type="CanvasGroup" parent="."]
+[node name="Shadow" type="Sprite2D" parent="."]
 script = ExtResource("2_shadow")
 
 [node name="EngineTrail" type="CPUParticles2D" parent="."]

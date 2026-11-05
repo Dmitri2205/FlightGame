@@ -20,9 +20,9 @@ fire_interval = 1.1
 bullet_scene = ExtResource("2_bullet")
 explosion_size = 1.5
 
-[node name="Shadow" type="CanvasGroup" parent="."]
+[node name="Shadow" type="Sprite2D" parent="."]
 script = ExtResource("3_shadow")
-offset = Vector2(26, 38)
+cast_offset = Vector2(26, 38)
 
 [node name="Sprite" type="Sprite2D" parent="."]
 texture = ExtResource("4_tex")
