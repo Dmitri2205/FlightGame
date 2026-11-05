@@ -50,7 +50,7 @@ func play(key: String) -> void:
 func _apply_enabled(enabled: bool) -> void:
 	for key in _players:
 		var player: AudioStreamPlayer = _players[key]
-		var audible := enabled and key == _current
+		var audible: bool = enabled and key == _current
 		if audible and not player.playing:
 			player.play()
 		if _tweens.has(key) and _tweens[key].is_valid():
