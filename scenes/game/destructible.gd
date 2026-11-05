@@ -11,23 +11,26 @@ signal destroyed(prop: Node2D)
 ## Виды: спрайт, прочность, звёзды, размер взрыва. Мелкие — бочки, генераторы,
 ## антенны; крупные — ангары, тарелки связи (центр «базы»).
 const SMALL := [
-	{"texture": preload("res://art/sprites/prop_barrel.png"), "hp": 2, "stars": 1, "blast": 0.6},
-	{"texture": preload("res://art/sprites/prop_barrel_large.png"), "hp": 4, "stars": 2, "blast": 0.7},
-	{"texture": preload("res://art/sprites/prop_generator.png"), "hp": 6, "stars": 3, "blast": 0.8},
-	{"texture": preload("res://art/sprites/prop_antenna.png"), "hp": 4, "stars": 2, "blast": 0.7},
+	{"texture": preload("res://art/sprites/prop_barrel.png"), "model": "machine_barrel", "hp": 2, "stars": 1, "blast": 0.6},
+	{"texture": preload("res://art/sprites/prop_barrel_large.png"), "model": "machine_barrelLarge", "hp": 4, "stars": 2, "blast": 0.7},
+	{"texture": preload("res://art/sprites/prop_generator.png"), "model": "machine_generator", "hp": 6, "stars": 3, "blast": 0.8},
+	{"texture": preload("res://art/sprites/prop_antenna.png"), "model": "machine_wireless", "hp": 4, "stars": 2, "blast": 0.7},
 ]
 const LARGE := [
-	{"texture": preload("res://art/sprites/prop_hangar_large.png"), "hp": 30, "stars": 10, "blast": 1.6},
-	{"texture": preload("res://art/sprites/prop_hangar_round.png"), "hp": 24, "stars": 8, "blast": 1.5},
-	{"texture": preload("res://art/sprites/prop_hangar_small.png"), "hp": 18, "stars": 6, "blast": 1.3},
-	{"texture": preload("res://art/sprites/prop_dish.png"), "hp": 16, "stars": 6, "blast": 1.3},
-	{"texture": preload("res://art/sprites/prop_generator_large.png"), "hp": 14, "stars": 5, "blast": 1.2},
+	{"texture": preload("res://art/sprites/prop_hangar_large.png"), "model": "hangar_largeA", "hp": 30, "stars": 10, "blast": 1.6},
+	{"texture": preload("res://art/sprites/prop_hangar_round.png"), "model": "hangar_roundA", "hp": 24, "stars": 8, "blast": 1.5},
+	{"texture": preload("res://art/sprites/prop_hangar_small.png"), "model": "hangar_smallA", "hp": 18, "stars": 6, "blast": 1.3},
+	{"texture": preload("res://art/sprites/prop_dish.png"), "model": "satelliteDish_large", "hp": 16, "stars": 6, "blast": 1.3},
+	{"texture": preload("res://art/sprites/prop_generator_large.png"), "model": "machine_generatorLarge", "hp": 14, "stars": 5, "blast": 1.2},
 ]
 ## Что остаётся на месте разрушенной постройки: тёмная воронка.
 const SCORCH := preload("res://art/sprites/decor_crater.png")
 
 ## Крупная постройка (выбирает уровень до add_child).
 var large := false
+## Модель пака для 3D-вида и размер спрайта (px).
+var model_name := ""
+var sprite_size := 64.0
 var score_value := 40
 var star_drop := 1
 
@@ -43,6 +46,8 @@ func _ready() -> void:
 	var kind: Dictionary = (LARGE if large else SMALL).pick_random()
 	$Sprite.texture = kind.texture
 	$Sprite.rotation = randi_range(0, 3) * PI / 2.0
+	model_name = kind.model
+	sprite_size = maxf(kind.texture.get_width(), kind.texture.get_height())
 	_hp = kind.hp
 	_blast = kind.blast
 	star_drop = kind.stars
@@ -59,6 +64,10 @@ func _process(delta: float) -> void:
 	position.y += _scroll_speed * delta
 	if position.y > Arena.rect().size.y + 100.0:
 		queue_free()
+
+
+func is_destroyed() -> bool:
+	return _dead
 
 
 func take_damage(amount: int) -> void:

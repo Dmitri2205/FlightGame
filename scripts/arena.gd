@@ -18,3 +18,12 @@ func rect() -> Rect2:
 func zoom() -> float:
 	var camera := get_viewport().get_camera_2d()
 	return camera.zoom.x if camera else 1.0
+
+
+## Во сколько раз сдвиг пальца на экране (px) больше сдвига в мире.
+## Обычно это zoom камеры; 3D-вид ставит свой масштаб (перспектива).
+var drag_scale_override := 0.0
+
+
+func drag_scale() -> float:
+	return drag_scale_override if drag_scale_override > 0.0 else zoom()
