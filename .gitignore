@@ -4,3 +4,4 @@
 *.tmp
 /build/
 __pycache__/
+build_version.txt
