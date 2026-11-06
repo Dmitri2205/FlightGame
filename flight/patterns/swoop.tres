@@ -5,7 +5,6 @@
 
 [sub_resource type="Resource" id="Step_1"]
 script = ExtResource("2_step")
-type = 0
 distance = 580.0
 
 [sub_resource type="Resource" id="Step_2"]
@@ -16,7 +15,6 @@ radius = 190.0
 
 [sub_resource type="Resource" id="Step_3"]
 script = ExtResource("2_step")
-type = 0
 distance = 320.0
 
 [sub_resource type="Resource" id="Step_4"]
@@ -28,6 +26,6 @@ radius = 160.0
 [resource]
 script = ExtResource("1_pattern")
 title = "Нырок, подъём и второй заход"
-start = Vector2(0.15, -60.0)
+start = Vector2(0.15, -60)
 heading = 15.0
 steps = [SubResource("Step_1"), SubResource("Step_2"), SubResource("Step_3"), SubResource("Step_4")]

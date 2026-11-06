@@ -5,7 +5,6 @@
 
 [sub_resource type="Resource" id="Step_1"]
 script = ExtResource("2_step")
-type = 0
 distance = 560.0
 
 [sub_resource type="Resource" id="Step_2"]
@@ -16,7 +15,6 @@ radius = 140.0
 
 [sub_resource type="Resource" id="Step_3"]
 script = ExtResource("2_step")
-type = 0
 distance = 220.0
 
 [sub_resource type="Resource" id="Step_4"]
@@ -28,6 +26,5 @@ radius = 140.0
 [resource]
 script = ExtResource("1_pattern")
 title = "Двойная петля"
-start = Vector2(0.3, -60.0)
-heading = 0.0
+start = Vector2(0.3, -60)
 steps = [SubResource("Step_1"), SubResource("Step_2"), SubResource("Step_3"), SubResource("Step_4")]

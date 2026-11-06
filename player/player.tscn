@@ -2,13 +2,13 @@
 
 [ext_resource type="Script" path="res://player/player.gd" id="1_script"]
 [ext_resource type="PackedScene" path="res://weapons/player_bullet.tscn" id="2_bullet"]
+[ext_resource type="Script" path="res://fx/shadow.gd" id="3_shadow"]
+[ext_resource type="Texture2D" path="res://art/sprites/ship_falcon.png" id="4_tex"]
 [ext_resource type="PackedScene" path="res://weapons/player_shrapnel.tscn" id="5_shrapnel"]
 [ext_resource type="PackedScene" path="res://weapons/player_wing_bullet.tscn" id="6_wing"]
 [ext_resource type="PackedScene" path="res://weapons/missile.tscn" id="7_missile"]
-[ext_resource type="Script" path="res://fx/shadow.gd" id="3_shadow"]
-[ext_resource type="Texture2D" path="res://art/sprites/ship_falcon.png" id="4_tex"]
-[ext_resource type="Texture2D" path="res://fx/materials/soft_glow.tres" id="fx_glow"]
 [ext_resource type="Material" path="res://fx/materials/additive.tres" id="fx_add"]
+[ext_resource type="Texture2D" path="res://fx/materials/soft_glow.tres" id="fx_glow"]
 
 [sub_resource type="Curve" id="Curve_shrink"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]

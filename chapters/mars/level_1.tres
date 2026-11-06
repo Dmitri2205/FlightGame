@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="LevelData" load_steps=14 format=3]
+[gd_resource type="Resource" script_class="LevelData" format=3]
 
 [ext_resource type="Resource" path="res://flight/waves/dive.tres" id="1_dxdha"]
 [ext_resource type="Resource" path="res://flight/waves/diagonal.tres" id="2_bv8if"]
@@ -41,13 +41,7 @@ duration = 180.0
 timeline = [SubResource("Entry_1"), SubResource("Entry_2"), SubResource("Entry_3"), SubResource("Entry_4"), SubResource("Entry_g0")]
 filler_waves = [ExtResource("1_dxdha"), ExtResource("2_bv8if"), ExtResource("3_klqel"), ExtResource("4_1bqpi"), ExtResource("5_w7qnf"), ExtResource("6_7l436")]
 filler_from = 11.0
-group_min = 1
 group_max = 2
-wave_gap = 0.8
 rest_min = 3.8
 rest_max = 6.7
-ground_chance = 0.6
 miniboss_at = [0.5]
-boss = false
-boss_hp = 500
-completion_bonus = 20

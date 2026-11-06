@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ChapterData" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="ChapterData" format=3]
 
 [ext_resource type="Texture2D" path="res://art/ground/ice.jpg" id="1_qhpni"]
 [ext_resource type="Resource" path="res://chapters/cryos/level_1.tres" id="2_c5k23"]
@@ -19,6 +19,4 @@ ground_texture = ExtResource("1_qhpni")
 decor_prefix = "decor_ice_"
 levels = [ExtResource("2_c5k23"), ExtResource("3_2ymbx"), ExtResource("4_fsr8j"), ExtResource("5_bjxcn")]
 enemy_power = 1.4
-power_per_level = 0.0
 miniboss_hp_base = 240
-miniboss_hp_per_level = 30

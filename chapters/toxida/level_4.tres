@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="LevelData" load_steps=19 format=3]
+[gd_resource type="Resource" script_class="LevelData" format=3]
 
 [ext_resource type="Resource" path="res://flight/waves/hunter.tres" id="1_318e1"]
 [ext_resource type="Resource" path="res://flight/waves/pincer.tres" id="2_4ih1m"]
@@ -46,12 +46,8 @@ duration = 300.0
 timeline = [SubResource("Entry_13"), SubResource("Entry_14"), SubResource("Entry_15"), SubResource("Entry_16"), SubResource("Entry_g3")]
 filler_waves = [ExtResource("1_318e1"), ExtResource("2_4ih1m"), ExtResource("3_ri68y"), ExtResource("4_ytggv"), ExtResource("5_o2onp"), ExtResource("6_us0s5"), ExtResource("7_0hl7h"), ExtResource("8_672k7"), ExtResource("9_0b2bd"), ExtResource("10_l8y4u"), ExtResource("11_p2tju")]
 filler_from = 11.0
-group_min = 1
-group_max = 3
-wave_gap = 0.8
 rest_min = 3.0
 rest_max = 5.3
-ground_chance = 0.6
 miniboss_at = [0.5]
 boss = true
 boss_hp = 1200
