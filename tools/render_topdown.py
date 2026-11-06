@@ -46,6 +46,8 @@ OUTLINE_COLOR = (0.07, 0.05, 0.09)
 PLAYER_FALCON = {"metalRed": (0.95, 0.3, 0.25)}
 PLAYER_SWIFT = {"metalRed": (0.25, 0.65, 1.0)}
 PLAYER_BASTION = {"metalRed": (0.5, 0.8, 0.3)}
+PLAYER_HAWK = {"metalRed": (1.0, 0.78, 0.2)}
+PLAYER_CITADEL = {"metalRed": (0.2, 0.82, 0.72)}
 ENEMY = {"metalRed": (0.75, 0.25, 0.65), "metal": (0.6, 0.58, 0.66)}
 BOSS = {"metalRed": (0.85, 0.2, 0.3), "metal": (0.5, 0.48, 0.55), "metalDark": (0.38, 0.36, 0.44)}
 
@@ -57,6 +59,8 @@ SPRITES = {
     "ship_falcon": dict(model="craft_speederA", size=84, rotation=180, tilt=30, outline=True, recolor=PLAYER_FALCON),
     "ship_swift": dict(model="craft_racer", size=86, rotation=180, tilt=30, outline=True, recolor=PLAYER_SWIFT),
     "ship_bastion": dict(model="craft_cargoB", size=84, rotation=180, tilt=30, outline=True, recolor=PLAYER_BASTION),
+    "ship_hawk": dict(model="craft_speederD", size=84, rotation=180, tilt=30, outline=True, recolor=PLAYER_HAWK),
+    "ship_citadel": dict(model="craft_cargoA", size=84, rotation=180, tilt=30, outline=True, recolor=PLAYER_CITADEL),
     # враги — нос вниз, летят на игрока
     "enemy_fighter": dict(model="craft_speederB", size=64, rotation=0, tilt=30, outline=True, recolor=ENEMY),
     "enemy_gunship": dict(model="craft_miner", size=88, rotation=0, tilt=30, outline=True, recolor=ENEMY),

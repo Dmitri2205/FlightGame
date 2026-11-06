@@ -7,6 +7,8 @@ const _SHIPS := [
 	preload("res://ships/falcon.tres"),
 	preload("res://ships/swift.tres"),
 	preload("res://ships/bastion.tres"),
+	preload("res://ships/hawk.tres"),
+	preload("res://ships/citadel.tres"),
 ]
 
 

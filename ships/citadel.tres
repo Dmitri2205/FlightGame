@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ShipData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://ships/ship_data.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://art/sprites/ship_citadel.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_script")
+id = "citadel"
+title = "Цитадель"
+description = "Летающая крепость: крепкая, бьёт больно и издалека притягивает добычу."
+cost = 800
+blueprints_required = 25
+mass = 1.8
+thrust = 6300.0
+max_speed = 850.0
+base_health = 150
+fire_rate_mult = 0.9
+damage_bonus = 1
+magnet_mult = 1.6
+color = Color(0.2, 0.82, 0.72, 1)
+visual_scale = 1.2
+texture = ExtResource("2_tex")
+nose_gun = Vector2(0, -40)
+wing_gun = Vector2(22, -10)

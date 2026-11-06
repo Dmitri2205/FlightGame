@@ -36,7 +36,10 @@ const TYPES := {
 	"res://enemies/ground/ground_tank.tscn": {"model": "rover", "size": 50.0, "air": false, "palette": "enemy"},
 	"res://enemies/ground/ground_turret.tscn": {"model": "turret_double", "size": 84.0, "air": false, "palette": "enemy", "turret": true},
 }
-const SHIP_MODELS := {"falcon": "craft_speederA", "swift": "craft_racer", "bastion": "craft_cargoB"}
+const SHIP_MODELS := {
+	"falcon": "craft_speederA", "swift": "craft_racer", "bastion": "craft_cargoB",
+	"hawk": "craft_speederD", "citadel": "craft_cargoA",
+}
 ## Босс — та же композиция, что у спрайта (координаты Blender: x, к хвосту, вверх).
 const BOSS_PARTS := [
 	["craft_speederC", Vector3(0.0, 1.05, -0.05), 1.35],
