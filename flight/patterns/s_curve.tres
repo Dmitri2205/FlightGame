@@ -6,7 +6,6 @@
 [sub_resource type="Resource" id="Step_1"]
 script = ExtResource("2_step")
 type = 1
-angle = 90.0
 radius = 170.0
 
 [sub_resource type="Resource" id="Step_2"]
@@ -30,12 +29,10 @@ radius = 170.0
 [sub_resource type="Resource" id="Step_5"]
 script = ExtResource("2_step")
 type = 1
-angle = 90.0
 radius = 170.0
 
 [resource]
 script = ExtResource("1_pattern")
 title = "Длинная змея"
-start = Vector2(0.4, -60.0)
-heading = 0.0
+start = Vector2(0.4, -60)
 steps = [SubResource("Step_1"), SubResource("Step_2"), SubResource("Step_3"), SubResource("Step_4"), SubResource("Step_5")]

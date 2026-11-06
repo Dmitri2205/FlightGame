@@ -5,7 +5,6 @@
 
 [sub_resource type="Resource" id="Step_1"]
 script = ExtResource("2_step")
-type = 0
 distance = 250.0
 
 [sub_resource type="Resource" id="Step_park"]
@@ -15,6 +14,6 @@ type = 4
 [resource]
 script = ExtResource("1_pattern")
 title = "Земля: выезд сбоку и стоп"
-start = Vector2(-0.08, 140.0)
+start = Vector2(-0.08, 140)
 heading = 90.0
 steps = [SubResource("Step_1"), SubResource("Step_park")]

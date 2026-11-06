@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ChapterData" load_steps=7 format=3]
+[gd_resource type="Resource" script_class="ChapterData" format=3]
 
 [ext_resource type="Texture2D" path="res://art/ground/toxic.jpg" id="1_hv4h8"]
 [ext_resource type="Resource" path="res://chapters/toxida/level_1.tres" id="2_klgco"]
@@ -19,6 +19,4 @@ ground_texture = ExtResource("1_hv4h8")
 decor_prefix = "decor_toxic_"
 levels = [ExtResource("2_klgco"), ExtResource("3_4d82c"), ExtResource("4_24sau"), ExtResource("5_q6qjn")]
 enemy_power = 1.9
-power_per_level = 0.0
 miniboss_hp_base = 360
-miniboss_hp_per_level = 30

@@ -5,8 +5,6 @@
 
 [sub_resource type="Resource" id="Step_1"]
 script = ExtResource("2_step")
-type = 0
-distance = 300.0
 
 [sub_resource type="Resource" id="Step_2"]
 script = ExtResource("2_step")
@@ -23,6 +21,6 @@ radius = 210.0
 [resource]
 script = ExtResource("1_pattern")
 title = "Пролёт через экран и разворот"
-start = Vector2(-0.05, 280.0)
+start = Vector2(-0.05, 280)
 heading = 90.0
 steps = [SubResource("Step_1"), SubResource("Step_2"), SubResource("Step_3")]

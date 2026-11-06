@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 env:
-  GODOT_VERSION: "4.3"
+  GODOT_VERSION: "4.7"
 
 jobs:
   build:

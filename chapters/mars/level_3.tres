@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="LevelData" load_steps=21 format=3]
+[gd_resource type="Resource" script_class="LevelData" format=3]
 
 [ext_resource type="Resource" path="res://flight/waves/loop.tres" id="1_lhjvg"]
 [ext_resource type="Resource" path="res://flight/waves/zigzag.tres" id="2_tvq2h"]
@@ -48,13 +48,7 @@ duration = 300.0
 timeline = [SubResource("Entry_9"), SubResource("Entry_10"), SubResource("Entry_11"), SubResource("Entry_12"), SubResource("Entry_g2")]
 filler_waves = [ExtResource("1_lhjvg"), ExtResource("2_tvq2h"), ExtResource("3_kn4cd"), ExtResource("4_rsf4s"), ExtResource("5_67lgy"), ExtResource("6_xio32"), ExtResource("7_tuqyh"), ExtResource("8_ftgu3"), ExtResource("9_myes7"), ExtResource("10_7nifv"), ExtResource("11_5lt84"), ExtResource("12_bs3cl"), ExtResource("13_hly4w")]
 filler_from = 11.0
-group_min = 1
-group_max = 3
-wave_gap = 0.8
 rest_min = 3.2
 rest_max = 5.8
-ground_chance = 0.6
 miniboss_at = [0.35, 0.7]
-boss = false
-boss_hp = 500
 completion_bonus = 30

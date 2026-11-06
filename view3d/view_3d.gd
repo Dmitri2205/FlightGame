@@ -425,6 +425,10 @@ func _relative_transform(root: Node3D, node: Node3D) -> Transform3D:
 
 ## Перекрасить материалы модели по имени (metalRed, metal…).
 func _tint(model: Node3D, palette: Dictionary) -> void:
+	# Только внешний вид. Заглушка рендера в headless (CI) с Godot 4.7
+	# не создаёт материалы и ругается на override — пропускаем.
+	if _headless:
+		return
 	for mesh_instance in model.find_children("*", "MeshInstance3D", true, false):
 		var mi := mesh_instance as MeshInstance3D
 		if mi.mesh == null:

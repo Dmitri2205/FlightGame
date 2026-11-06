@@ -48,6 +48,6 @@ radius = 380.0
 [resource]
 script = ExtResource("1_pattern")
 title = "Длинная змейка"
-start = Vector2(0.3, -60.0)
+start = Vector2(0.3, -60)
 heading = 26.0
 steps = [SubResource("Step_1"), SubResource("Step_2"), SubResource("Step_3"), SubResource("Step_4"), SubResource("Step_5"), SubResource("Step_6"), SubResource("Step_7")]

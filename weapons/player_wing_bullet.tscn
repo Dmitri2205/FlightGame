@@ -1,8 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://weapons/bullet.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://fx/materials/soft_glow.tres" id="fx_glow"]
 [ext_resource type="Material" path="res://fx/materials/additive.tres" id="fx_add"]
+[ext_resource type="Texture2D" path="res://fx/materials/soft_glow.tres" id="fx_glow"]
 
 [sub_resource type="RectangleShape2D" id="Shape_hit"]
 size = Vector2(5, 18)

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="LevelData" load_steps=15 format=3]
+[gd_resource type="Resource" script_class="LevelData" format=3]
 
 [ext_resource type="Resource" path="res://flight/waves/s_curve.tres" id="1_oh26g"]
 [ext_resource type="Resource" path="res://flight/waves/wide_arc.tres" id="2_jxxnf"]
@@ -42,13 +42,8 @@ duration = 180.0
 timeline = [SubResource("Entry_1"), SubResource("Entry_2"), SubResource("Entry_3"), SubResource("Entry_4"), SubResource("Entry_g0")]
 filler_waves = [ExtResource("1_oh26g"), ExtResource("2_jxxnf"), ExtResource("3_l8wg1"), ExtResource("4_xofta"), ExtResource("5_kldud"), ExtResource("6_q8iun"), ExtResource("7_10lpj")]
 filler_from = 11.0
-group_min = 1
 group_max = 2
-wave_gap = 0.8
 rest_min = 3.4
 rest_max = 6.1
-ground_chance = 0.6
 miniboss_at = [0.5]
-boss = false
-boss_hp = 500
 completion_bonus = 35

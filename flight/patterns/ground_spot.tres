@@ -10,6 +10,5 @@ type = 4
 [resource]
 script = ExtResource("1_pattern")
 title = "Земля: точка (турель)"
-start = Vector2(0.5, -50.0)
-heading = 0.0
+start = Vector2(0.5, -50)
 steps = [SubResource("Step_park")]

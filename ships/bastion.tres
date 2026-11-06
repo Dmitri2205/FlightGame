@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ShipData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="ShipData" format=3]
 
 [ext_resource type="Script" path="res://ships/ship_data.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://art/sprites/ship_bastion.png" id="2_tex"]
@@ -11,14 +11,13 @@ description = "Тяжёлый штурмовик. Неповоротливый �
 cost = 600
 blueprints_required = 20
 mass = 2.4
-thrust = 6000.0
 max_speed = 750.0
 base_health = 180
 fire_rate_mult = 0.85
 damage_bonus = 1
 magnet_mult = 0.8
+texture = ExtResource("2_tex")
 color = Color(0.45, 0.6, 0.3, 1)
 visual_scale = 1.25
-texture = ExtResource("2_tex")
 nose_gun = Vector2(0, -42)
 wing_gun = Vector2(22, 0)

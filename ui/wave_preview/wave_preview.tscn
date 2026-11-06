@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://ui/wave_preview/wave_preview.gd" id="1_script"]
 [ext_resource type="Script" path="res://level/background.gd" id="2_bg"]
@@ -6,11 +6,11 @@
 [ext_resource type="Script" path="res://flight/ghost_flock.gd" id="4_ghosts"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_panel"]
-bg_color = Color(0.05, 0.06, 0.1, 0.6)
 content_margin_left = 16.0
 content_margin_top = 16.0
 content_margin_right = 16.0
 content_margin_bottom = 12.0
+bg_color = Color(0.05, 0.06, 0.1, 0.6)
 
 [node name="WavePreview" type="Control"]
 layout_mode = 3

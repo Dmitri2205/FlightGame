@@ -18,6 +18,6 @@ radius = 300.0
 [resource]
 script = ExtResource("1_pattern")
 title = "Широкая дуга и возврат"
-start = Vector2(-0.05, 160.0)
+start = Vector2(-0.05, 160)
 heading = 62.0
 steps = [SubResource("Step_1"), SubResource("Step_2")]

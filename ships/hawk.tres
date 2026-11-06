@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ShipData" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="ShipData" format=3]
 
 [ext_resource type="Script" path="res://ships/ship_data.gd" id="1_script"]
 [ext_resource type="Texture2D" path="res://art/sprites/ship_hawk.png" id="2_tex"]
@@ -17,8 +17,8 @@ base_health = 60
 fire_rate_mult = 1.1
 damage_bonus = 1
 magnet_mult = 1.5
+texture = ExtResource("2_tex")
 color = Color(1, 0.78, 0.2, 1)
 visual_scale = 0.95
-texture = ExtResource("2_tex")
 nose_gun = Vector2(0, -30)
 wing_gun = Vector2(30, 4)

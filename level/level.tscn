@@ -6,11 +6,11 @@
 [ext_resource type="PackedScene" path="res://pickups/star_pickup.tscn" id="6_star"]
 [ext_resource type="PackedScene" path="res://ui/hud/hud.tscn" id="7_hud"]
 [ext_resource type="PackedScene" path="res://enemies/boss/boss.tscn" id="8_boss"]
+[ext_resource type="Script" path="res://level/clouds.gd" id="9_clouds"]
 [ext_resource type="PackedScene" path="res://enemies/boss/miniboss.tscn" id="9_miniboss"]
+[ext_resource type="Script" path="res://level/camera_shake.gd" id="10_camera"]
 [ext_resource type="PackedScene" path="res://level/destructible.tscn" id="10_prop"]
 [ext_resource type="PackedScene" path="res://pickups/blueprint_pickup.tscn" id="11_blueprint"]
-[ext_resource type="Script" path="res://level/clouds.gd" id="9_clouds"]
-[ext_resource type="Script" path="res://level/camera_shake.gd" id="10_camera"]
 [ext_resource type="Script" path="res://level/wave_director.gd" id="11_director"]
 
 [node name="Level" type="Node2D"]

@@ -4,8 +4,8 @@
 [ext_resource type="Script" path="res://fx/shadow.gd" id="2_shadow"]
 [ext_resource type="Texture2D" path="res://art/sprites/enemy_fighter.png" id="3_tex"]
 [ext_resource type="PackedScene" path="res://weapons/enemy_bullet.tscn" id="4_bullet"]
-[ext_resource type="Texture2D" path="res://fx/materials/soft_glow.tres" id="fx_glow"]
 [ext_resource type="Material" path="res://fx/materials/additive.tres" id="fx_add"]
+[ext_resource type="Texture2D" path="res://fx/materials/soft_glow.tres" id="fx_glow"]
 
 [sub_resource type="Curve" id="Curve_shrink"]
 _data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]

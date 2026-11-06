@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="WaveData" load_steps=4 format=3]
+[gd_resource type="Resource" script_class="WaveData" format=3]
 
 [ext_resource type="Script" path="res://flight/wave_data.gd" id="1_wave"]
 [ext_resource type="PackedScene" path="res://enemies/air/enemy_fighter.tscn" id="2_enemy"]
@@ -10,6 +10,3 @@ title = "Петля ×5"
 enemy = ExtResource("2_enemy")
 pattern = ExtResource("3_pattern")
 count = 5
-spacing = 150.0
-mirror = 1
-random_x = false

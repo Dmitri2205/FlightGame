@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="LevelData" load_steps=19 format=3]
+[gd_resource type="Resource" script_class="LevelData" format=3]
 
 [ext_resource type="Resource" path="res://flight/waves/swoop.tres" id="1_636v6"]
 [ext_resource type="Resource" path="res://flight/waves/spiral.tres" id="2_mg60i"]
@@ -46,13 +46,8 @@ duration = 300.0
 timeline = [SubResource("Entry_13"), SubResource("Entry_14"), SubResource("Entry_15"), SubResource("Entry_16"), SubResource("Entry_g3")]
 filler_waves = [ExtResource("1_636v6"), ExtResource("2_mg60i"), ExtResource("3_okekn"), ExtResource("4_0cssu"), ExtResource("5_hpohx"), ExtResource("6_n4sdx"), ExtResource("7_uiaqp"), ExtResource("8_l841l"), ExtResource("9_mkny7"), ExtResource("10_wsjcb"), ExtResource("11_47rf8")]
 filler_from = 11.0
-group_min = 1
-group_max = 3
-wave_gap = 0.8
 rest_min = 3.6
 rest_max = 6.4
-ground_chance = 0.6
 miniboss_at = [0.5]
 boss = true
-boss_hp = 500
 completion_bonus = 60
