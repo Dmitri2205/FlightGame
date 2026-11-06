@@ -18,11 +18,7 @@ func _ready() -> void:
 	for wave in DataLibrary.waves():
 		_check_wave(wave)
 
-	for chapter_path in load("res://scripts/game_state.gd").CHAPTER_PATHS:
-		var chapter := load(chapter_path) as ChapterData
-		if chapter == null:
-			_fail("не загружается глава %s" % chapter_path)
-			continue
+	for chapter in ChapterCatalog.all():
 		if chapter.levels.is_empty():
 			_fail("%s: нет уровней" % chapter.id)
 		for i in chapter.levels.size():
