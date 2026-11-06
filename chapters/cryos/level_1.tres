@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=15 format=3]
+
+[ext_resource type="Resource" path="res://data/waves/s_curve.tres" id="1_oh26g"]
+[ext_resource type="Resource" path="res://data/waves/wide_arc.tres" id="2_jxxnf"]
+[ext_resource type="Resource" path="res://data/waves/swoop.tres" id="3_l8wg1"]
+[ext_resource type="Resource" path="res://data/waves/zigzag.tres" id="4_xofta"]
+[ext_resource type="Resource" path="res://data/waves/dive.tres" id="5_kldud"]
+[ext_resource type="Resource" path="res://data/waves/turret.tres" id="6_q8iun"]
+[ext_resource type="Resource" path="res://data/waves/tease.tres" id="7_10lpj"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="8_0638i"]
+[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="9_2oakh"]
+
+[sub_resource type="Resource" id="Entry_1"]
+script = ExtResource("9_2oakh")
+time = 1.0
+wave = ExtResource("1_oh26g")
+
+[sub_resource type="Resource" id="Entry_2"]
+script = ExtResource("9_2oakh")
+time = 3.0
+wave = ExtResource("2_jxxnf")
+
+[sub_resource type="Resource" id="Entry_3"]
+script = ExtResource("9_2oakh")
+time = 5.5
+wave = ExtResource("3_l8wg1")
+
+[sub_resource type="Resource" id="Entry_4"]
+script = ExtResource("9_2oakh")
+time = 8.0
+wave = ExtResource("4_xofta")
+
+[sub_resource type="Resource" id="Entry_g0"]
+script = ExtResource("9_2oakh")
+time = 9.5
+wave = ExtResource("6_q8iun")
+
+[resource]
+script = ExtResource("8_0638i")
+title = "Ледяные поля"
+duration = 180.0
+timeline = [SubResource("Entry_1"), SubResource("Entry_2"), SubResource("Entry_3"), SubResource("Entry_4"), SubResource("Entry_g0")]
+filler_waves = [ExtResource("1_oh26g"), ExtResource("2_jxxnf"), ExtResource("3_l8wg1"), ExtResource("4_xofta"), ExtResource("5_kldud"), ExtResource("6_q8iun"), ExtResource("7_10lpj")]
+filler_from = 11.0
+group_min = 1
+group_max = 2
+wave_gap = 0.8
+rest_min = 3.4
+rest_max = 6.1
+ground_chance = 0.6
+miniboss_at = [0.5]
+boss = false
+boss_hp = 500
+completion_bonus = 35

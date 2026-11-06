@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=17 format=3]
+
+[ext_resource type="Resource" path="res://data/waves/diagonal.tres" id="1_k37u4"]
+[ext_resource type="Resource" path="res://data/waves/loop.tres" id="2_kjbi3"]
+[ext_resource type="Resource" path="res://data/waves/side_sweep.tres" id="3_lo5hr"]
+[ext_resource type="Resource" path="res://data/waves/wide_arc.tres" id="4_jrytd"]
+[ext_resource type="Resource" path="res://data/waves/dive.tres" id="5_4551n"]
+[ext_resource type="Resource" path="res://data/waves/turret.tres" id="6_xaclk"]
+[ext_resource type="Resource" path="res://data/waves/tanks_cross.tres" id="7_hjbru"]
+[ext_resource type="Resource" path="res://data/waves/tease.tres" id="8_ocdec"]
+[ext_resource type="Resource" path="res://data/waves/orbit.tres" id="9_odw2t"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="10_lgmsn"]
+[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="11_a7qiy"]
+
+[sub_resource type="Resource" id="Entry_5"]
+script = ExtResource("11_a7qiy")
+time = 1.0
+wave = ExtResource("1_k37u4")
+
+[sub_resource type="Resource" id="Entry_6"]
+script = ExtResource("11_a7qiy")
+time = 3.0
+wave = ExtResource("2_kjbi3")
+
+[sub_resource type="Resource" id="Entry_7"]
+script = ExtResource("11_a7qiy")
+time = 5.5
+wave = ExtResource("3_lo5hr")
+
+[sub_resource type="Resource" id="Entry_8"]
+script = ExtResource("11_a7qiy")
+time = 8.0
+wave = ExtResource("4_jrytd")
+
+[sub_resource type="Resource" id="Entry_g1"]
+script = ExtResource("11_a7qiy")
+time = 9.5
+wave = ExtResource("7_hjbru")
+
+[resource]
+script = ExtResource("10_lgmsn")
+title = "Каньоны"
+duration = 240.0
+timeline = [SubResource("Entry_5"), SubResource("Entry_6"), SubResource("Entry_7"), SubResource("Entry_8"), SubResource("Entry_g1")]
+filler_waves = [ExtResource("1_k37u4"), ExtResource("2_kjbi3"), ExtResource("3_lo5hr"), ExtResource("4_jrytd"), ExtResource("5_4551n"), ExtResource("6_xaclk"), ExtResource("7_hjbru"), ExtResource("8_ocdec"), ExtResource("9_odw2t")]
+filler_from = 11.0
+group_min = 1
+group_max = 3
+wave_gap = 0.8
+rest_min = 3.6
+rest_max = 6.4
+ground_chance = 0.6
+miniboss_at = [0.5]
+boss = false
+boss_hp = 500
+completion_bonus = 25

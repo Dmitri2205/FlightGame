@@ -4,9 +4,9 @@ extends RefCounted
 ## (индекс главы хранится в сохранении — не переставлять).
 
 const _CHAPTERS := [
-	preload("res://chapters/mars.tres"),
-	preload("res://chapters/cryos.tres"),
-	preload("res://chapters/toxida.tres"),
+	preload("res://chapters/mars/chapter.tres"),
+	preload("res://chapters/cryos/chapter.tres"),
+	preload("res://chapters/toxida/chapter.tres"),
 ]
 
 

@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=21 format=3]
+
+[ext_resource type="Resource" path="res://data/waves/side_sweep.tres" id="1_dw3d2"]
+[ext_resource type="Resource" path="res://data/waves/pincer.tres" id="2_5otf8"]
+[ext_resource type="Resource" path="res://data/waves/loop.tres" id="3_00til"]
+[ext_resource type="Resource" path="res://data/waves/hunter.tres" id="4_l8gql"]
+[ext_resource type="Resource" path="res://data/waves/drift.tres" id="5_xudky"]
+[ext_resource type="Resource" path="res://data/waves/zigzag.tres" id="6_sirr2"]
+[ext_resource type="Resource" path="res://data/waves/turret.tres" id="7_d4yh1"]
+[ext_resource type="Resource" path="res://data/waves/tanks_cross.tres" id="8_5120l"]
+[ext_resource type="Resource" path="res://data/waves/tanks_column.tres" id="9_dliht"]
+[ext_resource type="Resource" path="res://data/waves/turret_pair.tres" id="10_iuh1e"]
+[ext_resource type="Resource" path="res://data/waves/tease.tres" id="11_fqleg"]
+[ext_resource type="Resource" path="res://data/waves/orbit.tres" id="12_ki3kb"]
+[ext_resource type="Resource" path="res://data/waves/figure8.tres" id="13_anhh8"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="14_i7sgp"]
+[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="15_r3ilo"]
+
+[sub_resource type="Resource" id="Entry_9"]
+script = ExtResource("15_r3ilo")
+time = 1.0
+wave = ExtResource("1_dw3d2")
+
+[sub_resource type="Resource" id="Entry_10"]
+script = ExtResource("15_r3ilo")
+time = 3.0
+wave = ExtResource("2_5otf8")
+
+[sub_resource type="Resource" id="Entry_11"]
+script = ExtResource("15_r3ilo")
+time = 5.5
+wave = ExtResource("3_00til")
+
+[sub_resource type="Resource" id="Entry_12"]
+script = ExtResource("15_r3ilo")
+time = 8.0
+wave = ExtResource("4_l8gql")
+
+[sub_resource type="Resource" id="Entry_g2"]
+script = ExtResource("15_r3ilo")
+time = 9.5
+wave = ExtResource("10_iuh1e")
+
+[resource]
+script = ExtResource("14_i7sgp")
+title = "Метель"
+duration = 300.0
+timeline = [SubResource("Entry_9"), SubResource("Entry_10"), SubResource("Entry_11"), SubResource("Entry_12"), SubResource("Entry_g2")]
+filler_waves = [ExtResource("1_dw3d2"), ExtResource("2_5otf8"), ExtResource("3_00til"), ExtResource("4_l8gql"), ExtResource("5_xudky"), ExtResource("6_sirr2"), ExtResource("7_d4yh1"), ExtResource("8_5120l"), ExtResource("9_dliht"), ExtResource("10_iuh1e"), ExtResource("11_fqleg"), ExtResource("12_ki3kb"), ExtResource("13_anhh8")]
+filler_from = 11.0
+group_min = 1
+group_max = 3
+wave_gap = 0.8
+rest_min = 3.0
+rest_max = 5.3
+ground_chance = 0.6
+miniboss_at = [0.35, 0.7]
+boss = false
+boss_hp = 500
+completion_bonus = 45

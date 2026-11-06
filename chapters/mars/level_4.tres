@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=19 format=3]
+
+[ext_resource type="Resource" path="res://data/waves/swoop.tres" id="1_636v6"]
+[ext_resource type="Resource" path="res://data/waves/spiral.tres" id="2_mg60i"]
+[ext_resource type="Resource" path="res://data/waves/drift.tres" id="3_okekn"]
+[ext_resource type="Resource" path="res://data/waves/pincer.tres" id="4_0cssu"]
+[ext_resource type="Resource" path="res://data/waves/wide_arc.tres" id="5_hpohx"]
+[ext_resource type="Resource" path="res://data/waves/turret.tres" id="6_n4sdx"]
+[ext_resource type="Resource" path="res://data/waves/tanks_cross.tres" id="7_uiaqp"]
+[ext_resource type="Resource" path="res://data/waves/tanks_column.tres" id="8_l841l"]
+[ext_resource type="Resource" path="res://data/waves/turret_pair.tres" id="9_mkny7"]
+[ext_resource type="Resource" path="res://data/waves/tease.tres" id="10_wsjcb"]
+[ext_resource type="Resource" path="res://data/waves/figure8.tres" id="11_47rf8"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="12_51qai"]
+[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="13_n68ty"]
+
+[sub_resource type="Resource" id="Entry_13"]
+script = ExtResource("13_n68ty")
+time = 1.0
+wave = ExtResource("1_636v6")
+
+[sub_resource type="Resource" id="Entry_14"]
+script = ExtResource("13_n68ty")
+time = 3.0
+wave = ExtResource("2_mg60i")
+
+[sub_resource type="Resource" id="Entry_15"]
+script = ExtResource("13_n68ty")
+time = 5.5
+wave = ExtResource("3_okekn")
+
+[sub_resource type="Resource" id="Entry_16"]
+script = ExtResource("13_n68ty")
+time = 8.0
+wave = ExtResource("4_0cssu")
+
+[sub_resource type="Resource" id="Entry_g3"]
+script = ExtResource("13_n68ty")
+time = 9.5
+wave = ExtResource("8_l841l")
+
+[resource]
+script = ExtResource("12_51qai")
+title = "Страж Марса"
+duration = 300.0
+timeline = [SubResource("Entry_13"), SubResource("Entry_14"), SubResource("Entry_15"), SubResource("Entry_16"), SubResource("Entry_g3")]
+filler_waves = [ExtResource("1_636v6"), ExtResource("2_mg60i"), ExtResource("3_okekn"), ExtResource("4_0cssu"), ExtResource("5_hpohx"), ExtResource("6_n4sdx"), ExtResource("7_uiaqp"), ExtResource("8_l841l"), ExtResource("9_mkny7"), ExtResource("10_wsjcb"), ExtResource("11_47rf8")]
+filler_from = 11.0
+group_min = 1
+group_max = 3
+wave_gap = 0.8
+rest_min = 3.6
+rest_max = 6.4
+ground_chance = 0.6
+miniboss_at = [0.5]
+boss = true
+boss_hp = 500
+completion_bonus = 60

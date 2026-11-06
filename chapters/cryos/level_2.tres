@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=17 format=3]
+
+[ext_resource type="Resource" path="res://data/waves/zigzag.tres" id="1_rueat"]
+[ext_resource type="Resource" path="res://data/waves/s_curve.tres" id="2_0u4mv"]
+[ext_resource type="Resource" path="res://data/waves/hunter.tres" id="3_2gbxq"]
+[ext_resource type="Resource" path="res://data/waves/drift.tres" id="4_k35xg"]
+[ext_resource type="Resource" path="res://data/waves/spiral.tres" id="5_rb8x2"]
+[ext_resource type="Resource" path="res://data/waves/turret.tres" id="6_f1xwr"]
+[ext_resource type="Resource" path="res://data/waves/tanks_cross.tres" id="7_ffjrl"]
+[ext_resource type="Resource" path="res://data/waves/tease.tres" id="8_eaifn"]
+[ext_resource type="Resource" path="res://data/waves/orbit.tres" id="9_4nu1m"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="10_t88le"]
+[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="11_rd5ct"]
+
+[sub_resource type="Resource" id="Entry_5"]
+script = ExtResource("11_rd5ct")
+time = 1.0
+wave = ExtResource("1_rueat")
+
+[sub_resource type="Resource" id="Entry_6"]
+script = ExtResource("11_rd5ct")
+time = 3.0
+wave = ExtResource("2_0u4mv")
+
+[sub_resource type="Resource" id="Entry_7"]
+script = ExtResource("11_rd5ct")
+time = 5.5
+wave = ExtResource("3_2gbxq")
+
+[sub_resource type="Resource" id="Entry_8"]
+script = ExtResource("11_rd5ct")
+time = 8.0
+wave = ExtResource("4_k35xg")
+
+[sub_resource type="Resource" id="Entry_g1"]
+script = ExtResource("11_rd5ct")
+time = 9.5
+wave = ExtResource("7_ffjrl")
+
+[resource]
+script = ExtResource("10_t88le")
+title = "Кристальные пики"
+duration = 240.0
+timeline = [SubResource("Entry_5"), SubResource("Entry_6"), SubResource("Entry_7"), SubResource("Entry_8"), SubResource("Entry_g1")]
+filler_waves = [ExtResource("1_rueat"), ExtResource("2_0u4mv"), ExtResource("3_2gbxq"), ExtResource("4_k35xg"), ExtResource("5_rb8x2"), ExtResource("6_f1xwr"), ExtResource("7_ffjrl"), ExtResource("8_eaifn"), ExtResource("9_4nu1m")]
+filler_from = 11.0
+group_min = 1
+group_max = 3
+wave_gap = 0.8
+rest_min = 3.2
+rest_max = 5.8
+ground_chance = 0.6
+miniboss_at = [0.5]
+boss = false
+boss_hp = 500
+completion_bonus = 40
