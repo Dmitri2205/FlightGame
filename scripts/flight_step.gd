@@ -36,3 +36,10 @@ func _validate_property(property: Dictionary) -> void:
 	if property.name in ["distance", "angle", "radius", "duration", "turn_rate"] \
 			and not property.name in FIELDS[type]:
 		property.usage = PROPERTY_USAGE_STORAGE
+
+
+## Зеркальная копия манёвра: поворот в другую сторону (остальное симметрично само).
+func mirrored() -> FlightStep:
+	var copy: FlightStep = duplicate()
+	copy.angle = -angle
+	return copy

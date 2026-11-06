@@ -72,8 +72,8 @@ func _process(delta: float) -> void:
 		_ghost_timer -= dt
 		if _ghost_timer <= 0.0 and not _patterns.is_empty():
 			_ghost_timer = 0.9
-			ghosts.spawn(_patterns[_pattern_index], false, PATTERN_SPEED)
-			ghosts.spawn(_patterns[_pattern_index], true, PATTERN_SPEED)
+			ghosts.spawn(_patterns[_pattern_index], PATTERN_SPEED)
+			ghosts.spawn(_patterns[_pattern_index].mirrored(), PATTERN_SPEED)
 	else:
 		for path in _paths:
 			path.age += dt
@@ -140,8 +140,8 @@ func _show_pattern() -> void:
 		lines.append("%d. %s" % [i + 1, _describe_step(pattern.steps[i])])
 	lines.append("— дальше прямо до края экрана")
 	info_label.text = "\n".join(lines)
-	_paths.append({"points": _compute_path(pattern, false, PATTERN_SPEED), "color": COLOR_MAIN, "dashed": false, "age": 0.0})
-	_paths.append({"points": _compute_path(pattern, true, PATTERN_SPEED), "color": COLOR_MIRROR, "dashed": true, "age": 0.0})
+	_paths.append({"points": _compute_path(pattern, PATTERN_SPEED), "color": COLOR_MAIN, "dashed": false, "age": 0.0})
+	_paths.append({"points": _compute_path(pattern.mirrored(), PATTERN_SPEED), "color": COLOR_MIRROR, "dashed": true, "age": 0.0})
 
 
 func _show_level() -> void:
@@ -173,21 +173,21 @@ func _show_level() -> void:
 
 # --- Призраки и пути ----------------------------------------------------------
 
-func _on_enemy_requested(wave: WaveData, pattern: FlightPattern, mirrored: bool) -> void:
-	ghosts.spawn_for_wave(wave, pattern, mirrored)
+func _on_enemy_requested(wave: WaveData, pattern: FlightPattern) -> void:
+	ghosts.spawn_for_wave(wave, pattern)
 
 
 func _on_wave_started(wave: WaveData, _time: float) -> void:
 	var info := ghosts.enemy_info(wave.enemy)
 	var sides := [false, true] if wave.mirror == WaveData.Mirror.BOTH else [false]
 	for mirrored in sides:
-		_paths.append({"points": _compute_path(wave.pattern, mirrored, info.speed), "color": COLOR_MAIN if not mirrored else COLOR_MIRROR, "dashed": mirrored, "age": 0.0})
+		_paths.append({"points": _compute_path(wave.pattern.mirrored() if mirrored else wave.pattern, info.speed), "color": COLOR_MAIN if not mirrored else COLOR_MIRROR, "dashed": mirrored, "age": 0.0})
 
 
 ## Путь траектории — та же симуляция, что у врага в игре.
-func _compute_path(pattern: FlightPattern, mirrored: bool, speed: float) -> PackedVector2Array:
+func _compute_path(pattern: FlightPattern, speed: float) -> PackedVector2Array:
 	var screen := get_viewport_rect()
-	var motion := PatternMotion.new(pattern, mirrored, speed, screen.size.x)
+	var motion := PatternMotion.new(pattern, speed, screen.size.x)
 	var points := PackedVector2Array([motion.position])
 	var seen := false
 	var target := _player_spot()

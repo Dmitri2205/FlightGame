@@ -4,7 +4,6 @@ extends RefCounted
 ## поэтому превью показывает ровно тот путь, что будет в бою.
 
 var pattern: FlightPattern
-var mirrored := false
 var speed := 220.0
 var position := Vector2.ZERO
 var heading := Vector2.DOWN
@@ -22,12 +21,11 @@ var _step_progress := 0.0
 var _speed_scale := 1.0
 
 
-func _init(p_pattern: FlightPattern, p_mirrored: bool, p_speed: float, screen_width: float) -> void:
+func _init(p_pattern: FlightPattern, p_speed: float, screen_width: float) -> void:
 	pattern = p_pattern
-	mirrored = p_mirrored
 	speed = p_speed
-	position = pattern.start_position(screen_width, mirrored)
-	heading = pattern.heading_vector(mirrored)
+	position = pattern.start_position(screen_width)
+	heading = pattern.heading_vector()
 
 
 ## Угол поворота спрайта (спрайты врагов нарисованы носом вниз).
@@ -47,7 +45,7 @@ func advance(delta: float, target = null) -> void:
 				if _step_progress >= step.distance:
 					_next_step()
 			FlightStep.Type.TURN:
-				var total := deg_to_rad(-step.angle if mirrored else step.angle)
+				var total := deg_to_rad(step.angle)
 				var turn_step := minf(speed / step.radius * delta, absf(total) - _step_progress)
 				# Против часовой на экране (ось y вниз) = отрицательный поворот вектора.
 				heading = heading.rotated(-signf(total) * turn_step)

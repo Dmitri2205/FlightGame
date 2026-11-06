@@ -205,14 +205,13 @@ func _on_blueprint_collected() -> void:
 
 # --- Враги и босс -------------------------------------------------------------
 
-func _spawn_enemy(wave: WaveData, pattern: FlightPattern, mirrored: bool) -> void:
+func _spawn_enemy(wave: WaveData, pattern: FlightPattern) -> void:
 	if _finished:
 		return
 	var enemy = wave.enemy.instantiate()
 	enemy.pattern = pattern
-	enemy.mirrored = mirrored
 	enemy.max_hp = ceili(enemy.max_hp * level_data.enemy_hp_mult)
-	enemy.position = pattern.start_position(Arena.rect().size.x, mirrored)
+	enemy.position = pattern.start_position(Arena.rect().size.x)
 	enemy.projectile_container = projectiles
 	enemy.destroyed.connect(_on_enemy_destroyed)
 	enemies.add_child(enemy)

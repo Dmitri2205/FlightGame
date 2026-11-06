@@ -12,20 +12,6 @@ signal blueprints_changed(ship_id: String, count: int)
 
 const SAVE_PATH := "user://save.json"
 
-## Порядок кораблей в списке выбора. Первый доступен сразу.
-const SHIP_PATHS := [
-	"res://ships/falcon.tres",
-	"res://ships/swift.tres",
-	"res://ships/bastion.tres",
-]
-
-## Главы по порядку прохождения.
-const CHAPTER_PATHS := [
-	"res://chapters/mars.tres",
-	"res://chapters/cryos.tres",
-	"res://chapters/toxida.tres",
-]
-
 ## Модули корабля. У модуля есть УРОВЕНЬ (1..max_tier) и шкала из 10 делений
 ## внутри уровня. Деления покупаются по отдельности в характеристики (stats):
 ## при двух характеристиках — по 5 в каждую, при одной — 10. Когда шкала
@@ -114,10 +100,8 @@ var pattern_test := false
 
 
 func _ready() -> void:
-	for path in SHIP_PATHS:
-		ships.append(load(path))
-	for path in CHAPTER_PATHS:
-		chapters.append(load(path))
+	ships = ShipCatalog.all()
+	chapters = ChapterCatalog.all()
 	_reset_ships()
 	load_game()
 
@@ -351,10 +335,8 @@ func _legacy_refund(old_levels: Dictionary) -> int:
 # --- Корабли ------------------------------------------------------------------
 
 func get_ship(id: String) -> ShipData:
-	for ship in ships:
-		if ship.id == id:
-			return ship
-	return ships[0]
+	var ship := ShipCatalog.get_by_id(id)
+	return ship if ship != null else ShipCatalog.first()
 
 
 func get_selected_ship() -> ShipData:
@@ -397,7 +379,7 @@ func _reset_ships() -> void:
 # --- Главы и уровни -----------------------------------------------------------
 
 func get_chapter(index: int) -> ChapterData:
-	return chapters[clampi(index, 0, chapters.size() - 1)]
+	return ChapterCatalog.get_by_index(index)
 
 
 func current_chapter_data() -> ChapterData:
