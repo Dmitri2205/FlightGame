@@ -36,7 +36,6 @@ var is_ground := true
 
 var projectile_container: Node
 var pattern: FlightPattern
-var mirrored := false
 
 var _hp := 0
 var _dead := false
@@ -60,7 +59,7 @@ func _ready() -> void:
 	if background and "scroll_speed" in background:
 		_scroll_speed = background.scroll_speed
 	if pattern:
-		_motion = PatternMotion.new(pattern, mirrored, speed, Arena.rect().size.x)
+		_motion = PatternMotion.new(pattern, speed, Arena.rect().size.x)
 		position = _motion.position
 		rotation = _motion.sprite_rotation()
 

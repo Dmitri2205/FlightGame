@@ -19,17 +19,17 @@ var _enemy_info := {}
 
 
 ## Выпустить призрака врага из волны (текстура и скорость — как у настоящего врага).
-func spawn_for_wave(wave: WaveData, pattern: FlightPattern, mirrored: bool) -> void:
+func spawn_for_wave(wave: WaveData, pattern: FlightPattern) -> void:
 	var info := enemy_info(wave.enemy)
-	spawn(pattern, mirrored, info.speed, info.texture, info.ground)
+	spawn(pattern, info.speed, info.texture, info.ground)
 
 
-func spawn(pattern: FlightPattern, mirrored: bool, speed: float, texture: Texture2D = null, ground := false) -> void:
+func spawn(pattern: FlightPattern, speed: float, texture: Texture2D = null, ground := false) -> void:
 	var sprite := Sprite2D.new()
 	sprite.texture = texture if texture else DEFAULT_TEXTURE
 	sprite.modulate = Color(1, 1, 1, opacity)
 	add_child(sprite)
-	var motion := PatternMotion.new(pattern, mirrored, speed, Arena.rect().size.x)
+	var motion := PatternMotion.new(pattern, speed, Arena.rect().size.x)
 	sprite.position = motion.position
 	sprite.rotation = motion.sprite_rotation()
 	if ground:

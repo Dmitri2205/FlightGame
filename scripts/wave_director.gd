@@ -12,7 +12,8 @@ extends Node
 ## - miniboss_at — мини-боссы: сигнал miniboss_requested, и время стоит,
 ##   пока уровень не вызовет resume() (мини-босс сбит).
 
-signal enemy_requested(wave: WaveData, pattern: FlightPattern, mirrored: bool)
+## pattern уже с учётом WaveData.mirror (зеркальная копия, если выпала другая сторона).
+signal enemy_requested(wave: WaveData, pattern: FlightPattern)
 ## Волна только что вышла (для превью и отладки).
 signal wave_started(wave: WaveData, time: float)
 ## Пора выпускать мини-босса номер index. Если сигнал никто не слушает
@@ -28,7 +29,7 @@ var level: LevelData
 var time := 0.0
 var running := false
 
-## Запланированные враги: [{time, wave, pattern, mirrored}], по возрастанию time.
+## Запланированные враги: [{time, wave, pattern}], по возрастанию time.
 var _queue: Array[Dictionary] = []
 var _timeline_index := 0
 var _next_filler_time := 0.0
@@ -126,7 +127,7 @@ func _process(delta: float) -> void:
 	# Выпуск запланированных врагов.
 	while not _queue.is_empty() and _queue[0].time <= time:
 		var item: Dictionary = _queue.pop_front()
-		enemy_requested.emit(item.wave, item.pattern, item.mirrored)
+		enemy_requested.emit(item.wave, item.pattern)
 
 
 ## Пачка: 1–3 воздушные волны друг за другом, потом передышка (может
@@ -167,16 +168,18 @@ func _schedule(wave: WaveData, at: float) -> void:
 		pattern.start.x = randf_range(0.15, 0.85)
 	wave_started.emit(wave, at)
 
-	var sides: Array[bool] = []
-	match wave.mirror:
-		WaveData.Mirror.BOTH:
-			sides = [false, true]
-		WaveData.Mirror.RANDOM:
-			sides = [randf() < 0.5]
-		_:
-			sides = [false]
 	var interval := wave.spawn_interval()
-	for mirrored in sides:
+	for side in _sides(wave.mirror, pattern):
 		for i in wave.count:
-			_queue.append({"time": at + interval * i, "wave": wave, "pattern": pattern, "mirrored": mirrored})
+			_queue.append({"time": at + interval * i, "wave": wave, "pattern": side})
 	_queue.sort_custom(func(a, b): return a.time < b.time)
+
+
+## Траектории, по которым пойдёт волна, с учётом зеркала.
+func _sides(mirror: WaveData.Mirror, pattern: FlightPattern) -> Array[FlightPattern]:
+	match mirror:
+		WaveData.Mirror.BOTH:
+			return [pattern, pattern.mirrored()]
+		WaveData.Mirror.RANDOM:
+			return [pattern.mirrored() if randf() < 0.5 else pattern]
+	return [pattern]

@@ -25,7 +25,6 @@ signal destroyed(enemy: Node2D)
 var projectile_container: Node
 ## Траектория и зеркало. Выставляет уровень до add_child.
 var pattern: FlightPattern
-var mirrored := false
 
 var _hp := 0
 var _dead := false
@@ -47,7 +46,7 @@ func _ready() -> void:
 	_fire_cooldown = randf_range(0.5, maxf(fire_interval, 0.5))
 	area_entered.connect(_on_area_entered)
 	if pattern:
-		_motion = PatternMotion.new(pattern, mirrored, speed, Arena.rect().size.x)
+		_motion = PatternMotion.new(pattern, speed, Arena.rect().size.x)
 		position = _motion.position
 		rotation = _motion.sprite_rotation()
 
