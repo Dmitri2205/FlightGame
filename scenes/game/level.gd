@@ -210,7 +210,7 @@ func _spawn_enemy(wave: WaveData, pattern: FlightPattern) -> void:
 		return
 	var enemy = wave.enemy.instantiate()
 	enemy.pattern = pattern
-	enemy.max_hp = ceili(enemy.max_hp * level_data.enemy_hp_mult)
+	enemy.max_hp = ceili(enemy.max_hp * GameState.current_chapter_data().enemy_hp_multiplier(GameState.current_level))
 	enemy.position = pattern.start_position(Arena.rect().size.x)
 	enemy.projectile_container = projectiles
 	enemy.destroyed.connect(_on_enemy_destroyed)
@@ -237,7 +237,7 @@ func _spawn_miniboss(_index: int) -> void:
 		director.resume()
 		return
 	var boss = miniboss_scene.instantiate()
-	boss.max_hp = level_data.miniboss_hp
+	boss.max_hp = GameState.current_chapter_data().miniboss_hp(GameState.current_level)
 	boss.position = Vector2(Arena.rect().size.x / 2.0, -120.0)
 	boss.projectile_container = projectiles
 	boss.destroyed.connect(_on_enemy_destroyed)

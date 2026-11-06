@@ -77,6 +77,10 @@ func _check_level(chapter: ChapterData, index: int) -> void:
 		if float(fraction) <= last_miniboss or float(fraction) >= 1.0:
 			_fail("%s: miniboss_at — доли от 0 до 1 по возрастанию" % where)
 		last_miniboss = float(fraction)
+	if chapter.enemy_hp_multiplier(index) <= 0.0:
+		_fail("%s: множитель здоровья врагов должен быть > 0" % where)
+	if not level.miniboss_at.is_empty() and chapter.miniboss_hp(index) <= 0:
+		_fail("%s: здоровье мини-босса должно быть > 0" % where)
 
 
 func _fail(message: String) -> void:

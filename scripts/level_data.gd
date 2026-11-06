@@ -30,11 +30,10 @@ extends Resource
 ## Мини-боссы: доли длительности уровня (0.5 — на середине). Пока мини-босс
 ## жив, время уровня стоит и новые волны не идут.
 @export var miniboss_at: Array = []
-@export var miniboss_hp := 250
 
 @export_group("Сложность")
-## Множитель здоровья врагов.
-@export var enemy_hp_mult := 1.0
+## Здоровье врагов и мини-боссов задаёт глава (ChapterData.enemy_hp_multiplier,
+## ChapterData.miniboss_hp); здесь — только босс уровня.
 @export var boss := false
 @export var boss_hp := 500
 ## Звёзды за первое прохождение уровня.
