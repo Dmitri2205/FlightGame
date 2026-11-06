@@ -45,19 +45,18 @@ func _process(delta: float) -> void:
 
 
 func _next_velocity(delta: float) -> Vector2:
-	var player: Node2D = get_tree().get_first_node_in_group("player") as Node2D
+	var player := get_tree().get_first_node_in_group("player") as Player
 	if player and _should_home(player):
 		return _body.position.direction_to(player.position) * home_speed
 	return velocity.move_toward(Vector2(0.0, fall_speed), fall_accel * delta)
 
 
-func _should_home(player: Node2D) -> bool:
+func _should_home(player: Player) -> bool:
 	if homing == Homing.NONE or age <= home_delay:
 		return false
 	if homing == Homing.ALWAYS:
 		return true
-	var radius: float = player.get("magnet_radius")
-	return _body.position.distance_to(player.position) < radius
+	return _body.position.distance_to(player.position) < player.stats.magnet_radius
 
 
 func _on_area_entered(area: Area2D) -> void:

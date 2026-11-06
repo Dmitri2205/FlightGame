@@ -11,7 +11,8 @@ extends Area2D
 @export var lifetime := 4.0
 
 var velocity := Vector2.UP
-var damage := 4
+## Урон выставляет игрок при пуске (PlayerStats.missile_damage).
+var damage := 0
 
 var _target: Node2D
 var _age := 0.0

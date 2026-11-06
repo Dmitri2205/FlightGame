@@ -8,6 +8,9 @@ extends Control
 ## Пауза между волнами-призраками на фоне, секунд.
 const DEMO_WAVE_INTERVAL := 3.5
 const DEV_UNLOCK_TAPS := 7
+## Кнопка «Играть» мягко пульсирует: масштаб и полупериод, с.
+const PLAY_PULSE_SCALE := 1.04
+const PLAY_PULSE_HALF_PERIOD := 0.8
 
 var _title_taps := 0
 
@@ -24,7 +27,7 @@ func _ready() -> void:
 	var next_chapter := GameState.get_chapter(next[0])
 	var next_level: LevelData = next_chapter.levels[next[1]]
 
-	%StarsLabel.text = "%d" % GameState.stars
+	%StarsLabel.text = "%d" % GameState.progress.stars
 	UiKit.add_crystal_counter(%StarsLabel.get_parent(), 36)
 	# Разработчику: кристаллы для проверки докупки чертежей.
 	var crystals_button := Button.new()
@@ -35,11 +38,10 @@ func _ready() -> void:
 	# Разработчику: прототип 2.5D-вида уровня.
 	var view_button := Button.new()
 	view_button.custom_minimum_size = Vector2(0, 64)
-	view_button.text = "3D-вид: вкл" if GameState.view_3d else "3D-вид: выкл"
+	view_button.text = _view_3d_text()
 	view_button.pressed.connect(func() -> void:
-		GameState.view_3d = not GameState.view_3d
-		GameState.save_game()
-		view_button.text = "3D-вид: вкл" if GameState.view_3d else "3D-вид: выкл")
+		GameState.set_view_3d(not GameState.settings.view_3d)
+		view_button.text = _view_3d_text())
 	%DevPanel.add_child(view_button)
 
 	# Версия сборки в углу: если на сайте новое, а тут старое — это кэш браузера.
@@ -73,7 +75,7 @@ func _ready() -> void:
 	%DevPanel.hide()
 	%DevToggle.visible = GameState.dev_tools_available()
 	%Title.gui_input.connect(_on_title_input)
-	_pulse(%PlayButton)
+	UiKit.pulse(%PlayButton, PLAY_PULSE_SCALE, PLAY_PULSE_HALF_PERIOD)
 
 	# Корабль-витрина: летает и стреляет, можно водить пальцем.
 	var screen := get_viewport_rect().size
@@ -126,11 +128,11 @@ func _on_title_input(event: InputEvent) -> void:
 		get_tree().create_timer(2.5).timeout.connect(func(): _title_taps = 0)
 	if _title_taps >= DEV_UNLOCK_TAPS:
 		_title_taps = 0
-		GameState.set_dev_mode(not GameState.dev_mode)
+		GameState.set_dev_mode(not GameState.settings.dev_mode)
 		%DevToggle.visible = GameState.dev_tools_available()
 		if not %DevToggle.visible:
 			%DevPanel.hide()
-		%NextLabel.text = "Режим разработчика: %s" % ("включён" if GameState.dev_mode else "выключен")
+		%NextLabel.text = "Режим разработчика: %s" % ("включён" if GameState.settings.dev_mode else "выключен")
 
 
 ## Сброс — в два нажатия, чтобы не стереть прогресс случайно.
@@ -150,9 +152,5 @@ func _disarm_reset() -> void:
 		%ResetButton.text = "Сбросить прогресс"
 
 
-## Кнопка «Играть» мягко пульсирует.
-func _pulse(button: Control) -> void:
-	button.resized.connect(func(): button.pivot_offset = button.size / 2.0)
-	var tween := button.create_tween().set_loops()
-	tween.tween_property(button, "scale", Vector2.ONE * 1.04, 0.8).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(button, "scale", Vector2.ONE, 0.8).set_trans(Tween.TRANS_SINE)
+static func _view_3d_text() -> String:
+	return "3D-вид: вкл" if GameState.settings.view_3d else "3D-вид: выкл"

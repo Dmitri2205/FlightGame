@@ -53,11 +53,45 @@ const CRYSTALS_FIRST_CLEAR := 2
 
 # --- Характеристики игрока ----------------------------------------------------
 # Аргументы — суммы купленных делений характеристики и множители корабля.
+# Готовый набор характеристик собирает PlayerStats.build().
 
-## Шрапнель основной пушки по уровням модуля 0..5.
+## Шрапнель основной пушки по уровням модуля 0..5 (длина = max_tier пушки + 1).
 const SHRAPNEL_BY_TIER := [0, 0, 1, 2, 3, 4]
+## Урон одного патрона шрапнели (от прокачки не растёт).
+const SHRAPNEL_DAMAGE := 1
+## Скорость шрапнели относительно основного снаряда.
+const SHRAPNEL_SPEED_FACTOR := 0.9
 ## +3% к базовому здоровью за каждое деление (уровень = +30%).
 const HEALTH_PER_STEP := 0.03
+
+## Каждое деление «Скорострельности» сокращает паузу между выстрелами на 3%
+## (общее для основной и крыльевых пушек).
+const FIRE_RATE_STEP_FACTOR := 0.97
+## Пауза между выстрелами основной пушки без прокачки, с.
+const MAIN_FIRE_INTERVAL := 0.25
+const MAIN_BASE_DAMAGE := 1
+## +1 к урону основной пушки за каждые 3 деления «Урона».
+const MAIN_DAMAGE_STEPS_PER_POINT := 3
+
+## Крыльевые бьют редко, но тяжело. Пауза между залпами без прокачки, с.
+const WING_FIRE_INTERVAL := 2.4
+const WING_BASE_DAMAGE := 8
+## +1 к урону крыльевых за каждое деление «Урона».
+const WING_DAMAGE_PER_STEP := 1
+
+## Пауза между залпами ракет без прокачки, с.
+const MISSILE_INTERVAL := 2.2
+## Каждое деление «Перезарядки» сокращает паузу на 5%.
+const MISSILE_RELOAD_STEP_FACTOR := 0.95
+const MISSILE_BASE_DAMAGE := 4
+## +1 к урону ракеты за каждые 2 деления «Урона».
+const MISSILE_DAMAGE_STEPS_PER_POINT := 2
+## Задержка первого залпа ракет после старта уровня, с.
+const MISSILE_FIRST_DELAY := 1.0
+
+## Радиус магнита без прокачки и прибавка за деление, px (до множителя корабля).
+const MAGNET_BASE_RADIUS := 60.0
+const MAGNET_RADIUS_PER_STEP := 10.0
 
 
 static func max_health(base_health: int, armor_steps: int) -> int:
@@ -73,28 +107,28 @@ static func shrapnel(tier: int) -> int:
 
 
 static func main_fire_interval(rate_steps: int, fire_rate_mult: float) -> float:
-	return 0.25 * pow(0.97, rate_steps) / fire_rate_mult
+	return MAIN_FIRE_INTERVAL * pow(FIRE_RATE_STEP_FACTOR, rate_steps) / fire_rate_mult
 
 
 static func main_damage(damage_steps: int, ship_bonus: int) -> int:
-	return 1 + damage_steps / 3 + ship_bonus
+	return MAIN_BASE_DAMAGE + damage_steps / MAIN_DAMAGE_STEPS_PER_POINT + ship_bonus
 
 
 static func wing_damage(damage_steps: int) -> int:
-	return 8 + damage_steps
+	return WING_BASE_DAMAGE + WING_DAMAGE_PER_STEP * damage_steps
 
 
 static func wing_fire_interval(rate_steps: int, fire_rate_mult: float) -> float:
-	return 2.4 * pow(0.97, rate_steps) / fire_rate_mult
+	return WING_FIRE_INTERVAL * pow(FIRE_RATE_STEP_FACTOR, rate_steps) / fire_rate_mult
 
 
 static func missile_interval(reload_steps: int) -> float:
-	return 2.2 * pow(0.95, reload_steps)
+	return MISSILE_INTERVAL * pow(MISSILE_RELOAD_STEP_FACTOR, reload_steps)
 
 
 static func missile_damage(damage_steps: int) -> int:
-	return 4 + damage_steps / 2
+	return MISSILE_BASE_DAMAGE + damage_steps / MISSILE_DAMAGE_STEPS_PER_POINT
 
 
 static func magnet_radius(radius_steps: int, magnet_mult: float) -> float:
-	return (60.0 + 10.0 * radius_steps) * magnet_mult
+	return (MAGNET_BASE_RADIUS + MAGNET_RADIUS_PER_STEP * radius_steps) * magnet_mult
