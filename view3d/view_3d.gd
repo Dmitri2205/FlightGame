@@ -294,9 +294,9 @@ func _star_disc(radius: float, color: Color, pos: Vector3) -> Node3D:
 func _sync_twins() -> void:
 	var alive := {}
 	var nodes: Array = []
-	nodes.append_array(get_tree().get_nodes_in_group("player"))
-	nodes.append_array(get_tree().get_nodes_in_group("enemies"))
-	nodes.append_array(get_tree().get_nodes_in_group("destructibles"))
+	nodes.append_array(get_tree().get_nodes_in_group(Groups.PLAYER))
+	nodes.append_array(get_tree().get_nodes_in_group(Groups.ENEMIES))
+	nodes.append_array(get_tree().get_nodes_in_group(Groups.DESTRUCTIBLES))
 	for node in nodes:
 		if not is_instance_valid(node) or not node is Node2D:
 			continue
@@ -324,7 +324,7 @@ func _make_twin(node: Node2D) -> Twin:
 	var model_name: StringName
 	var size := 0.0
 	var palette := {}
-	if node.is_in_group("player"):
+	if node is Player:
 		var ship := GameState.get_selected_ship()
 		model_name = ship.model_3d
 		size = PLAYER_MODEL_SIZE * ship.visual_scale
@@ -377,7 +377,7 @@ func _update_twin(twin: Twin) -> void:
 		# Мигание при уроне — как у 2D-узла.
 		twin.holder.visible = node.visible
 		twin.holder.rotation = Vector3(0.0, PI, 0.0)
-		twin.pivot.rotation = Vector3(0.0, 0.0, -float(node.visual_bank) * BANK_ROLL)
+		twin.pivot.rotation = Vector3(0.0, 0.0, -(node as Player).visual_bank * BANK_ROLL)
 		return
 	# Турель смотрит туда же, куда её башня.
 	var unit := node as GroundUnit
@@ -526,10 +526,11 @@ func _sync_multimeshes() -> void:
 	pickup_mm.visible_instance_count = pickup_count
 
 
-func _on_fx(kind: String, pos: Vector2, size: float) -> void:
+func _on_fx(kind: FX.Kind, pos: Vector2, size: float) -> void:
+	var is_explosion := kind == FX.Kind.EXPLOSION
 	var flash := MeshInstance3D.new()
 	var mesh := SphereMesh.new()
-	var radius := (0.35 if kind == "explosion" else 0.08) * size
+	var radius := (0.35 if is_explosion else 0.08) * size
 	mesh.radius = radius
 	mesh.height = radius * 2.0
 	mesh.radial_segments = 12
@@ -538,7 +539,7 @@ func _on_fx(kind: String, pos: Vector2, size: float) -> void:
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	material.albedo_color = Color(1.0, 0.65, 0.25, 0.95) if kind == "explosion" else Color(1.0, 0.95, 0.7, 0.9)
+	material.albedo_color = Color(1.0, 0.65, 0.25, 0.95) if is_explosion else Color(1.0, 0.95, 0.7, 0.9)
 	material.disable_fog = true
 	mesh.material = material
 	flash.mesh = mesh
@@ -547,7 +548,7 @@ func _on_fx(kind: String, pos: Vector2, size: float) -> void:
 	p.y = AIR_HEIGHT * 0.8
 	flash.position = p
 	add_child(flash)
-	var duration := 0.45 if kind == "explosion" else 0.15
+	var duration := 0.45 if is_explosion else 0.15
 	var tween := flash.create_tween().set_parallel()
 	tween.tween_property(flash, "scale", Vector3.ONE * 2.4, duration)
 	tween.tween_property(material, "albedo_color:a", 0.0, duration)
@@ -558,7 +559,7 @@ func _on_fx(kind: String, pos: Vector2, size: float) -> void:
 
 ## Камера едет за игроком по горизонтали и чуть кренится вместе с ним.
 func _update_camera(delta: float) -> void:
-	var player := get_tree().get_first_node_in_group("player") as Node2D
+	var player := get_tree().get_first_node_in_group(Groups.PLAYER) as Player
 	if player == null:
 		return
 	var target_x := to_3d(player.global_position).x * CAMERA_FOLLOW_SHARE
@@ -567,8 +568,7 @@ func _update_camera(delta: float) -> void:
 	position_now.x = lerpf(position_now.x, target_x, follow)
 	_camera.position = Vector3(position_now.x, CAMERA_OFFSET.y, CAMERA_OFFSET.z)
 	_camera.look_at(_camera.position + CAMERA_LOOK)
-	var bank: float = player.get("visual_bank") if player.get("visual_bank") != null else 0.0
-	_camera_roll = lerpf(_camera_roll, -bank * 0.05, follow)
+	_camera_roll = lerpf(_camera_roll, -player.visual_bank * 0.05, follow)
 	_camera.rotate_object_local(Vector3.FORWARD, _camera_roll)
 
 
@@ -607,7 +607,7 @@ func _move_streaks(delta: float) -> void:
 ## Палец двигает корабль 1:1 и в перспективе: сколько экранных пикселей
 ## приходится на пиксель мира возле корабля игрока.
 func _update_drag_scale() -> void:
-	var player := get_tree().get_first_node_in_group("player") as Node2D
+	var player := get_tree().get_first_node_in_group(Groups.PLAYER) as Node2D
 	if player == null:
 		return
 	var a := to_3d(player.global_position)

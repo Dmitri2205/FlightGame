@@ -60,10 +60,10 @@ var stats: PlayerStats
 var health: int
 var velocity := Vector2.ZERO
 
-## Временно для level/level.gd (пакет B); в пакете C — stats.max_health.
-var max_health: int:
-	get:
-		return stats.max_health
+## Пушки с уроном из stats (собираются в _ready): сцена пули, скорость, урон.
+var _main_gun: GunData
+var _shrapnel_gun: GunData
+var _wing_gun: GunData
 
 var _target := Vector2.ZERO
 var _fire_cooldown := 0.0
@@ -73,10 +73,13 @@ var _invulnerable_left := 0.0
 
 
 func _ready() -> void:
-	add_to_group("player")
+	add_to_group(Groups.PLAYER)
 	ship = GameState.get_selected_ship()
 	stats = GameState.player_stats()
 	health = stats.max_health
+	_main_gun = GunData.create(bullet_scene, bullet_speed, stats.main_damage)
+	_shrapnel_gun = GunData.create(shrapnel_scene, bullet_speed * Balance.SHRAPNEL_SPEED_FACTOR, stats.shrapnel_damage)
+	_wing_gun = GunData.create(wing_bullet_scene, bullet_speed, stats.wing_damage)
 	_apply_visuals()
 
 
@@ -147,7 +150,7 @@ func _fire() -> void:
 	var nose := ship.nose_gun * ship.visual_scale
 
 	# Основная пушка — из носа.
-	_spawn_bullet(bullet_scene, nose, Vector2.UP, stats.main_damage, bullet_speed)
+	_main_gun.fire(projectile_container, global_position + nose, Vector2.UP)
 	FX.muzzle(global_position + nose)
 
 	# Шрапнель — маленькие патроны веером по бокам от основного, по очереди слева/справа.
@@ -156,7 +159,7 @@ func _fire() -> void:
 		var pair := i / 2
 		var angle := side * (SHRAPNEL_ANGLE + SHRAPNEL_ANGLE_STEP * pair)
 		var offset := Vector2(side * (SHRAPNEL_OFFSET_X + SHRAPNEL_OFFSET_X_STEP * pair), SHRAPNEL_OFFSET_Y)
-		_spawn_bullet(shrapnel_scene, nose + offset, Vector2.UP.rotated(angle), stats.shrapnel_damage, bullet_speed * Balance.SHRAPNEL_SPEED_FACTOR)
+		_shrapnel_gun.fire(projectile_container, global_position + nose + offset, Vector2.UP.rotated(angle))
 
 
 ## Крыльевые пушки — с крыльев, в своём темпе. Все стволы бьют строго вперёд,
@@ -169,7 +172,7 @@ func _fire_wings() -> void:
 		var mount := Vector2(ship.wing_gun.x * side, ship.wing_gun.y) * ship.visual_scale
 		for k in stats.wing_guns_per_side:
 			var offset: Vector2 = mount + Vector2(side * WING_BARREL_STEP.x * k, WING_BARREL_STEP.y * k)
-			_spawn_bullet(wing_bullet_scene, offset, Vector2.UP, stats.wing_damage, bullet_speed)
+			_wing_gun.fire(projectile_container, global_position + offset, Vector2.UP)
 		FX.muzzle(global_position + mount, WING_MUZZLE_SIZE)
 
 
@@ -182,21 +185,9 @@ func _launch_missiles() -> void:
 		var side := -1.0 if i % 2 == 0 else 1.0
 		var row := i / 2
 		var mount := Vector2(ship.wing_gun.x * MISSILE_MOUNT_X_SHARE * side, ship.wing_gun.y + MISSILE_MOUNT_Y + MISSILE_ROW_STEP * row) * ship.visual_scale
-		var missile = Pool.take(missile_scene)
-		missile.position = global_position + mount
-		missile.velocity = Vector2.UP.rotated(side * (MISSILE_LAUNCH_ANGLE + MISSILE_ROW_ANGLE_STEP * row))
-		missile.damage = stats.missile_damage
-		projectile_container.add_child(missile)
-
-
-func _spawn_bullet(scene: PackedScene, offset: Vector2, direction: Vector2, damage: int, speed: float) -> void:
-	if scene == null:
-		scene = bullet_scene
-	var bullet = Pool.take(scene)
-	bullet.position = global_position + offset
-	bullet.velocity = direction * speed
-	bullet.damage = damage
-	projectile_container.add_child(bullet)
+		# Скорость ракета задаёт себе сама (start_speed), отсюда — только направление.
+		var direction := Vector2.UP.rotated(side * (MISSILE_LAUNCH_ANGLE + MISSILE_ROW_ANGLE_STEP * row))
+		Projectiles.spawn(missile_scene, projectile_container, global_position + mount, direction, stats.missile_damage)
 
 
 func _move(delta: float) -> void:

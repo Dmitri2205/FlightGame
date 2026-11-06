@@ -65,6 +65,6 @@ func _fire() -> void:
 
 func _on_area_entered(area: Area2D) -> void:
 	# Таран: игрок получает урон, самолёт погибает.
-	if area.is_in_group("player") and not _dead:
+	if area.is_in_group(Groups.PLAYER) and not _dead:
 		area.take_damage(ram_damage)
 		_die()

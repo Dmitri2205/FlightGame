@@ -86,7 +86,7 @@ func setup(p_max_hp: int) -> void:
 
 func _ready() -> void:
 	assert(max_hp > 0, "Boss: здоровье задаётся через setup() до add_child")
-	add_to_group("enemies")
+	add_to_group(Groups.ENEMIES)
 	hp = max_hp
 	_attack_cooldown = first_attack_delay
 	area_entered.connect(_on_area_entered)
@@ -191,5 +191,5 @@ func _shoot_from(offset: Vector2, direction: Vector2) -> void:
 
 func _on_area_entered(area: Area2D) -> void:
 	# Таран босса бьёт игрока, но сам босс не погибает.
-	if area.is_in_group("player"):
+	if area.is_in_group(Groups.PLAYER):
 		area.take_damage(ram_damage)

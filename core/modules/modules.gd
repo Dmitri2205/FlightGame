@@ -39,8 +39,7 @@ static func _build() -> Array[ModuleData]:
 	]
 	main.describe_tier = func(s: PlayerStats) -> String:
 		return "шрапнель: %d" % s.shrapnel if s.shrapnel > 0 else "один ствол"
-	# Шрапнель задана на каждый уровень пушки (и на 0).
-	assert(Balance.SHRAPNEL_BY_TIER.size() == main.max_tier + 1)
+	# Шрапнель задана на каждый уровень пушки (и на 0) — проверяет tests/validate_data.gd.
 
 	var wings := ModuleData.new(WING_CANNONS, "Крыльевые пушки")
 	wings.max_tier = 3

@@ -1,6 +1,6 @@
 extends Area2D
 ## Самонаводящаяся ракета игрока. Стартует в сторону от корабля, разгоняется
-## и доворачивает на ближайшего врага (группа "enemies"); если цель погибла —
+## и доворачивает на ближайшего врага (группа Groups.ENEMIES); если цель погибла —
 ## ищет новую. При попадании — урон и небольшой взрыв.
 
 @export var start_speed := 260.0
@@ -67,7 +67,7 @@ func _process(delta: float) -> void:
 func _find_target() -> Node2D:
 	var best: Node2D = null
 	var best_distance := INF
-	for enemy in get_tree().get_nodes_in_group("enemies"):
+	for enemy in get_tree().get_nodes_in_group(Groups.ENEMIES):
 		var node := enemy as Node2D
 		if node == null or not Arena.rect().has_point(node.global_position):
 			continue

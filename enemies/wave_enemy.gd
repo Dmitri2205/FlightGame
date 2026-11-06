@@ -36,7 +36,7 @@ func setup(p_pattern: FlightPattern, hp_multiplier: float) -> void:
 
 
 func _ready() -> void:
-	add_to_group("enemies")
+	add_to_group(Groups.ENEMIES)
 	hp = max_hp
 	if pattern:
 		_motion = PatternMotion.new(pattern, speed, Arena.rect().size.x)

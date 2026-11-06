@@ -31,6 +31,7 @@ func _ready() -> void:
 			_check_level(chapter, i)
 
 	_check_ships()
+	_check_modules()
 	var enemy_scenes := _scenes_in(ENEMIES_DIR)
 	if enemy_scenes.is_empty():
 		_fail("нет сцен врагов в %s" % ENEMIES_DIR)
@@ -112,6 +113,13 @@ func _check_ships() -> void:
 			_fail("%s: не задан спрайт" % ship.id)
 		if not View3D.has_model(ship.model_3d):
 			_fail("%s: model_3d «%s» — нет такой 3D-модели" % [ship.id, ship.model_3d])
+
+
+## Таблицы баланса по уровням модуля покрывают все уровни (и 0).
+func _check_modules() -> void:
+	var main := Modules.get_by_id(Modules.MAIN_CANNON)
+	if Balance.SHRAPNEL_BY_TIER.size() != main.max_tier + 1:
+		_fail("Balance.SHRAPNEL_BY_TIER: %d значений, а уровней основной пушки 0..%d" % [Balance.SHRAPNEL_BY_TIER.size(), main.max_tier])
 
 
 func _is_wave_enemy(scene: PackedScene) -> bool:

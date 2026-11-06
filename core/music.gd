@@ -7,14 +7,16 @@ extends Node
 ## Дорожки играют в шину Music: её громкость и выключение (ползунок в
 ## настройках, переключатель в меню паузы) — GameState.apply_audio().
 ##
-##   Music.play("assault")    # меню, карта, уровень
-##   Music.play("showdown")   # мини-босс и босс
+##   Music.play(Music.Track.ASSAULT)    # меню, карта, уровень
+##   Music.play(Music.Track.SHOWDOWN)   # мини-босс и босс
 ##
 ## Треки сгенерированы в Suno AI (audio/music/*.ogg).
 
+enum Track { ASSAULT, SHOWDOWN }
+
 const TRACKS := {
-	"assault": preload("res://audio/music/hyperdrive_assault.ogg"),
-	"showdown": preload("res://audio/music/hyperdrive_showdown.ogg"),
+	Track.ASSAULT: preload("res://audio/music/hyperdrive_assault.ogg"),
+	Track.SHOWDOWN: preload("res://audio/music/hyperdrive_showdown.ogg"),
 }
 ## Громкость слышимой дорожки внутри шины Music, дБ.
 const VOLUME_DB := -6.0
@@ -22,9 +24,11 @@ const SILENT_DB := -60.0
 ## Длительность перехода между дорожками, с.
 const FADE := 1.2
 
+## Track → AudioStreamPlayer / Tween его громкости.
 var _players := {}
 var _tweens := {}
-var _current := ""
+## Слышимая дорожка; -1 — пока ни одной.
+var _current := -1
 
 
 func _ready() -> void:
@@ -42,23 +46,23 @@ func _ready() -> void:
 		player.bus = AudioBuses.MUSIC
 		add_child(player)
 		_players[key] = player
-	play("assault")
+	play(Track.ASSAULT)
 
 
-## Сделать слышной дорожку key (остальные плавно затихают).
-func play(key: String) -> void:
-	if key == _current or not _players.has(key):
+## Сделать слышной дорожку track (остальные плавно затихают).
+func play(track: Track) -> void:
+	if track == _current or not _players.has(track):
 		return
-	_current = key
-	for track in _players:
-		var player: AudioStreamPlayer = _players[track]
-		var audible: bool = track == _current
+	_current = track
+	for key in _players:
+		var player: AudioStreamPlayer = _players[key]
+		var audible: bool = key == _current
 		if audible and not player.playing:
 			player.play()
-		if _tweens.has(track) and _tweens[track].is_valid():
-			_tweens[track].kill()
+		if _tweens.has(key) and _tweens[key].is_valid():
+			_tweens[key].kill()
 		var tween := create_tween()
-		_tweens[track] = tween
+		_tweens[key] = tween
 		tween.tween_property(player, "volume_db", VOLUME_DB if audible else SILENT_DB, FADE)
 
 

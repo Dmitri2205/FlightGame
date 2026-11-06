@@ -45,7 +45,7 @@ func _process(delta: float) -> void:
 
 
 func _next_velocity(delta: float) -> Vector2:
-	var player := get_tree().get_first_node_in_group("player") as Player
+	var player := get_tree().get_first_node_in_group(Groups.PLAYER) as Player
 	if player and _should_home(player):
 		return _body.position.direction_to(player.position) * home_speed
 	return velocity.move_toward(Vector2(0.0, fall_speed), fall_accel * delta)
@@ -60,6 +60,6 @@ func _should_home(player: Player) -> bool:
 
 
 func _on_area_entered(area: Area2D) -> void:
-	if area.is_in_group("player"):
+	if area.is_in_group(Groups.PLAYER):
 		collected.emit()
 		_body.queue_free()

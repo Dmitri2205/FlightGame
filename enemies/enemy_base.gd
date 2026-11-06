@@ -61,7 +61,7 @@ func _shoot(pos: Vector2, direction: Vector2) -> Node2D:
 
 ## Ближайший игрок (или null, если его нет — например, погиб).
 func _player() -> Node2D:
-	return get_tree().get_first_node_in_group("player") as Node2D
+	return get_tree().get_first_node_in_group(Groups.PLAYER) as Node2D
 
 
 ## Взрыв, награда (сигнал destroyed — её выдаёт уровень), удаление.

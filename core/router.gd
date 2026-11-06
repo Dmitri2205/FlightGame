@@ -49,5 +49,5 @@ func reload() -> void:
 func _go(path: String) -> void:
 	get_tree().paused = false
 	# Вне боя с боссом — основная тема.
-	Music.play("assault")
+	Music.play(Music.Track.ASSAULT)
 	get_tree().change_scene_to_file(path)
