@@ -5,7 +5,7 @@
 [ext_resource type="Resource" path="res://chapters/toxida/level_2.tres" id="3_4d82c"]
 [ext_resource type="Resource" path="res://chapters/toxida/level_3.tres" id="4_24sau"]
 [ext_resource type="Resource" path="res://chapters/toxida/level_4.tres" id="5_q6qjn"]
-[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="6_jlxcr"]
+[ext_resource type="Script" path="res://chapters/chapter_data.gd" id="6_jlxcr"]
 
 [resource]
 script = ExtResource("6_jlxcr")

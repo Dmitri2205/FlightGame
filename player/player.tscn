@@ -1,0 +1,57 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://player/player.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://weapons/player_bullet.tscn" id="2_bullet"]
+[ext_resource type="PackedScene" path="res://weapons/player_shrapnel.tscn" id="5_shrapnel"]
+[ext_resource type="PackedScene" path="res://weapons/player_wing_bullet.tscn" id="6_wing"]
+[ext_resource type="PackedScene" path="res://weapons/missile.tscn" id="7_missile"]
+[ext_resource type="Script" path="res://fx/shadow.gd" id="3_shadow"]
+[ext_resource type="Texture2D" path="res://art/sprites/ship_falcon.png" id="4_tex"]
+[ext_resource type="Texture2D" path="res://fx/materials/soft_glow.tres" id="fx_glow"]
+[ext_resource type="Material" path="res://fx/materials/additive.tres" id="fx_add"]
+
+[sub_resource type="Curve" id="Curve_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_trail"]
+offsets = PackedFloat32Array(0, 0.4, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0.45, 0.75, 1, 0.8, 0.2, 0.3, 1, 0)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hit"]
+radius = 15.0
+
+[node name="Player" type="Area2D"]
+collision_mask = 0
+script = ExtResource("1_script")
+bullet_scene = ExtResource("2_bullet")
+shrapnel_scene = ExtResource("5_shrapnel")
+wing_bullet_scene = ExtResource("6_wing")
+missile_scene = ExtResource("7_missile")
+
+[node name="Shadow" type="Sprite2D" parent="."]
+script = ExtResource("3_shadow")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="EngineTrail" type="CPUParticles2D" parent="Visual"]
+material = ExtResource("fx_add")
+position = Vector2(0, 41)
+amount = 32
+lifetime = 0.3
+texture = ExtResource("fx_glow")
+direction = Vector2(0, 1)
+spread = 10.0
+gravity = Vector2(0, 220)
+initial_velocity_min = 120.0
+initial_velocity_max = 200.0
+scale_amount_min = 0.35
+scale_amount_max = 0.6
+scale_amount_curve = SubResource("Curve_shrink")
+color_ramp = SubResource("Gradient_trail")
+
+[node name="Sprite" type="Sprite2D" parent="Visual"]
+texture = ExtResource("4_tex")
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_hit")

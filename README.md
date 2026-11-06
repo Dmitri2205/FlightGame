@@ -34,62 +34,86 @@ Actions*, ветка по умолчанию — `main` (*Settings → General �
 из редактора виден всегда.
 
 - «Превью волн» — пути траекторий и таймлайны уровней без боя;
-- «Тест: все волны» — все волны из `data/waves` по порядку;
+- «Тест: все волны» — все волны из `flight/waves` по порядку;
 - «Тест: босс» — пропускает волны;
 - «Сбросить прогресс» — в два нажатия.
-- Из командной строки: `godot --path . res://scenes/game/level.tscn -- --boss`
+- Из командной строки: `godot --path . res://level/level.tscn -- --boss`
   (или `-- --patterns`, `-- --level=глава:уровень`, с нуля).
 
 ## Структура
 
 ```
+Папки по доменам: сцена, её скрипт и данные лежат рядом.
+
 project.godot              настройки: экран, слои коллизий, autoload
-scripts/game_state.gd      autoload GameState: звёзды, корабли, улучшения, баланс, сохранение
-scripts/ship_data.gd       Resource ShipData — характеристики корабля
-scripts/chapter_data.gd    Resource ChapterData — глава (планета, биом, уровни)
-scripts/level_data.gd      Resource LevelData — уровень (длительность, волны, сложность, босс)
-chapters/<глава>/          главы: mars (Марс-7), cryos (Криос), toxida (Токсида);
+core/                      autoload и общая инфраструктура
+  game_state.gd            autoload GameState: звёзды, корабли, улучшения, баланс, сохранение
+  router.gd                autoload Router: переходы между экранами
+  fx.gd                    autoload FX: взрывы, искры, тряска экрана
+  pool.gd                  autoload Pool: переиспользование пуль (take / release)
+  music.gd / arena.gd      autoload Music (музыка) и Arena (размер мира)
+  balance.gd               формулы баланса; collision_layers.gd — слои коллизий
+chapters/                  главы и уровни
+  chapter_data.gd          Resource ChapterData — глава (планета, биом, уровни)
+  level_data.gd            Resource LevelData — уровень (длительность, волны, сложность, босс)
+  timeline_entry.gd        строка таймлайна уровня
+  chapter_catalog.gd       ChapterCatalog — список глав
+  <глава>/                 mars (Марс-7), cryos (Криос), toxida (Токсида);
                            chapter.tres — глава, level_N.tres — её уровни
-scripts/flight_pattern.gd  Resource FlightPattern (+ flight_step.gd) — траектория
-scripts/wave_data.gd       Resource WaveData — волна; timeline_entry.gd — строка таймлайна
-scripts/wave_director.gd   расписание волн уровня
-scripts/pattern_motion.gd  движение по траектории (враг и превью)
-scripts/router.gd          autoload Router: переходы между экранами
-scripts/data_library.gd    списки траекторий и волн
-scripts/ghost_flock.gd     враги-призраки (превью и фон меню)
-data/patterns/, data/waves/ библиотеки траекторий и волн
-tests/validate_data.tscn   проверка данных (CI)
-scripts/fx.gd              autoload FX: взрывы, искры, тряска экрана
-scripts/pool.gd            autoload Pool: переиспользование пуль (take / release)
-scenes/fx/                 сцены эффектов (взрыв, искры), тень самолёта
-art/sprites/               спрайты (вид сверху), отрендеренные из Kenney Space Kit
-tools/render_topdown.py    рендер спрайтов из 3D-моделей пака
-Assets/                    исходные паки ассетов (архивы)
-ships/*.tres               корабли: falcon (Сокол), swift (Стриж), bastion (Бастион)
-ui/theme.tres              общая тема интерфейса
-scenes/ui/
-  main_menu.tscn/.gd       главное меню
-  upgrade_menu.tscn/.gd    ангар (прокачка), модули из GameState.MODULES (уровни + деления)
-  ship_select.tscn/.gd     выбор и покупка кораблей
-  level_map.tscn/.gd       карта уровней: главы-планеты, дорожка уровней
-  wave_preview.tscn/.gd    превью траекторий и волн уровней
-  hud.tscn/.gd             очки, здоровье, прогресс уровня, экран итогов
-scenes/game/
+ships/                     корабли
+  ship_data.gd             Resource ShipData — характеристики корабля
+  ship_catalog.gd          ShipCatalog — список кораблей
+  *.tres                   falcon (Сокол), swift (Стриж), bastion (Бастион)
+flight/                    траектории и волны
+  flight_pattern.gd        Resource FlightPattern (+ flight_step.gd) — траектория
+  wave_data.gd             Resource WaveData — волна
+  pattern_motion.gd        движение по траектории (враг и превью)
+  data_library.gd          списки траекторий и волн
+  ghost_flock.gd           враги-призраки (превью и фон меню)
+  patterns/, waves/        библиотеки траекторий и волн (*.tres)
+level/
   level.tscn/.gd           уровень: волны врагов, счёт, конец уровня
-  player.tscn/.gd          корабль игрока
-  enemy.gd                 общий скрипт врага
-  enemy_fighter.tscn       лёгкий истребитель (не стреляет, берёт числом и тараном)
-  enemy_gunship.tscn       тяжёлый, стреляет в игрока
-  ground_unit.gd           наземный враг: стоит на земле, едет с ней вниз
-  ground_tank.tscn         танк: выезжает по траектории, встаёт, бьёт в игрока
-  ground_turret.tscn       турель: башня доворачивает на игрока, стреляет очередями
-  boss.tscn/.gd            босс в конце уровня (2 фазы: обычная и ярость с 50% HP)
-  bullet.gd                общий скрипт пули
-  player_bullet.tscn / enemy_bullet.tscn
-  star_pickup.tscn/.gd     звезда, притягивается магнитом
+  wave_director.gd         расписание волн уровня
   background.gd            временный процедурный фон
   clouds.gd                облака над полем боя (параллакс)
   camera_shake.gd          камера уровня с тряской
+  destructible.tscn/.gd    постройки на земле
+player/
+  player.tscn/.gd          корабль игрока
+enemies/
+  air/enemy.gd             общий скрипт воздушного врага
+  air/enemy_fighter.tscn   лёгкий истребитель (не стреляет, берёт числом и тараном)
+  air/enemy_gunship.tscn   тяжёлый, стреляет в игрока
+  ground/ground_unit.gd    наземный враг: стоит на земле, едет с ней вниз
+  ground/ground_tank.tscn  танк: выезжает по траектории, встаёт, бьёт в игрока
+  ground/ground_turret.tscn турель: башня доворачивает на игрока, стреляет очередями
+  boss/boss.tscn/.gd       босс в конце уровня (2 фазы: обычная и ярость с 50% HP)
+  boss/miniboss.tscn       минибосс на скрипте босса
+weapons/
+  bullet.gd                общий скрипт пули
+  player_bullet.tscn / player_wing_bullet.tscn / player_shrapnel.tscn / enemy_bullet.tscn
+  missile.tscn/.gd         ракета
+pickups/
+  star_pickup.tscn/.gd     звезда, притягивается магнитом
+  blueprint_pickup.tscn/.gd чертёж корабля
+  pickup_motion.gd         общее движение подбираемых предметов
+fx/                        сцены эффектов (взрыв, искры, вспышка), тень самолёта
+  materials/               общие материалы (additive, soft_glow)
+view3d/                    2.5D-вид (прототип): view_3d.gd и шейдеры
+ui/
+  kit/                     ui_kit.gd, тема theme.tres, иконки
+  main_menu/               главное меню
+  upgrade_menu/            ангар (прокачка), модули из GameState.MODULES (уровни + деления)
+  ship_select/             выбор и покупка кораблей
+  level_map/               карта уровней: главы-планеты, дорожка уровней (+ map_path.gd)
+  wave_preview/            превью траекторий и волн уровней
+  hud/                     очки, здоровье, прогресс уровня, экран итогов
+tests/validate_data.tscn   проверка данных (CI)
+audio/music/               музыка
+art/sprites/               спрайты (вид сверху), отрендеренные из Kenney Space Kit
+models/                    3D-модели для 2.5D-вида
+tools/render_topdown.py    рендер спрайтов из 3D-моделей пака
+Assets/                    исходные паки ассетов (архивы)
 ```
 
 ### Масштаб мира и камера
@@ -105,7 +129,7 @@ scenes/game/
 
 Меню → «Разработчику +» → «3D-вид: вкл» (или `-- --3d` при запуске уровня).
 Логика игры не меняется — траектории, коллизии, волны работают в 2D-узлах
-уровня, но картинку рисует 3D-сцена `View3D` (`scenes/game/view3d/`):
+уровня, но картинку рисует 3D-сцена `View3D` (`view3d/`):
 
 - камера сзади-сверху (довольно круто, ~42°) в перспективе — траектории
   читаются; едет за игроком по горизонтали, чуть кренится на виражах;
@@ -144,7 +168,7 @@ scenes/game/
 - «Корабль» (с картинкой выбранного корабля) и «Ангар».
 - Отладочные кнопки спрятаны в «Разработчику +» (виден после 7 тапов по названию).
 
-Общий вид кнопок и панелей задаёт тема `ui/theme.tres` (скруглённые
+Общий вид кнопок и панелей задаёт тема `ui/kit/theme.tres` (скруглённые
 полупрозрачные кнопки с золотой рамкой) — для всех экранов сразу.
 
 ### Главы и карта уровней
@@ -165,7 +189,7 @@ scenes/game/
 
 Длительность: 1-й уровень главы — 3 мин, 2-й — 4 мин, 3-й и 4-й — 5 мин
 (без учёта боя с мини-боссами — на это время уровень стоит). Мини-босс
-(`scenes/game/miniboss.tscn` — тяжёлый корабль ×1.7 на скрипте босса) —
+(`enemies/boss/miniboss.tscn` — тяжёлый корабль ×1.7 на скрипте босса) —
 на середине уровня, на 3-м уровне два (35% и 70%); здоровье — ~30% босса главы.
 
 Открытие: уровень — после прохождения предыдущего, глава — после финала
@@ -200,8 +224,8 @@ scenes/game/
 инспекторе Godot; код при этом не меняется.
 
 ```
-FlightPattern  data/patterns/*.tres   траектория: старт, курс, манёвры (FlightStep)
-WaveData       data/waves/*.tres      волна: сцена врага, траектория, сколько, расстояние (px), зеркало
+FlightPattern  flight/patterns/*.tres   траектория: старт, курс, манёвры (FlightStep)
+WaveData       flight/waves/*.tres      волна: сцена врага, траектория, сколько, расстояние (px), зеркало
 LevelData      chapters/*/level_N.tres  таймлайн (TimelineEntry: секунда → волна) + наполнители
 ChapterData    chapters/*/chapter.tres  планета, биом, список уровней
 ```
@@ -240,7 +264,7 @@ ChapterData    chapters/*/chapter.tres  планета, биом, список �
 
 Модули, которые это исполняют:
 
-- `WaveDirector` (`scripts/wave_director.gd`) — расписание волн: таймлайн
+- `WaveDirector` (`level/wave_director.gd`) — расписание волн: таймлайн
   уровня + случайные наполнители с `filler_from` **пачками**: 1–3 воздушные
   волны друг за другом (`group_min/max`, `wave_gap` после конца предыдущей),
   потом передышка `rest_min…rest_max`, в которую с шансом `ground_chance`
@@ -248,7 +272,7 @@ ChapterData    chapters/*/chapter.tres  планета, биом, список �
   мини-босс: сигнал `miniboss_requested`, и время уровня стоит, пока его не
   собьют (`resume()`). Ничего не знает про очки и HUD, только сообщает
   «выпусти врага»;
-- `PatternMotion` (`scripts/pattern_motion.gd`) — движение по траектории;
+- `PatternMotion` (`flight/pattern_motion.gd`) — движение по траектории;
   общее для врага в игре и для превью, поэтому превью точное;
 - `level.gd` только собирает игрока, `WaveDirector`, HUD, счёт и босса;
 - `Router` (autoload) — все переходы между экранами;
@@ -260,9 +284,9 @@ ChapterData    chapters/*/chapter.tres  планета, биом, список �
 
 Как собрать уровень (в редакторе Godot):
 
-1. Нужна новая фигура — `data/patterns/`: ПКМ → New Resource → FlightPattern,
+1. Нужна новая фигура — `flight/patterns/`: ПКМ → New Resource → FlightPattern,
    добавить манёвры в `steps`.
-2. Нужна новая волна — `data/waves/`: New Resource → WaveData (враг, траектория…).
+2. Нужна новая волна — `flight/waves/`: New Resource → WaveData (враг, траектория…).
 3. Открыть уровень `chapters/<глава>/level_N.tres` → `timeline`: добавить
    TimelineEntry (секунда + волна); `filler_waves` — случайные волны после
    `filler_from`.
@@ -315,7 +339,7 @@ Blender); в нём же список спрайтов `SPRITES`, который
 
 Треки сгенерированы в Suno AI, лежат в `audio/music/` (OGG ~110 кбит/с,
 перекодированы из MP3, чтобы зацикливались без паузы и меньше весили).
-Autoload `Music` (`scripts/music.gd`): обе дорожки играют одновременно,
+Autoload `Music` (`core/music.gd`): обе дорожки играют одновременно,
 слышна одна, смена — плавный переход громкости.
 
 | Трек | Где |
@@ -336,7 +360,7 @@ Autoload `Music` (`scripts/music.gd`): обе дорожки играют одн
   живут в пуле (`FX.LIMITS`: вспышек и искр не больше 16 одновременно,
   взрывов — 32, лишние пропускаются) — пересоздавать каждый дорого;
 - `FX.shake(сила, сек)` — тряска камеры (при попадании по игроку и взрывах);
-- `Shadow` (scenes/fx/shadow.gd) — тень самолёта: тот же спрайт корабля, только
+- `Shadow` (fx/shadow.gd) — тень самолёта: тот же спрайт корабля, только
   чёрный и полупрозрачный, со сдвигом «от солнца» (`cast_offset`); чем меньше
   `shadow_scale`, тем выше самолёт. Отдельно тень не рисуется — берёт уже
   загруженную текстуру корабля, тени одного типа врагов идут одной пачкой;
@@ -380,7 +404,7 @@ Autoload `Music` (`scripts/music.gd`): обе дорожки играют одн
 основная — янтарная, шрапнель — оранжевая, крыльевые — голубые, вражеские —
 пурпурные; у стволов — вспышки (`FX.muzzle`).
 Все светящиеся спрайты (пули, вспышки, искры) берут одну текстуру
-`fx/soft_glow.tres` и один материал `fx/additive.tres` — так движок рисует
+`fx/materials/soft_glow.tres` и один материал `fx/materials/additive.tres` — так движок рисует
 все пули одной пачкой, и FPS не падает от плотного огня.
 
 Враги стреляют, только пока они в кадре и перед игроком: пролетевшие мимо
@@ -398,7 +422,7 @@ Autoload `Music` (`scripts/music.gd`): обе дорожки играют одн
 
 Где лежат — игроку не говорим:
 - на уровнях время от времени появляются **разрушаемые объекты** —
-  постройки захватчиков на земле (`scenes/game/destructible.tscn`). Мелкие —
+  постройки захватчиков на земле (`level/destructible.tscn`). Мелкие —
   бочки, генераторы, антенны (machine_*); крупные — ангары, тарелки связи,
   большой генератор (hangar_*, satelliteDish_large, machine_generatorLarge),
   прочные и с большим взрывом. В 45% случаев появляется «база»: крупная
@@ -422,7 +446,7 @@ Autoload `Music` (`scripts/music.gd`): обе дорожки играют одн
 
 ### Баланс
 
-Все формулы характеристик и цены — в `scripts/game_state.gd`. Новый модуль =
+Все формулы характеристик и цены — в `core/game_state.gd`. Новый модуль =
 запись в `MODULES` + формулы эффектов + строки в `describe_stat()` и
 `describe_tier()`.
 

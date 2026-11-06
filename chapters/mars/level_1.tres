@@ -1,13 +1,13 @@
 [gd_resource type="Resource" script_class="LevelData" load_steps=14 format=3]
 
-[ext_resource type="Resource" path="res://data/waves/dive.tres" id="1_dxdha"]
-[ext_resource type="Resource" path="res://data/waves/diagonal.tres" id="2_bv8if"]
-[ext_resource type="Resource" path="res://data/waves/swoop.tres" id="3_klqel"]
-[ext_resource type="Resource" path="res://data/waves/wide_arc.tres" id="4_1bqpi"]
-[ext_resource type="Resource" path="res://data/waves/turret.tres" id="5_w7qnf"]
-[ext_resource type="Resource" path="res://data/waves/tease.tres" id="6_7l436"]
-[ext_resource type="Script" path="res://scripts/level_data.gd" id="7_28xxb"]
-[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="8_luxg4"]
+[ext_resource type="Resource" path="res://flight/waves/dive.tres" id="1_dxdha"]
+[ext_resource type="Resource" path="res://flight/waves/diagonal.tres" id="2_bv8if"]
+[ext_resource type="Resource" path="res://flight/waves/swoop.tres" id="3_klqel"]
+[ext_resource type="Resource" path="res://flight/waves/wide_arc.tres" id="4_1bqpi"]
+[ext_resource type="Resource" path="res://flight/waves/turret.tres" id="5_w7qnf"]
+[ext_resource type="Resource" path="res://flight/waves/tease.tres" id="6_7l436"]
+[ext_resource type="Script" path="res://chapters/level_data.gd" id="7_28xxb"]
+[ext_resource type="Script" path="res://chapters/timeline_entry.gd" id="8_luxg4"]
 
 [sub_resource type="Resource" id="Entry_1"]
 script = ExtResource("8_luxg4")

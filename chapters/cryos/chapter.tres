@@ -5,7 +5,7 @@
 [ext_resource type="Resource" path="res://chapters/cryos/level_2.tres" id="3_2ymbx"]
 [ext_resource type="Resource" path="res://chapters/cryos/level_3.tres" id="4_fsr8j"]
 [ext_resource type="Resource" path="res://chapters/cryos/level_4.tres" id="5_bjxcn"]
-[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="6_j5hau"]
+[ext_resource type="Script" path="res://chapters/chapter_data.gd" id="6_j5hau"]
 
 [resource]
 script = ExtResource("6_j5hau")

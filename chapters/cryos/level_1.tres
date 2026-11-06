@@ -1,14 +1,14 @@
 [gd_resource type="Resource" script_class="LevelData" load_steps=15 format=3]
 
-[ext_resource type="Resource" path="res://data/waves/s_curve.tres" id="1_oh26g"]
-[ext_resource type="Resource" path="res://data/waves/wide_arc.tres" id="2_jxxnf"]
-[ext_resource type="Resource" path="res://data/waves/swoop.tres" id="3_l8wg1"]
-[ext_resource type="Resource" path="res://data/waves/zigzag.tres" id="4_xofta"]
-[ext_resource type="Resource" path="res://data/waves/dive.tres" id="5_kldud"]
-[ext_resource type="Resource" path="res://data/waves/turret.tres" id="6_q8iun"]
-[ext_resource type="Resource" path="res://data/waves/tease.tres" id="7_10lpj"]
-[ext_resource type="Script" path="res://scripts/level_data.gd" id="8_0638i"]
-[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="9_2oakh"]
+[ext_resource type="Resource" path="res://flight/waves/s_curve.tres" id="1_oh26g"]
+[ext_resource type="Resource" path="res://flight/waves/wide_arc.tres" id="2_jxxnf"]
+[ext_resource type="Resource" path="res://flight/waves/swoop.tres" id="3_l8wg1"]
+[ext_resource type="Resource" path="res://flight/waves/zigzag.tres" id="4_xofta"]
+[ext_resource type="Resource" path="res://flight/waves/dive.tres" id="5_kldud"]
+[ext_resource type="Resource" path="res://flight/waves/turret.tres" id="6_q8iun"]
+[ext_resource type="Resource" path="res://flight/waves/tease.tres" id="7_10lpj"]
+[ext_resource type="Script" path="res://chapters/level_data.gd" id="8_0638i"]
+[ext_resource type="Script" path="res://chapters/timeline_entry.gd" id="9_2oakh"]
 
 [sub_resource type="Resource" id="Entry_1"]
 script = ExtResource("9_2oakh")

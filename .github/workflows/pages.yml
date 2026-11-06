@@ -63,19 +63,19 @@ jobs:
             fi
           }
           run "data validation" res://tests/validate_data.tscn
-          for scene in scenes/ui/main_menu.tscn scenes/ui/upgrade_menu.tscn scenes/ui/ship_select.tscn scenes/ui/level_map.tscn scenes/ui/wave_preview.tscn; do
+          for scene in ui/main_menu/main_menu.tscn ui/upgrade_menu/upgrade_menu.tscn ui/ship_select/ship_select.tscn ui/level_map/level_map.tscn ui/wave_preview/wave_preview.tscn; do
             run "$scene" "res://$scene" --quit-after 300
           done
           # Каждый уровень каждой главы — по 15 с игрового времени.
           for chapter in 0 1 2; do
             for level in 0 1 2 3; do
-              run "level $chapter:$level (15s)" res://scenes/game/level.tscn --quit-after 900 -- --level=$chapter:$level
+              run "level $chapter:$level (15s)" res://level/level.tscn --quit-after 900 -- --level=$chapter:$level
             done
           done
-          run "all flight patterns (25s)" res://scenes/game/level.tscn --quit-after 1500 -- --patterns
-          run "boss fight (20s)" res://scenes/game/level.tscn --quit-after 1200 -- --boss
-          run "3D view prototype (15s)" res://scenes/game/level.tscn --quit-after 900 -- --level=0:2 --3d
-          run "3D view boss (10s)" res://scenes/game/level.tscn --quit-after 600 -- --boss --3d
+          run "all flight patterns (25s)" res://level/level.tscn --quit-after 1500 -- --patterns
+          run "boss fight (20s)" res://level/level.tscn --quit-after 1200 -- --boss
+          run "3D view prototype (15s)" res://level/level.tscn --quit-after 900 -- --level=0:2 --3d
+          run "3D view boss (10s)" res://level/level.tscn --quit-after 600 -- --boss --3d
           exit $status
 
       - name: Export Web

@@ -1,14 +1,14 @@
 [gd_resource type="Resource" script_class="LevelData" load_steps=15 format=3]
 
-[ext_resource type="Resource" path="res://data/waves/zigzag.tres" id="1_an53p"]
-[ext_resource type="Resource" path="res://data/waves/hunter.tres" id="2_13uvj"]
-[ext_resource type="Resource" path="res://data/waves/pincer.tres" id="3_nw7p1"]
-[ext_resource type="Resource" path="res://data/waves/drift.tres" id="4_gow42"]
-[ext_resource type="Resource" path="res://data/waves/spiral.tres" id="5_53hsk"]
-[ext_resource type="Resource" path="res://data/waves/turret.tres" id="6_fr1ai"]
-[ext_resource type="Resource" path="res://data/waves/tease.tres" id="7_o3nxp"]
-[ext_resource type="Script" path="res://scripts/level_data.gd" id="8_clkwm"]
-[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="9_ykdud"]
+[ext_resource type="Resource" path="res://flight/waves/zigzag.tres" id="1_an53p"]
+[ext_resource type="Resource" path="res://flight/waves/hunter.tres" id="2_13uvj"]
+[ext_resource type="Resource" path="res://flight/waves/pincer.tres" id="3_nw7p1"]
+[ext_resource type="Resource" path="res://flight/waves/drift.tres" id="4_gow42"]
+[ext_resource type="Resource" path="res://flight/waves/spiral.tres" id="5_53hsk"]
+[ext_resource type="Resource" path="res://flight/waves/turret.tres" id="6_fr1ai"]
+[ext_resource type="Resource" path="res://flight/waves/tease.tres" id="7_o3nxp"]
+[ext_resource type="Script" path="res://chapters/level_data.gd" id="8_clkwm"]
+[ext_resource type="Script" path="res://chapters/timeline_entry.gd" id="9_ykdud"]
 
 [sub_resource type="Resource" id="Entry_1"]
 script = ExtResource("9_ykdud")
