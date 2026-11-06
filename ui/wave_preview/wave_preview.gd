@@ -45,7 +45,7 @@ func _ready() -> void:
 	for c in GameState.chapters.size():
 		for l in GameState.get_chapter(c).levels.size():
 			_levels.append([c, l])
-	_level_index = maxi(0, _levels.find([GameState.current_chapter, GameState.current_level]))
+	_level_index = maxi(0, _levels.find([GameState.progress.current_chapter, GameState.current_level]))
 
 	ghosts.target = Arena.player_spawn_point()
 	overlay.draw.connect(_draw_overlay)

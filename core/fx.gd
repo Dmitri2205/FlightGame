@@ -8,14 +8,17 @@ extends Node
 ## не проседает. У взрывов лимит большой, чтобы гибель врага не осталась без взрыва.
 
 ## Эффект появился (для 3D-вида: он рисует свой взрыв/искры там же).
-signal spawned(kind: String, pos: Vector2, size: float)
+signal spawned(kind: Kind, pos: Vector2, size: float)
+
+## Виды эффектов, о которых сообщает сигнал spawned.
+enum Kind { EXPLOSION, HIT }
 
 const EXPLOSION := preload("res://fx/explosion.tscn")
 const HIT_SPARK := preload("res://fx/hit_spark.tscn")
 const MUZZLE_FLASH := preload("res://fx/muzzle_flash.tscn")
 
 ## Сколько эффектов вида может играть одновременно.
-var LIMITS := {EXPLOSION: 32, HIT_SPARK: 16, MUZZLE_FLASH: 16}
+const LIMITS := {EXPLOSION: 32, HIT_SPARK: 16, MUZZLE_FLASH: 16}
 
 ## Слой эффектов, для которого собраны пулы (меняется вместе со сценой).
 var _layer: Node
@@ -28,7 +31,7 @@ var _busy := {}
 ## Взрыв размера `size` (1 — истребитель, 2+ — крупные цели).
 ## shake_screen = false — без тряски (частые мелкие взрывы, например ракеты).
 func explosion(pos: Vector2, size := 1.0, shake_screen := true) -> void:
-	spawned.emit("explosion", pos, size)
+	spawned.emit(Kind.EXPLOSION, pos, size)
 	_spawn_pooled(EXPLOSION, pos, size)
 	if shake_screen:
 		shake(3.0 * size, 0.15 + 0.08 * size)
@@ -43,7 +46,7 @@ func chain_explosions(pos: Vector2, count: int, radius: float, size := 1.2) -> v
 
 ## Искры попадания пули.
 func hit(pos: Vector2) -> void:
-	spawned.emit("hit", pos, 1.0)
+	spawned.emit(Kind.HIT, pos, 1.0)
 	_spawn_pooled(HIT_SPARK, pos, 1.0)
 
 
@@ -60,7 +63,7 @@ func shake(strength: float, duration: float) -> void:
 
 
 func _find_layer() -> Node:
-	var layer := get_tree().get_first_node_in_group("fx_layer")
+	var layer := get_tree().get_first_node_in_group(Groups.FX_LAYER)
 	if layer == null:
 		layer = get_tree().current_scene
 	if layer != _layer:

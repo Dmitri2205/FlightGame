@@ -60,6 +60,7 @@ core/                      autoload и общая инфраструктура
   music.gd / arena.gd      autoload Music (музыка) и Arena (размер мира)
   audio_buses.gd           AudioBuses: громкость шин звука Music / SFX
   balance.gd               формулы баланса; collision_layers.gd — слои коллизий
+  groups.gd                Groups — имена групп узлов (Groups.PLAYER, Groups.ENEMIES…)
 chapters/                  главы и уровни
   chapter_data.gd          Resource ChapterData — глава (планета, биом, уровни)
   level_data.gd            Resource LevelData — уровень (длительность, волны, сложность, босс)
@@ -361,7 +362,7 @@ Blender); в нём же список спрайтов `SPRITES`, который
 Треки сгенерированы в Suno AI, лежат в `audio/music/` (OGG ~110 кбит/с,
 перекодированы из MP3, чтобы зацикливались без паузы и меньше весили).
 Autoload `Music` (`core/music.gd`): обе дорожки играют одновременно,
-слышна одна, смена — плавный переход громкости.
+слышна одна, смена — плавный переход громкости: `Music.play(Music.Track.SHOWDOWN)`.
 
 | Трек | Где |
 |---|---|
@@ -372,7 +373,7 @@ Autoload `Music` (`core/music.gd`): обе дорожки играют одно�
 
 Шины — в `default_bus_layout.tres`: `Music` и `SFX`, обе идут в `Master`.
 Громкость задают ползунки «Музыка» и «Эффекты» в настройках
-(`GameState.music_volume` / `sfx_volume`, 0..1, по умолчанию 80 %);
+(`GameState.settings.music_volume` / `sfx_volume`, 0..1, по умолчанию 80 %);
 `GameState.apply_audio()` переводит их в дБ (`AudioBuses.apply`, `linear_to_db`)
 и глушит шину на 0 %. «Музыка: вкл/выкл» в меню паузы (`music_on`) глушит
 шину `Music`, не трогая громкость; сдвинуть ползунок музыки вверх — снова

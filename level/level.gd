@@ -63,7 +63,7 @@ var _hidden_blueprint := ""
 var _blueprint_dropped := false
 var _found_blueprint := ""
 
-@onready var player = $Player
+@onready var player: Player = $Player
 @onready var projectiles: Node2D = $Projectiles
 @onready var enemies: Node2D = $Enemies
 @onready var pickups: Node2D = $Pickups
@@ -79,6 +79,8 @@ func _ready() -> void:
 	level_data = GameState.current_level_data()
 	_prop_cooldown = first_prop_delay
 
+	# Сюда FX кладёт взрывы и искры.
+	$Effects.add_to_group(Groups.FX_LAYER)
 	player.place_at(Arena.player_spawn_point())
 	$Camera.position.x = maxf(Arena.rect().size.x - Arena.visible_size().x, 0.0) / 2.0
 	player.projectile_container = projectiles
@@ -89,9 +91,9 @@ func _ready() -> void:
 	hud.next_requested.connect(_next_level)
 	director.enemy_requested.connect(_spawn_enemy)
 	director.miniboss_requested.connect(_spawn_miniboss)
-	Music.play("assault")
+	Music.play(Music.Track.ASSAULT)
 
-	hud.set_health(player.health, player.max_health)
+	hud.set_health(player.health, player.stats.max_health)
 	hud.set_score(score)
 	hud.set_stars(run_stars)
 	var chapter := GameState.current_chapter_data()
@@ -109,7 +111,7 @@ func _ready() -> void:
 		director.skip_to_end()
 		_force_boss = true
 
-	if GameState.view_3d or "--3d" in OS.get_cmdline_user_args():
+	if GameState.settings.view_3d or "--3d" in OS.get_cmdline_user_args():
 		_enable_view_3d()
 
 	# Тайный бросок: есть ли на этом заходе чертёж (игроку не показываем).
@@ -268,13 +270,13 @@ func _spawn_boss_like(scene: PackedScene, hp: int, on_destroyed: Callable, title
 		hud.show_boss(boss.max_hp)
 	else:
 		hud.show_boss(boss.max_hp, title)
-	Music.play("showdown")
+	Music.play(Music.Track.SHOWDOWN)
 
 
 func _on_miniboss_destroyed(_boss: EnemyBase) -> void:
 	run_crystals += Balance.CRYSTALS_MINIBOSS
 	hud.hide_boss()
-	Music.play("assault")
+	Music.play(Music.Track.ASSAULT)
 	director.resume()
 
 
@@ -310,18 +312,18 @@ func _finish(victory: bool) -> void:
 	_finished = true
 	director.stop()
 	GameState.add_stars(run_stars)
-	var first_clear := victory and not GameState.is_level_completed(GameState.current_chapter, GameState.current_level)
-	var bonus := GameState.complete_current_level(score) if victory else 0
+	# Награда за прохождение (бонус звёзд, кристаллы первого прохождения)
+	# начисляет GameState — здесь её только показываем.
+	var reward := GameState.complete_level(score) if victory else LevelReward.new()
 	if run_crystals > 0:
 		GameState.add_crystals(run_crystals)
-	var crystals := run_crystals + (Balance.CRYSTALS_FIRST_CLEAR if first_clear else 0)
 	GameState.finish_level_blueprint(_found_blueprint, victory)
 	var blueprint_line := ""
 	if _found_blueprint != "":
 		var title := GameState.get_ship(_found_blueprint).title
 		blueprint_line = "Чертёж «%s» сохранён: %d/%d" % [title, GameState.blueprint_count(_found_blueprint), GameState.blueprints_required(_found_blueprint)] \
 			if victory else "Чертёж «%s» потерян — корабль сбит" % title
-	hud.show_results(victory, score, run_stars, bonus, victory and GameState.has_next_level(), crystals, blueprint_line)
+	hud.show_results(victory, score, run_stars, reward.bonus_stars, victory and GameState.has_next_level(), run_crystals + reward.crystals, blueprint_line)
 
 
 func _go_to_map() -> void:

@@ -3,7 +3,7 @@ extends EnemyBase
 ## Разрушаемый объект на земле (постройки захватчиков: бочки, генераторы,
 ## антенны). Стоит на земле и уезжает вниз вместе с ней, тарана нет
 ## (маска коллизий 0), пули попадают (слой врагов). Ракеты его не выбирают
-## целью — он не в группе "enemies".
+## целью — он не в группе Groups.ENEMIES.
 ## Даёт немного звёзд, а если на уровне спрятан чертёж — может его уронить
 ## (бросок делает уровень по сигналу destroyed).
 ## Вид (спрайт, прочность, награда, взрыв, 3D-модель) — случайный PropKind
@@ -35,7 +35,7 @@ var sprite_size := 0.0
 
 
 func _ready() -> void:
-	add_to_group("destructibles")
+	add_to_group(Groups.DESTRUCTIBLES)
 	var kind: PropKind = (large_kinds if large else small_kinds).pick_random()
 	$Sprite.texture = kind.texture
 	$Sprite.rotation = randi_range(0, 3) * PI / 2.0

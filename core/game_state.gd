@@ -35,15 +35,6 @@ var boss_test := false
 ## Отладка: волны с разными траекториями идут по очереди.
 var pattern_test := false
 
-## Временные псевдонимы только для чтения — для level/ и ui/wave_preview
-## (пакет B). В пакете C читать progress.current_chapter / settings.view_3d.
-var current_chapter: int:
-	get:
-		return progress.current_chapter
-var view_3d: bool:
-	get:
-		return settings.view_3d
-
 
 func _ready() -> void:
 	ships = ShipCatalog.all()
@@ -330,13 +321,6 @@ func complete_level(score: int) -> LevelReward:
 	stars_changed.emit(progress.stars)
 	save_game()
 	return reward
-
-
-## Временная обёртка для level/level.gd (пакет B). В пакете C уровень
-## переходит на complete_level() и показывает reward.crystals вместо
-## своего подсчёта first_clear. Возвращает бонус звёзд.
-func complete_current_level(score: int) -> int:
-	return complete_level(score).bonus_stars
 
 
 ## Первый открытый, но ещё не пройденный уровень — [глава, уровень].
