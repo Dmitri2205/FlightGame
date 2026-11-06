@@ -47,3 +47,8 @@ func visible_rect() -> Rect2:
 	var camera := get_viewport().get_camera_2d()
 	var origin := Vector2(camera.position.x, 0.0) if camera else Vector2.ZERO
 	return Rect2(origin, visible_size())
+
+
+## Точка в кадре (с отступом от краёв) — отсюда врагам можно стрелять.
+func is_in_view(point: Vector2, margin := 24.0) -> bool:
+	return visible_rect().grow(-margin).has_point(point)

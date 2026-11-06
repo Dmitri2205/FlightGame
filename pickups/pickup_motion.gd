@@ -1,10 +1,14 @@
 class_name PickupMotion
 extends Node
 ## Общее движение подбираемых предметов: разлёт при появлении, плавное
-## падение вниз, полёт к игроку и сбор при касании.
+## падение вниз (или зависание при fall_speed = 0), полёт к игроку и сбор при касании.
 ## Вешается дочерним узлом на Area2D-подбор; двигает родителя.
 
 signal collected
+
+## Когда предмет летит к игроку: только в радиусе магнита, всегда (после
+## home_delay) или никогда — игрок должен сам долететь до него.
+enum Homing { MAGNET, ALWAYS, NONE }
 
 ## Начальный разлёт: X в [-burst_spread_x, burst_spread_x], Y в [burst_min_y, burst_max_y].
 @export var burst_spread_x := 180.0
@@ -15,8 +19,7 @@ signal collected
 @export var home_speed := 900.0
 ## Сколько секунд после появления предмет не летит к игроку.
 @export var home_delay := 0.0
-## true — летит к игроку только внутри радиуса магнита; false — всегда после задержки.
-@export var use_magnet := true
+@export var homing := Homing.MAGNET
 @export var spin_speed := 0.0
 ## Насколько ниже экрана предмет исчезает.
 @export var despawn_margin := 40.0
@@ -49,9 +52,9 @@ func _next_velocity(delta: float) -> Vector2:
 
 
 func _should_home(player: Node2D) -> bool:
-	if age <= home_delay:
+	if homing == Homing.NONE or age <= home_delay:
 		return false
-	if not use_magnet:
+	if homing == Homing.ALWAYS:
 		return true
 	var radius: float = player.get("magnet_radius")
 	return _body.position.distance_to(player.position) < radius

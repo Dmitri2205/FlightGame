@@ -29,12 +29,9 @@ shape = SubResource("Shape_hit")
 
 [node name="Motion" type="Node" parent="."]
 script = ExtResource("9_motion")
-burst_spread_x = 80.0
-burst_min_y = -220.0
-burst_max_y = -220.0
-fall_speed = 120.0
-fall_accel = 400.0
-home_speed = 700.0
-home_delay = 0.7
-use_magnet = false
+burst_spread_x = 0.0
+burst_min_y = 0.0
+burst_max_y = 0.0
+fall_speed = 0.0
+homing = 2
 despawn_margin = 60.0

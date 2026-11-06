@@ -102,14 +102,10 @@ func _die() -> void:
 	queue_free()
 
 
-## Стреляет только из кадра и только перед игроком: пролетевшие мимо
-## и ушедшие за край экрана в спину не бьют.
+## Стреляет из любой точки кадра — пролетевшие мимо бьют и в спину;
+## из-за края экрана не стреляет.
 func _can_fire() -> bool:
-	# Только из видимой части мира (не из запаса по бокам за краем экрана).
-	if not Arena.visible_rect().grow(-24.0).has_point(position):
-		return false
-	var player := get_tree().get_first_node_in_group("player") as Node2D
-	return player == null or position.y < player.position.y - 60.0
+	return Arena.is_in_view(position)
 
 
 func _fire() -> void:
