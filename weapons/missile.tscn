@@ -1,0 +1,82 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://weapons/missile.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://fx/materials/soft_glow.tres" id="fx_glow"]
+[ext_resource type="Material" path="res://fx/materials/additive.tres" id="fx_add"]
+
+[sub_resource type="Curve" id="Curve_grow"]
+_data = [Vector2(0, 0.5), 0.0, 0.0, 0, 0, Vector2(1, 1.6), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_shrink"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Gradient" id="Gradient_smoke"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(0.85, 0.85, 0.85, 0.45, 0.6, 0.6, 0.6, 0)
+
+[sub_resource type="Gradient" id="Gradient_flame"]
+offsets = PackedFloat32Array(0, 0.5, 1)
+colors = PackedColorArray(1, 1, 0.8, 1, 1, 0.6, 0.15, 0.8, 0.9, 0.2, 0.05, 0)
+
+[sub_resource type="RectangleShape2D" id="Shape_hit"]
+size = Vector2(8, 20)
+
+[node name="Missile" type="Area2D"]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("1_script")
+
+[node name="Smoke" type="CPUParticles2D" parent="."]
+position = Vector2(0, 12)
+amount = 24
+lifetime = 0.6
+texture = ExtResource("fx_glow")
+direction = Vector2(0, 1)
+spread = 12.0
+gravity = Vector2(0, 120)
+initial_velocity_min = 20.0
+initial_velocity_max = 50.0
+scale_amount_min = 0.25
+scale_amount_max = 0.45
+scale_amount_curve = SubResource("Curve_grow")
+color_ramp = SubResource("Gradient_smoke")
+
+[node name="Flame" type="CPUParticles2D" parent="."]
+material = ExtResource("fx_add")
+position = Vector2(0, 11)
+amount = 16
+lifetime = 0.15
+texture = ExtResource("fx_glow")
+direction = Vector2(0, 1)
+spread = 10.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 80.0
+initial_velocity_max = 140.0
+scale_amount_min = 0.25
+scale_amount_max = 0.4
+scale_amount_curve = SubResource("Curve_shrink")
+color_ramp = SubResource("Gradient_flame")
+
+[node name="Glow" type="Sprite2D" parent="."]
+material = ExtResource("fx_add")
+modulate = Color(1, 0.6, 0.2, 0.7)
+position = Vector2(0, 10)
+scale = Vector2(0.45, 0.45)
+texture = ExtResource("fx_glow")
+
+[node name="Body" type="Polygon2D" parent="."]
+color = Color(0.85, 0.87, 0.92, 1)
+polygon = PackedVector2Array(0, -12, 3, -7, 3, 9, -3, 9, -3, -7)
+
+[node name="Tip" type="Polygon2D" parent="."]
+color = Color(0.95, 0.3, 0.25, 1)
+polygon = PackedVector2Array(0, -12, 3, -7, -3, -7)
+
+[node name="Fins" type="Polygon2D" parent="."]
+color = Color(0.55, 0.58, 0.66, 1)
+polygon = PackedVector2Array(-3, 4, -7, 11, -3, 9, 3, 9, 7, 11, 3, 4)
+
+[node name="Collision" type="CollisionShape2D" parent="."]
+shape = SubResource("Shape_hit")

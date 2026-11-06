@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="FlightPattern" format=3]
+
+[ext_resource type="Script" path="res://flight/flight_pattern.gd" id="1_pattern"]
+[ext_resource type="Script" path="res://flight/flight_step.gd" id="2_step"]
+
+[sub_resource type="Resource" id="Step_1"]
+script = ExtResource("2_step")
+type = 0
+distance = 560.0
+
+[sub_resource type="Resource" id="Step_2"]
+script = ExtResource("2_step")
+type = 1
+angle = 360.0
+radius = 140.0
+
+[sub_resource type="Resource" id="Step_3"]
+script = ExtResource("2_step")
+type = 0
+distance = 220.0
+
+[sub_resource type="Resource" id="Step_4"]
+script = ExtResource("2_step")
+type = 1
+angle = -360.0
+radius = 140.0
+
+[resource]
+script = ExtResource("1_pattern")
+title = "Двойная петля"
+start = Vector2(0.3, -60.0)
+heading = 0.0
+steps = [SubResource("Step_1"), SubResource("Step_2"), SubResource("Step_3"), SubResource("Step_4")]

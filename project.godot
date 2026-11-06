@@ -6,18 +6,18 @@ config_version=5
 [application]
 
 config/name="FlightGame"
-run/main_scene="res://scenes/ui/main_menu.tscn"
+run/main_scene="res://ui/main_menu/main_menu.tscn"
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
-GameState="*res://scripts/game_state.gd"
-FX="*res://scripts/fx.gd"
-Router="*res://scripts/router.gd"
-Pool="*res://scripts/pool.gd"
-Music="*res://scripts/music.gd"
-Arena="*res://scripts/arena.gd"
+GameState="*res://core/game_state.gd"
+FX="*res://core/fx.gd"
+Router="*res://core/router.gd"
+Pool="*res://core/pool.gd"
+Music="*res://core/music.gd"
+Arena="*res://core/arena.gd"
 
 [display]
 
@@ -31,7 +31,7 @@ window/handheld/orientation=1
 
 [gui]
 
-theme/custom="res://ui/theme.tres"
+theme/custom="res://ui/kit/theme.tres"
 
 [input_devices]
 

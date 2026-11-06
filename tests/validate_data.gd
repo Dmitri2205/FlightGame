@@ -10,7 +10,7 @@ var _errors := 0
 
 
 func _ready() -> void:
-	for path in ["res://data/patterns", "res://data/waves"]:
+	for path in ["res://flight/patterns", "res://flight/waves"]:
 		if DirAccess.get_files_at(path).is_empty():
 			_fail("пустая папка %s" % path)
 	for pattern in DataLibrary.patterns():
