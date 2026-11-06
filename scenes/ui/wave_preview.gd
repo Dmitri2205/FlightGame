@@ -166,7 +166,7 @@ func _show_level() -> void:
 		for fraction in level.miniboss_at:
 			at.append(_format_time(float(fraction) * level.duration))
 		lines.append("мини-боссы: %s (в превью пропускаются)" % ", ".join(at))
-	lines.append("%s  конец волн%s · здоровье врагов ×%.1f" % [_format_time(level.duration), " → БОСС %d HP" % level.boss_hp if level.boss else "", level.enemy_hp_mult])
+	lines.append("%s  конец волн%s · здоровье врагов ×%.1f" % [_format_time(level.duration), " → БОСС %d HP" % level.boss_hp if level.boss else "", chapter.enemy_hp_multiplier(l)])
 	info_label.text = "\n".join(lines)
 	director.start(level)
 

@@ -474,7 +474,7 @@ func _sync_multimeshes() -> void:
 			continue
 		var pos := to_3d(b.global_position)
 		pos.y = AIR_HEIGHT
-		if b.collision_layer == 8:
+		if b.collision_layer == CollisionLayers.ENEMY_BULLET:
 			if enemy_count < enemy_mm.instance_count:
 				enemy_mm.set_instance_transform(enemy_count, Transform3D(Basis(), pos))
 				enemy_count += 1

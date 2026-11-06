@@ -194,7 +194,7 @@ func _make_card(id: String) -> Control:
 		return card
 
 	# Шкала уровня: 10 делений.
-	box.add_child(_pips(GameState.tier_progress(id), GameState.STEPS_PER_TIER, 12))
+	box.add_child(_pips(GameState.tier_progress(id), Balance.STEPS_PER_TIER, 12))
 
 	# Характеристики: свои деления и кнопка покупки.
 	for stat in data.stats:
