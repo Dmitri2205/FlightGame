@@ -6,11 +6,12 @@ signal stars_changed(total: int)
 signal upgrade_changed(id: String, tier: int)
 signal ship_changed(id: String)
 signal chapter_changed(index: int)
-signal music_changed(enabled: bool)
 signal crystals_changed(total: int)
 signal blueprints_changed(ship_id: String, count: int)
 
 const SAVE_PATH := "user://save.json"
+## Громкость по умолчанию (линейная 0..1) — музыка и эффекты.
+const DEFAULT_VOLUME := 0.8
 
 ## Модули корабля. У модуля есть УРОВЕНЬ (1..max_tier) и шкала из 10 делений
 ## внутри уровня. Деления покупаются по отдельности в характеристики (stats):
@@ -86,8 +87,12 @@ var current_level := 0
 ## Инструменты разработчика (превью волн, тесты) в меню. Скрыты от игрока:
 ## включаются 7 тапами по названию в главном меню; в отладочной сборке — всегда.
 var dev_mode := false
-## Музыка включена (переключатель в меню паузы).
+## Звук. Громкость — ползунки в настройках (линейная 0..1), music_on —
+## переключатель в меню паузы: глушит шину Music, не трогая громкость.
+## Применяются к шинам в apply_audio() (AudioBuses).
 var music_on := true
+var music_volume := DEFAULT_VOLUME
+var sfx_volume := DEFAULT_VOLUME
 ## Прототип 2.5D-вида (камера сзади-сверху), переключатель в меню разработчика.
 var view_3d := false
 ## Отладка: следующий запуск уровня начнётся сразу с босса.
@@ -101,6 +106,7 @@ func _ready() -> void:
 	chapters = ChapterCatalog.all()
 	_reset_ships()
 	load_game()
+	apply_audio()
 
 
 # --- Звёзды и улучшения -------------------------------------------------------
@@ -564,6 +570,8 @@ func save_game() -> void:
 		"current_chapter": current_chapter,
 		"dev_mode": dev_mode,
 		"music_on": music_on,
+		"music_volume": music_volume,
+		"sfx_volume": sfx_volume,
 		"view_3d": view_3d,
 	}))
 
@@ -595,6 +603,8 @@ func load_game() -> void:
 	current_chapter = clampi(int(data.get("current_chapter", 0)), 0, chapters.size() - 1)
 	dev_mode = bool(data.get("dev_mode", false))
 	music_on = bool(data.get("music_on", true))
+	music_volume = clampf(float(data.get("music_volume", DEFAULT_VOLUME)), 0.0, 1.0)
+	sfx_volume = clampf(float(data.get("sfx_volume", DEFAULT_VOLUME)), 0.0, 1.0)
 	view_3d = bool(data.get("view_3d", false))
 
 
@@ -602,11 +612,44 @@ func dev_tools_available() -> bool:
 	return dev_mode or OS.is_debug_build()
 
 
+# --- Звук -------------------------------------------------------------------
+
+## Переключатель музыки (меню паузы). Включение при нулевой громкости
+## возвращает громкость по умолчанию — иначе «вкл» было бы беззвучным.
 func set_music(enabled: bool) -> void:
 	music_on = enabled
-	music_changed.emit(enabled)
+	if enabled and music_volume <= 0.0:
+		music_volume = DEFAULT_VOLUME
+	apply_audio()
 	save_game()
 
+
+## Громкость музыки 0..1. Сдвинуть ползунок вверх — значит хотеть слышать
+## музыку, поэтому это заодно включает её. save = false — применить сразу,
+## а сохранить потом (ползунок сохраняет, когда его отпустили).
+func set_music_volume(volume: float, save := true) -> void:
+	music_volume = clampf(volume, 0.0, 1.0)
+	if music_volume > 0.0:
+		music_on = true
+	apply_audio()
+	if save:
+		save_game()
+
+
+## Громкость эффектов 0..1 (шина SFX). save — как у set_music_volume.
+func set_sfx_volume(volume: float, save := true) -> void:
+	sfx_volume = clampf(volume, 0.0, 1.0)
+	apply_audio()
+	if save:
+		save_game()
+
+
+func apply_audio() -> void:
+	AudioBuses.apply(AudioBuses.MUSIC, music_volume, not music_on)
+	AudioBuses.apply(AudioBuses.SFX, sfx_volume)
+
+
+# --- Режим разработчика --------------------------------------------------------
 
 func set_dev_mode(enabled: bool) -> void:
 	dev_mode = enabled

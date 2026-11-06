@@ -63,7 +63,7 @@ jobs:
             fi
           }
           run "data validation" res://tests/validate_data.tscn
-          for scene in ui/main_menu/main_menu.tscn ui/upgrade_menu/upgrade_menu.tscn ui/ship_select/ship_select.tscn ui/level_map/level_map.tscn ui/wave_preview/wave_preview.tscn; do
+          for scene in ui/main_menu/main_menu.tscn ui/upgrade_menu/upgrade_menu.tscn ui/ship_select/ship_select.tscn ui/level_map/level_map.tscn ui/wave_preview/wave_preview.tscn ui/settings/settings.tscn; do
             run "$scene" "res://$scene" --quit-after 300
           done
           # Каждый уровень каждой главы — по 15 с игрового времени.

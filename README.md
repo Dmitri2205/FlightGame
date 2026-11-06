@@ -46,12 +46,14 @@ Actions*, ветка по умолчанию — `main` (*Settings → General �
 Папки по доменам: сцена, её скрипт и данные лежат рядом.
 
 project.godot              настройки: экран, слои коллизий, autoload
+default_bus_layout.tres    шины звука: Master ← Music, SFX
 core/                      autoload и общая инфраструктура
   game_state.gd            autoload GameState: звёзды, корабли, улучшения, баланс, сохранение
   router.gd                autoload Router: переходы между экранами
   fx.gd                    autoload FX: взрывы, искры, тряска экрана
   pool.gd                  autoload Pool: переиспользование пуль (take / release)
   music.gd / arena.gd      autoload Music (музыка) и Arena (размер мира)
+  audio_buses.gd           AudioBuses: громкость шин звука Music / SFX
   balance.gd               формулы баланса; collision_layers.gd — слои коллизий
 chapters/                  главы и уровни
   chapter_data.gd          Resource ChapterData — глава (планета, биом, уровни)
@@ -108,6 +110,7 @@ ui/
   ship_select/             выбор и покупка кораблей
   level_map/               карта уровней: главы-планеты, дорожка уровней (+ map_path.gd)
   wave_preview/            превью траекторий и волн уровней
+  settings/                настройки (раздел «Звук»: громкость музыки и эффектов)
   hud/                     очки, здоровье, прогресс уровня, экран итогов
 tests/validate_data.tscn   проверка данных (CI)
 audio/music/               музыка
@@ -351,7 +354,19 @@ Autoload `Music` (`core/music.gd`): обе дорожки играют одно�
 | Hyperdrive Assault | меню, карта, ангар, уровень |
 | Hyperdrive Showdown | бой с мини-боссом и боссом (после мини-босса — обратно) |
 
-Выключить — «Музыка: вкл/выкл» в меню паузы (сохраняется).
+### Звук: громкость и шины
+
+Шины — в `default_bus_layout.tres`: `Music` и `SFX`, обе идут в `Master`.
+Громкость задают ползунки «Музыка» и «Эффекты» в настройках
+(`GameState.music_volume` / `sfx_volume`, 0..1, по умолчанию 80 %);
+`GameState.apply_audio()` переводит их в дБ (`AudioBuses.apply`, `linear_to_db`)
+и глушит шину на 0 %. «Музыка: вкл/выкл» в меню паузы (`music_on`) глушит
+шину `Music`, не трогая громкость; сдвинуть ползунок музыки вверх — снова
+включить её. Всё сохраняется.
+
+Звуковых эффектов пока нет. Новому звуку (взрыв, выстрел, гибель игрока)
+достаточно играть в шину SFX — `player.bus = AudioBuses.SFX` (или
+`bus = "SFX"` в инспекторе), громкость из настроек применится сама.
 
 ### Визуальные эффекты
 
