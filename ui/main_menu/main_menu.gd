@@ -64,6 +64,7 @@ func _ready() -> void:
 	%PlayButton.pressed.connect(_play.bind(next[0]))
 	%ShipsButton.pressed.connect(Router.ships)
 	%UpgradesButton.pressed.connect(Router.upgrades)
+	%SettingsButton.pressed.connect(Router.settings)
 	%PreviewButton.pressed.connect(Router.wave_preview)
 	%BossTestButton.pressed.connect(_start_test.bind(true))
 	%PatternTestButton.pressed.connect(_start_test.bind(false))

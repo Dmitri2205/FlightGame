@@ -7,6 +7,7 @@ const LEVEL := "res://level/level.tscn"
 const UPGRADES := "res://ui/upgrade_menu/upgrade_menu.tscn"
 const SHIPS := "res://ui/ship_select/ship_select.tscn"
 const WAVE_PREVIEW := "res://ui/wave_preview/wave_preview.tscn"
+const SETTINGS := "res://ui/settings/settings.tscn"
 
 
 func main_menu() -> void:
@@ -34,6 +35,10 @@ func ships() -> void:
 
 func wave_preview() -> void:
 	_go(WAVE_PREVIEW)
+
+
+func settings() -> void:
+	_go(SETTINGS)
 
 
 func reload() -> void:
