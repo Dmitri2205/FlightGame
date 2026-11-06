@@ -190,7 +190,7 @@ func _on_prop_destroyed(prop) -> void:
 	_on_enemy_destroyed(prop)
 	if _hidden_blueprint == "" or _blueprint_dropped or blueprint_scene == null:
 		return
-	if randf() < GameState.BLUEPRINT_PROP_CHANCE:
+	if randf() < Balance.BLUEPRINT_PROP_CHANCE:
 		_blueprint_dropped = true
 		var pickup = blueprint_scene.instantiate()
 		pickup.position = prop.position
@@ -249,14 +249,14 @@ func _spawn_miniboss(_index: int) -> void:
 
 
 func _on_miniboss_destroyed(_boss) -> void:
-	run_crystals += GameState.CRYSTALS_MINIBOSS
+	run_crystals += Balance.CRYSTALS_MINIBOSS
 	hud.hide_boss()
 	Music.play("assault")
 	director.resume()
 
 
 func _on_boss_destroyed(_boss) -> void:
-	run_crystals += GameState.CRYSTALS_BOSS
+	run_crystals += Balance.CRYSTALS_BOSS
 	hud.hide_boss()
 	get_tree().create_timer(victory_delay, false).timeout.connect(_finish.bind(true))
 
@@ -291,7 +291,7 @@ func _finish(victory: bool) -> void:
 	var bonus := GameState.complete_current_level(score) if victory else 0
 	if run_crystals > 0:
 		GameState.add_crystals(run_crystals)
-	var crystals := run_crystals + (GameState.CRYSTALS_FIRST_CLEAR if first_clear else 0)
+	var crystals := run_crystals + (Balance.CRYSTALS_FIRST_CLEAR if first_clear else 0)
 	GameState.finish_level_blueprint(_found_blueprint, victory)
 	var blueprint_line := ""
 	if _found_blueprint != "":

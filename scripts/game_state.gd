@@ -18,9 +18,6 @@ const SAVE_PATH := "user://save.json"
 ## заполнена, модуль переходит на следующий уровень (это открывает новую
 ## видимую возможность: шрапнель, ствол, ракету), шкала начинается заново.
 ## installed = false — модуль сначала нужно установить (install_cost).
-const STEPS_PER_TIER := 10
-## Во сколько раз шаг следующего уровня модуля дороже шага предыдущего.
-const TIER_COST_GROWTH := 2.0
 const MODULES := {
 	"main_cannon": {
 		"title": "Основная пушка",
@@ -118,24 +115,10 @@ func add_stars(amount: int) -> void:
 ## Чертёж на уровне спрятан так: при старте уровня с шансом
 ## blueprint_level_chance() решается, есть ли тут чертёж (и для какого
 ## корабля), а потом каждый разрушенный объект на земле с шансом
-## BLUEPRINT_PROP_CHANCE роняет его. Подобранный чертёж засчитывается только
+## Balance.BLUEPRINT_PROP_CHANCE роняет его. Подобранный чертёж засчитывается только
 ## при прохождении уровня. Где лежат чертежи, игроку не говорим.
 
-## Базовый шанс, что на уровне вообще есть чертёж (пока ничего не собрано).
-const BLUEPRINT_LEVEL_CHANCE := 0.1
-## Чем больше чертежей собрано (всего, по всем кораблям), тем реже они
-## попадаются: шанс умножается на это число за каждый собранный кусок
-## (10 собрано — ×0.74, 30 — ×0.40).
-const BLUEPRINT_DECAY := 0.97
-## Прибавка к шансу за каждый пустой пройденный уровень (скрытая).
-const BLUEPRINT_PITY_STEP := 0.02
-const BLUEPRINT_LEVEL_CHANCE_MAX := 0.3
-## Шанс выпасть из одного разрушенного объекта, если на уровне чертёж есть.
-const BLUEPRINT_PROP_CHANCE := 0.1
-## Награды кристаллами.
-const CRYSTALS_MINIBOSS := 1
-const CRYSTALS_BOSS := 3
-const CRYSTALS_FIRST_CLEAR := 2
+## Константы и формулы — в Balance.
 
 
 func add_crystals(amount: int) -> void:
@@ -167,7 +150,7 @@ func ships_needing_blueprints() -> Array:
 
 ## Цена одного куска чертежа в кристаллах (дороже у редких кораблей).
 func blueprint_crystal_cost(ship_id: String) -> int:
-	return maxi(1, blueprints_required(ship_id) / 2)
+	return Balance.blueprint_crystal_cost(blueprints_required(ship_id))
 
 
 func add_blueprint(ship_id: String) -> void:
@@ -197,8 +180,7 @@ func blueprints_collected_total() -> int:
 ## Шанс чертежа на уровне: падает с числом собранных, растёт от скрытой
 ## защиты от невезения.
 func blueprint_level_chance() -> float:
-	var base := BLUEPRINT_LEVEL_CHANCE * pow(BLUEPRINT_DECAY, blueprints_collected_total())
-	return minf(base + BLUEPRINT_PITY_STEP * blueprint_pity, BLUEPRINT_LEVEL_CHANCE_MAX)
+	return Balance.blueprint_chance(blueprints_collected_total(), blueprint_pity)
 
 
 ## Бросок при старте уровня: id корабля, чей чертёж тут спрятан, или "".
@@ -237,7 +219,7 @@ func is_installed(id: String) -> bool:
 
 ## Сколько делений в одну характеристику на каждом уровне (5 или 10).
 func steps_per_stat(id: String) -> int:
-	return STEPS_PER_TIER / MODULES[id].stats.size()
+	return Balance.STEPS_PER_TIER / MODULES[id].stats.size()
 
 
 ## Куплено делений характеристики на текущем уровне.
@@ -261,7 +243,7 @@ func tier_progress(id: String) -> int:
 
 
 func is_maxed(id: String) -> bool:
-	return module_tier(id) >= module_max_tier(id) and tier_progress(id) >= STEPS_PER_TIER
+	return module_tier(id) >= module_max_tier(id) and tier_progress(id) >= Balance.STEPS_PER_TIER
 
 
 func stat_full(id: String, stat: String) -> bool:
@@ -275,9 +257,7 @@ func install_cost(id: String) -> int:
 ## Цена деления: дороже с каждым уровнем и с каждым делением внутри уровня.
 func step_cost(id: String) -> int:
 	var tier := maxi(module_tier(id), 1)
-	# Каждый уровень модуля вдвое дороже предыдущего — старшие уровни
-	# приходится фармить (перепроходить уровни ради звёзд).
-	return roundi(MODULES[id].base_cost * pow(TIER_COST_GROWTH, tier - 1) * (1.0 + 0.08 * tier_progress(id)))
+	return Balance.module_cost(MODULES[id].base_cost, tier, tier_progress(id))
 
 
 func try_install(id: String) -> bool:
@@ -300,7 +280,7 @@ func try_buy_step(id: String, stat: String) -> bool:
 	stars -= step_cost(id)
 	var module := _module(id)
 	module.steps[stat] = stat_steps(id, stat) + 1
-	if tier_progress(id) >= STEPS_PER_TIER and module_tier(id) < module_max_tier(id):
+	if tier_progress(id) >= Balance.STEPS_PER_TIER and module_tier(id) < module_max_tier(id):
 		module.tier = module_tier(id) + 1
 		module.steps = {}
 	_after_upgrade(id)
@@ -438,7 +418,7 @@ func complete_current_level(score: int) -> int:
 	completed_levels[key] = maxi(score, int(completed_levels.get(key, 0)))
 	var bonus := current_level_data().completion_bonus if first_time else 0
 	if first_time:
-		crystals += CRYSTALS_FIRST_CLEAR
+		crystals += Balance.CRYSTALS_FIRST_CLEAR
 		crystals_changed.emit(crystals)
 	stars += bonus
 	stars_changed.emit(stars)
@@ -473,27 +453,24 @@ func select_next_level() -> void:
 # --- Характеристики корабля (весь баланс в одном месте) ----------------------
 # Итог = база выбранного корабля + улучшения (улучшения общие для всех кораблей).
 
-## Шрапнель основной пушки по уровням модуля 0..5.
-const SHRAPNEL_BY_TIER := [0, 0, 1, 2, 3, 4]
-## +3% к базовому здоровью за каждое деление (уровень = +30%).
-const HEALTH_PER_STEP := 0.03
+## Формулы — в Balance.
 
 
 func player_max_health() -> int:
-	return roundi(get_selected_ship().base_health * (1.0 + HEALTH_PER_STEP * stat_total("health", "armor")))
+	return Balance.max_health(get_selected_ship().base_health, stat_total("health", "armor"))
 
 
 func fire_interval() -> float:
-	return 0.25 * pow(0.97, stat_total("main_cannon", "rate")) / get_selected_ship().fire_rate_mult
+	return Balance.main_fire_interval(stat_total("main_cannon", "rate"), get_selected_ship().fire_rate_mult)
 
 
 func main_cannon_damage() -> int:
-	return 1 + stat_total("main_cannon", "damage") / 3 + get_selected_ship().damage_bonus
+	return Balance.main_damage(stat_total("main_cannon", "damage"), get_selected_ship().damage_bonus)
 
 
 ## Сколько дополнительных маленьких патронов (шрапнели) даёт основная пушка.
 func shrapnel_count() -> int:
-	return SHRAPNEL_BY_TIER[clampi(module_tier("main_cannon"), 0, SHRAPNEL_BY_TIER.size() - 1)]
+	return Balance.shrapnel(module_tier("main_cannon"))
 
 
 ## Стволов на каждом крыле = уровень модуля (0 — не установлены).
@@ -504,12 +481,12 @@ func wing_guns_per_side() -> int:
 ## Крыльевые бьют очень редко, но тяжело: снаряд — как залп основной пушки.
 ## (Потом их заменят навесные орудия из чертежей со своими характеристиками.)
 func wing_cannon_damage() -> int:
-	return 8 + stat_total("wing_cannons", "damage")
+	return Balance.wing_damage(stat_total("wing_cannons", "damage"))
 
 
 ## Свой темп у крыльевых пушек (характеристика «Скорострельность»).
 func wing_fire_interval() -> float:
-	return 2.4 * pow(0.97, stat_total("wing_cannons", "rate")) / get_selected_ship().fire_rate_mult
+	return Balance.wing_fire_interval(stat_total("wing_cannons", "rate"), get_selected_ship().fire_rate_mult)
 
 
 ## Ракет в залпе = уровень модуля (0 — не установлены).
@@ -518,15 +495,15 @@ func missiles_per_salvo() -> int:
 
 
 func missile_interval() -> float:
-	return 2.2 * pow(0.95, stat_total("missiles", "reload"))
+	return Balance.missile_interval(stat_total("missiles", "reload"))
 
 
 func missile_damage() -> int:
-	return 4 + stat_total("missiles", "damage") / 2
+	return Balance.missile_damage(stat_total("missiles", "damage"))
 
 
 func magnet_radius() -> float:
-	return (60.0 + 10.0 * stat_total("magnet", "radius")) * get_selected_ship().magnet_mult
+	return Balance.magnet_radius(stat_total("magnet", "radius"), get_selected_ship().magnet_mult)
 
 
 ## Текущее значение характеристики — подпись в ангаре.
@@ -545,7 +522,7 @@ func describe_stat(id: String, stat: String) -> String:
 		["missiles", "reload"]:
 			return "раз в %.1f с" % missile_interval()
 		["health", "armor"]:
-			return "%d HP (+%d%%)" % [player_max_health(), roundi(HEALTH_PER_STEP * 100 * stat_total("health", "armor"))]
+			return "%d HP (+%d%%)" % [player_max_health(), Balance.health_bonus_percent(stat_total("health", "armor"))]
 		["magnet", "radius"]:
 			return "%d px" % magnet_radius()
 	return ""
@@ -555,7 +532,7 @@ func describe_stat(id: String, stat: String) -> String:
 func describe_tier(id: String, tier: int) -> String:
 	match id:
 		"main_cannon":
-			var shrapnel: int = SHRAPNEL_BY_TIER[clampi(tier, 0, SHRAPNEL_BY_TIER.size() - 1)]
+			var shrapnel: int = Balance.shrapnel(tier)
 			return "шрапнель: %d" % shrapnel if shrapnel > 0 else "один ствол"
 		"wing_cannons":
 			return "%d ств. на крыло" % tier
