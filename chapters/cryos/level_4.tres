@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=19 format=3]
+
+[ext_resource type="Resource" path="res://data/waves/s_curve.tres" id="1_c6puu"]
+[ext_resource type="Resource" path="res://data/waves/hunter.tres" id="2_hfqda"]
+[ext_resource type="Resource" path="res://data/waves/drift.tres" id="3_4c266"]
+[ext_resource type="Resource" path="res://data/waves/pincer.tres" id="4_qwex2"]
+[ext_resource type="Resource" path="res://data/waves/spiral.tres" id="5_sn78p"]
+[ext_resource type="Resource" path="res://data/waves/turret.tres" id="6_x2so8"]
+[ext_resource type="Resource" path="res://data/waves/tanks_cross.tres" id="7_n3gue"]
+[ext_resource type="Resource" path="res://data/waves/tanks_column.tres" id="8_54d0h"]
+[ext_resource type="Resource" path="res://data/waves/turret_pair.tres" id="9_elxje"]
+[ext_resource type="Resource" path="res://data/waves/tease.tres" id="10_jneop"]
+[ext_resource type="Resource" path="res://data/waves/figure8.tres" id="11_jet1x"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="12_sawxm"]
+[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="13_67rgb"]
+
+[sub_resource type="Resource" id="Entry_13"]
+script = ExtResource("13_67rgb")
+time = 1.0
+wave = ExtResource("1_c6puu")
+
+[sub_resource type="Resource" id="Entry_14"]
+script = ExtResource("13_67rgb")
+time = 3.0
+wave = ExtResource("2_hfqda")
+
+[sub_resource type="Resource" id="Entry_15"]
+script = ExtResource("13_67rgb")
+time = 5.5
+wave = ExtResource("3_4c266")
+
+[sub_resource type="Resource" id="Entry_16"]
+script = ExtResource("13_67rgb")
+time = 8.0
+wave = ExtResource("4_qwex2")
+
+[sub_resource type="Resource" id="Entry_g3"]
+script = ExtResource("13_67rgb")
+time = 9.5
+wave = ExtResource("8_54d0h")
+
+[resource]
+script = ExtResource("12_sawxm")
+title = "Ледяной колосс"
+duration = 300.0
+timeline = [SubResource("Entry_13"), SubResource("Entry_14"), SubResource("Entry_15"), SubResource("Entry_16"), SubResource("Entry_g3")]
+filler_waves = [ExtResource("1_c6puu"), ExtResource("2_hfqda"), ExtResource("3_4c266"), ExtResource("4_qwex2"), ExtResource("5_sn78p"), ExtResource("6_x2so8"), ExtResource("7_n3gue"), ExtResource("8_54d0h"), ExtResource("9_elxje"), ExtResource("10_jneop"), ExtResource("11_jet1x")]
+filler_from = 11.0
+group_min = 1
+group_max = 3
+wave_gap = 0.8
+rest_min = 3.2
+rest_max = 5.8
+ground_chance = 0.6
+miniboss_at = [0.5]
+boss = true
+boss_hp = 800
+completion_bonus = 90

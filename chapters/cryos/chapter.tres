@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ChapterData" load_steps=7 format=3]
+
+[ext_resource type="Texture2D" path="res://art/ground/ice.jpg" id="1_qhpni"]
+[ext_resource type="Resource" path="res://chapters/cryos/level_1.tres" id="2_c5k23"]
+[ext_resource type="Resource" path="res://chapters/cryos/level_2.tres" id="3_2ymbx"]
+[ext_resource type="Resource" path="res://chapters/cryos/level_3.tres" id="4_fsr8j"]
+[ext_resource type="Resource" path="res://chapters/cryos/level_4.tres" id="5_bjxcn"]
+[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="6_j5hau"]
+
+[resource]
+script = ExtResource("6_j5hau")
+id = "cryos"
+title = "Глава 2"
+planet = "Криос"
+description = "Ледяная планета: кристальные пики и метели. Враги здесь крепче."
+color = Color(0.4, 0.75, 1, 1)
+ground_color = Color(0.56, 0.66, 0.76, 1)
+ground_texture = ExtResource("1_qhpni")
+decor_prefix = "decor_ice_"
+levels = [ExtResource("2_c5k23"), ExtResource("3_2ymbx"), ExtResource("4_fsr8j"), ExtResource("5_bjxcn")]
+enemy_power = 1.4
+power_per_level = 0.0
+miniboss_hp_base = 240
+miniboss_hp_per_level = 30

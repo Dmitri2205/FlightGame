@@ -48,7 +48,8 @@ scripts/game_state.gd      autoload GameState: звёзды, корабли, у�
 scripts/ship_data.gd       Resource ShipData — характеристики корабля
 scripts/chapter_data.gd    Resource ChapterData — глава (планета, биом, уровни)
 scripts/level_data.gd      Resource LevelData — уровень (длительность, волны, сложность, босс)
-chapters/*.tres            главы: mars (Марс-7), cryos (Криос), toxida (Токсида)
+chapters/<глава>/          главы: mars (Марс-7), cryos (Криос), toxida (Токсида);
+                           chapter.tres — глава, level_N.tres — её уровни
 scripts/flight_pattern.gd  Resource FlightPattern (+ flight_step.gd) — траектория
 scripts/wave_data.gd       Resource WaveData — волна; timeline_entry.gd — строка таймлайна
 scripts/wave_director.gd   расписание волн уровня
@@ -177,8 +178,9 @@ scenes/game/
 «Играть» в меню открывает карту: стрелками листаются главы, уровень, который
 ждёт прохождения, пульсирует. После уровня — «Дальше», «Ещё раз» или «Карта».
 
-Новый уровень = ещё один `LevelData` в `.tres` главы; новая глава = новый
-`.tres` в `chapters/` + путь в `GameState.CHAPTER_PATHS` (+ при желании свой
+Новый уровень = новый `level_N.tres` (LevelData) в папке главы + ссылка в её
+`levels`; новая глава = папка `chapters/<id>/` с `chapter.tres` и уровнями +
+путь в `ChapterCatalog` (+ при желании свой
 набор декора в `tools/render_topdown.py`, словарь `BIOMES`).
 
 ### Корабли и инерция
@@ -200,8 +202,8 @@ scenes/game/
 ```
 FlightPattern  data/patterns/*.tres   траектория: старт, курс, манёвры (FlightStep)
 WaveData       data/waves/*.tres      волна: сцена врага, траектория, сколько, расстояние (px), зеркало
-LevelData      внутри chapters/*.tres таймлайн (TimelineEntry: секунда → волна) + наполнители
-ChapterData    chapters/*.tres        планета, биом, список уровней
+LevelData      chapters/*/level_N.tres  таймлайн (TimelineEntry: секунда → волна) + наполнители
+ChapterData    chapters/*/chapter.tres  планета, биом, список уровней
 ```
 
 | Манёвр (FlightStep) | Поля | Что делает |
@@ -261,7 +263,7 @@ ChapterData    chapters/*.tres        планета, биом, список у�
 1. Нужна новая фигура — `data/patterns/`: ПКМ → New Resource → FlightPattern,
    добавить манёвры в `steps`.
 2. Нужна новая волна — `data/waves/`: New Resource → WaveData (враг, траектория…).
-3. Открыть главу `chapters/*.tres` → уровень → `timeline`: добавить
+3. Открыть уровень `chapters/<глава>/level_N.tres` → `timeline`: добавить
    TimelineEntry (секунда + волна); `filler_waves` — случайные волны после
    `filler_from`.
 4. Посмотреть результат на экране «Превью волн».

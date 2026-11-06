@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=14 format=3]
+
+[ext_resource type="Resource" path="res://data/waves/dive.tres" id="1_dxdha"]
+[ext_resource type="Resource" path="res://data/waves/diagonal.tres" id="2_bv8if"]
+[ext_resource type="Resource" path="res://data/waves/swoop.tres" id="3_klqel"]
+[ext_resource type="Resource" path="res://data/waves/wide_arc.tres" id="4_1bqpi"]
+[ext_resource type="Resource" path="res://data/waves/turret.tres" id="5_w7qnf"]
+[ext_resource type="Resource" path="res://data/waves/tease.tres" id="6_7l436"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="7_28xxb"]
+[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="8_luxg4"]
+
+[sub_resource type="Resource" id="Entry_1"]
+script = ExtResource("8_luxg4")
+time = 1.0
+wave = ExtResource("1_dxdha")
+
+[sub_resource type="Resource" id="Entry_2"]
+script = ExtResource("8_luxg4")
+time = 3.0
+wave = ExtResource("2_bv8if")
+
+[sub_resource type="Resource" id="Entry_3"]
+script = ExtResource("8_luxg4")
+time = 5.5
+wave = ExtResource("3_klqel")
+
+[sub_resource type="Resource" id="Entry_4"]
+script = ExtResource("8_luxg4")
+time = 8.0
+wave = ExtResource("4_1bqpi")
+
+[sub_resource type="Resource" id="Entry_g0"]
+script = ExtResource("8_luxg4")
+time = 9.5
+wave = ExtResource("5_w7qnf")
+
+[resource]
+script = ExtResource("7_28xxb")
+title = "Первый вылет"
+duration = 180.0
+timeline = [SubResource("Entry_1"), SubResource("Entry_2"), SubResource("Entry_3"), SubResource("Entry_4"), SubResource("Entry_g0")]
+filler_waves = [ExtResource("1_dxdha"), ExtResource("2_bv8if"), ExtResource("3_klqel"), ExtResource("4_1bqpi"), ExtResource("5_w7qnf"), ExtResource("6_7l436")]
+filler_from = 11.0
+group_min = 1
+group_max = 2
+wave_gap = 0.8
+rest_min = 3.8
+rest_max = 6.7
+ground_chance = 0.6
+miniboss_at = [0.5]
+boss = false
+boss_hp = 500
+completion_bonus = 20

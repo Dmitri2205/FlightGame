@@ -1,0 +1,66 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=27 format=3]
+
+[ext_resource type="Resource" path="res://data/waves/diagonal.tres" id="1_ru1u5"]
+[ext_resource type="Resource" path="res://data/waves/loop.tres" id="2_re6r6"]
+[ext_resource type="Resource" path="res://data/waves/swoop.tres" id="3_dicva"]
+[ext_resource type="Resource" path="res://data/waves/side_sweep.tres" id="4_5hwhn"]
+[ext_resource type="Resource" path="res://data/waves/zigzag.tres" id="5_vjivb"]
+[ext_resource type="Resource" path="res://data/waves/s_curve.tres" id="6_h0dba"]
+[ext_resource type="Resource" path="res://data/waves/hunter.tres" id="7_daui1"]
+[ext_resource type="Resource" path="res://data/waves/dive.tres" id="8_2tkaq"]
+[ext_resource type="Resource" path="res://data/waves/drift.tres" id="9_jvxtj"]
+[ext_resource type="Resource" path="res://data/waves/spiral.tres" id="10_p16yc"]
+[ext_resource type="Resource" path="res://data/waves/wide_arc.tres" id="11_ug2nu"]
+[ext_resource type="Resource" path="res://data/waves/pincer.tres" id="12_1cnh5"]
+[ext_resource type="Resource" path="res://data/waves/turret.tres" id="13_a4vrl"]
+[ext_resource type="Resource" path="res://data/waves/tanks_cross.tres" id="14_d1v11"]
+[ext_resource type="Resource" path="res://data/waves/tanks_column.tres" id="15_k4h1d"]
+[ext_resource type="Resource" path="res://data/waves/turret_pair.tres" id="16_x52dh"]
+[ext_resource type="Resource" path="res://data/waves/tease.tres" id="17_4f60a"]
+[ext_resource type="Resource" path="res://data/waves/orbit.tres" id="18_cwy4m"]
+[ext_resource type="Resource" path="res://data/waves/figure8.tres" id="19_ev6xm"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="20_17ag8"]
+[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="21_5eri5"]
+
+[sub_resource type="Resource" id="Entry_9"]
+script = ExtResource("21_5eri5")
+time = 1.0
+wave = ExtResource("1_ru1u5")
+
+[sub_resource type="Resource" id="Entry_10"]
+script = ExtResource("21_5eri5")
+time = 3.0
+wave = ExtResource("2_re6r6")
+
+[sub_resource type="Resource" id="Entry_11"]
+script = ExtResource("21_5eri5")
+time = 5.5
+wave = ExtResource("3_dicva")
+
+[sub_resource type="Resource" id="Entry_12"]
+script = ExtResource("21_5eri5")
+time = 8.0
+wave = ExtResource("4_5hwhn")
+
+[sub_resource type="Resource" id="Entry_g2"]
+script = ExtResource("21_5eri5")
+time = 9.5
+wave = ExtResource("16_x52dh")
+
+[resource]
+script = ExtResource("20_17ag8")
+title = "Улей"
+duration = 300.0
+timeline = [SubResource("Entry_9"), SubResource("Entry_10"), SubResource("Entry_11"), SubResource("Entry_12"), SubResource("Entry_g2")]
+filler_waves = [ExtResource("1_ru1u5"), ExtResource("2_re6r6"), ExtResource("3_dicva"), ExtResource("4_5hwhn"), ExtResource("5_vjivb"), ExtResource("6_h0dba"), ExtResource("7_daui1"), ExtResource("8_2tkaq"), ExtResource("9_jvxtj"), ExtResource("10_p16yc"), ExtResource("11_ug2nu"), ExtResource("12_1cnh5"), ExtResource("13_a4vrl"), ExtResource("14_d1v11"), ExtResource("15_k4h1d"), ExtResource("16_x52dh"), ExtResource("17_4f60a"), ExtResource("18_cwy4m"), ExtResource("19_ev6xm")]
+filler_from = 11.0
+group_min = 1
+group_max = 3
+wave_gap = 0.8
+rest_min = 2.7
+rest_max = 4.8
+ground_chance = 0.6
+miniboss_at = [0.35, 0.7]
+boss = false
+boss_hp = 500
+completion_bonus = 70

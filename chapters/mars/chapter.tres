@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ChapterData" load_steps=7 format=3]
+
+[ext_resource type="Texture2D" path="res://art/ground/mars.jpg" id="1_bmoqw"]
+[ext_resource type="Resource" path="res://chapters/mars/level_1.tres" id="2_ctsth"]
+[ext_resource type="Resource" path="res://chapters/mars/level_2.tres" id="3_41uct"]
+[ext_resource type="Resource" path="res://chapters/mars/level_3.tres" id="4_25ci5"]
+[ext_resource type="Resource" path="res://chapters/mars/level_4.tres" id="5_u7j3e"]
+[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="6_xndsx"]
+
+[resource]
+script = ExtResource("6_xndsx")
+id = "mars"
+title = "Глава 1"
+planet = "Марс-7"
+description = "Красная пустыня: кратеры, скалы и пыльные бури. Здесь всё и начинается."
+color = Color(0.95, 0.45, 0.3, 1)
+ground_color = Color(0.6, 0.35, 0.27, 1)
+ground_texture = ExtResource("1_bmoqw")
+decor_prefix = "decor_"
+levels = [ExtResource("2_ctsth"), ExtResource("3_41uct"), ExtResource("4_25ci5"), ExtResource("5_u7j3e")]
+enemy_power = 1.0
+power_per_level = 0.0
+miniboss_hp_base = 150
+miniboss_hp_per_level = 30

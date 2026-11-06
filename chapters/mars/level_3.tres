@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="LevelData" load_steps=21 format=3]
+
+[ext_resource type="Resource" path="res://data/waves/loop.tres" id="1_lhjvg"]
+[ext_resource type="Resource" path="res://data/waves/zigzag.tres" id="2_tvq2h"]
+[ext_resource type="Resource" path="res://data/waves/hunter.tres" id="3_kn4cd"]
+[ext_resource type="Resource" path="res://data/waves/drift.tres" id="4_rsf4s"]
+[ext_resource type="Resource" path="res://data/waves/spiral.tres" id="5_67lgy"]
+[ext_resource type="Resource" path="res://data/waves/side_sweep.tres" id="6_xio32"]
+[ext_resource type="Resource" path="res://data/waves/turret.tres" id="7_tuqyh"]
+[ext_resource type="Resource" path="res://data/waves/tanks_cross.tres" id="8_ftgu3"]
+[ext_resource type="Resource" path="res://data/waves/tanks_column.tres" id="9_myes7"]
+[ext_resource type="Resource" path="res://data/waves/turret_pair.tres" id="10_7nifv"]
+[ext_resource type="Resource" path="res://data/waves/tease.tres" id="11_5lt84"]
+[ext_resource type="Resource" path="res://data/waves/orbit.tres" id="12_bs3cl"]
+[ext_resource type="Resource" path="res://data/waves/figure8.tres" id="13_hly4w"]
+[ext_resource type="Script" path="res://scripts/level_data.gd" id="14_pltda"]
+[ext_resource type="Script" path="res://scripts/timeline_entry.gd" id="15_ors2m"]
+
+[sub_resource type="Resource" id="Entry_9"]
+script = ExtResource("15_ors2m")
+time = 1.0
+wave = ExtResource("1_lhjvg")
+
+[sub_resource type="Resource" id="Entry_10"]
+script = ExtResource("15_ors2m")
+time = 3.0
+wave = ExtResource("2_tvq2h")
+
+[sub_resource type="Resource" id="Entry_11"]
+script = ExtResource("15_ors2m")
+time = 5.5
+wave = ExtResource("3_kn4cd")
+
+[sub_resource type="Resource" id="Entry_12"]
+script = ExtResource("15_ors2m")
+time = 8.0
+wave = ExtResource("4_rsf4s")
+
+[sub_resource type="Resource" id="Entry_g2"]
+script = ExtResource("15_ors2m")
+time = 9.5
+wave = ExtResource("10_7nifv")
+
+[resource]
+script = ExtResource("14_pltda")
+title = "Пыльная буря"
+duration = 300.0
+timeline = [SubResource("Entry_9"), SubResource("Entry_10"), SubResource("Entry_11"), SubResource("Entry_12"), SubResource("Entry_g2")]
+filler_waves = [ExtResource("1_lhjvg"), ExtResource("2_tvq2h"), ExtResource("3_kn4cd"), ExtResource("4_rsf4s"), ExtResource("5_67lgy"), ExtResource("6_xio32"), ExtResource("7_tuqyh"), ExtResource("8_ftgu3"), ExtResource("9_myes7"), ExtResource("10_7nifv"), ExtResource("11_5lt84"), ExtResource("12_bs3cl"), ExtResource("13_hly4w")]
+filler_from = 11.0
+group_min = 1
+group_max = 3
+wave_gap = 0.8
+rest_min = 3.2
+rest_max = 5.8
+ground_chance = 0.6
+miniboss_at = [0.35, 0.7]
+boss = false
+boss_hp = 500
+completion_bonus = 30

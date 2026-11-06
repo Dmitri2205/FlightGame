@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="ChapterData" load_steps=7 format=3]
+
+[ext_resource type="Texture2D" path="res://art/ground/toxic.jpg" id="1_hv4h8"]
+[ext_resource type="Resource" path="res://chapters/toxida/level_1.tres" id="2_klgco"]
+[ext_resource type="Resource" path="res://chapters/toxida/level_2.tres" id="3_4d82c"]
+[ext_resource type="Resource" path="res://chapters/toxida/level_3.tres" id="4_24sau"]
+[ext_resource type="Resource" path="res://chapters/toxida/level_4.tres" id="5_q6qjn"]
+[ext_resource type="Script" path="res://scripts/chapter_data.gd" id="6_jlxcr"]
+
+[resource]
+script = ExtResource("6_jlxcr")
+id = "toxida"
+title = "Глава 3"
+planet = "Токсида"
+description = "Ядовитый мир: кислотные болота и улей врага. Самые сильные противники."
+color = Color(0.7, 1, 0.25, 1)
+ground_color = Color(0.28, 0.33, 0.22, 1)
+ground_texture = ExtResource("1_hv4h8")
+decor_prefix = "decor_toxic_"
+levels = [ExtResource("2_klgco"), ExtResource("3_4d82c"), ExtResource("4_24sau"), ExtResource("5_q6qjn")]
+enemy_power = 1.9
+power_per_level = 0.0
+miniboss_hp_base = 360
+miniboss_hp_per_level = 30
