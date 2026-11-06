@@ -32,9 +32,21 @@ const FIELDS := {
 @export var turn_rate := 240.0
 
 
+## Все параметры манёвров (объединение FIELDS) — их прячем у чужих типов.
+static var _all_fields: Array = _collect_fields()
+
+
+static func _collect_fields() -> Array:
+	var result := []
+	for names in FIELDS.values():
+		for field_name in names:
+			if not field_name in result:
+				result.append(field_name)
+	return result
+
+
 func _validate_property(property: Dictionary) -> void:
-	if property.name in ["distance", "angle", "radius", "duration", "turn_rate"] \
-			and not property.name in FIELDS[type]:
+	if property.name in _all_fields and not property.name in FIELDS[type]:
 		property.usage = PROPERTY_USAGE_STORAGE
 
 

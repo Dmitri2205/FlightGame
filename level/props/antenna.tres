@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PropKind" format=3]
+
+[ext_resource type="Script" path="res://level/props/prop_kind.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://art/sprites/prop_antenna.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_script")
+texture = ExtResource("2_tex")
+model_3d = &"machine_wireless"
+hp = 4
+stars = 2
+blast = 0.7

@@ -4,9 +4,16 @@
 [ext_resource type="PackedScene" path="res://weapons/enemy_bullet.tscn" id="2_bullet"]
 [ext_resource type="Script" path="res://fx/shadow.gd" id="3_shadow"]
 [ext_resource type="Texture2D" path="res://art/sprites/ground_tank.png" id="4_tex"]
+[ext_resource type="Script" path="res://weapons/gun_data.gd" id="gun_script"]
 
 [sub_resource type="RectangleShape2D" id="Shape_hit"]
 size = Vector2(40, 46)
+
+[sub_resource type="Resource" id="Resource_gun"]
+script = ExtResource("gun_script")
+bullet_scene = ExtResource("2_bullet")
+bullet_speed = 340.0
+bullet_damage = 20
 
 [node name="GroundTank" type="Area2D"]
 z_index = -4
@@ -19,10 +26,10 @@ speed = 80.0
 score_value = 120
 star_drop = 3
 fire_interval = 2.6
-bullet_scene = ExtResource("2_bullet")
-bullet_speed = 340.0
 muzzle_distance = 24.0
 explosion_size = 0.9
+model_3d = &"rover"
+gun = SubResource("Resource_gun")
 
 [node name="Shadow" type="Sprite2D" parent="."]
 script = ExtResource("3_shadow")

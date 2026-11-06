@@ -20,7 +20,9 @@ const DECOR_NAMES := [
 	"crystals", "crystals_large", "meteor",
 ]
 
-@export var scroll_speed := 120.0
+## Своя скорость прокрутки, px/с, — для декоративного фона (карта уровней).
+## 0 — земля боя: Arena.GROUND_SCROLL_SPEED (уровень, превью, меню).
+@export var scroll_speed := 0.0
 @export var base_color := Color(0.6, 0.35, 0.27)
 ## Текстура грунта (бесшовная по вертикали, шириной в экран). Есть — пятна
 ## не рисуются, земля — эта текстура, прокручиваемая вниз.
@@ -40,8 +42,6 @@ var _scrolled := 0.0
 
 
 func _ready() -> void:
-	# По группе наземные враги узнают скорость прокрутки земли.
-	add_to_group("background")
 	if use_current_chapter:
 		apply_chapter(GameState.current_chapter_data())
 	else:
@@ -84,17 +84,22 @@ func _build() -> void:
 
 func _process(delta: float) -> void:
 	var size := Arena.rect().size
-	_scrolled += scroll_speed * delta
+	var shift := _speed() * delta
+	_scrolled += shift
 	for patch in _patches:
-		patch.pos.y += scroll_speed * delta
+		patch.pos.y += shift
 		if patch.pos.y - patch.radius > size.y:
 			patch.pos = Vector2(randf() * size.x, -patch.radius)
 			_randomize_patch(patch)
 	for decor in _decor:
-		decor.pos.y += scroll_speed * delta
+		decor.pos.y += shift
 		if decor.texture == null or decor.pos.y - decor.texture.get_height() / 2.0 > size.y:
 			_randomize_decor(decor, -randf_range(150.0, 600.0))
 	queue_redraw()
+
+
+func _speed() -> float:
+	return scroll_speed if scroll_speed > 0.0 else Arena.GROUND_SCROLL_SPEED
 
 
 func _draw() -> void:

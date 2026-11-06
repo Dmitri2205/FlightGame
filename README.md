@@ -73,6 +73,7 @@ flight/                    траектории и волны
   pattern_motion.gd        движение по траектории (враг и превью)
   data_library.gd          списки траекторий и волн
   ghost_flock.gd           враги-призраки (превью и фон меню)
+  enemy_info.gd            EnemyInfo — скорость/спрайт/наземный по сцене врага (кэш)
   patterns/, waves/        библиотеки траекторий и волн (*.tres)
 level/
   level.tscn/.gd           уровень: волны врагов, счёт, конец уровня
@@ -81,10 +82,14 @@ level/
   clouds.gd                облака над полем боя (параллакс)
   camera_shake.gd          камера уровня с тряской
   destructible.tscn/.gd    постройки на земле
+  props/                   виды построек (PropKind: спрайт, модель, HP, звёзды)
 player/
   player.tscn/.gd          корабль игрока
 enemies/
-  air/enemy.gd             общий скрипт воздушного врага
+  enemy_base.gd            EnemyBase — общее у всех целей: HP, награда, вспышка,
+                           взрыв, пушка (GunData), 3D-модель (model_3d)
+  wave_enemy.gd            WaveEnemy — враг из волны (траектория, HP × глава)
+  air/enemy.gd             AirEnemy — воздушный враг
   air/enemy_fighter.tscn   лёгкий истребитель (не стреляет, берёт числом и тараном)
   air/enemy_gunship.tscn   тяжёлый, стреляет в игрока
   ground/ground_unit.gd    наземный враг: стоит на земле, едет с ней вниз
@@ -94,6 +99,8 @@ enemies/
   boss/miniboss.tscn       минибосс на скрипте босса
 weapons/
   bullet.gd                общий скрипт пули
+  gun_data.gd              GunData — пушка врага (пуля, скорость, урон)
+  projectiles.gd           Projectiles.spawn — выпуск пули из пула
   player_bullet.tscn / player_wing_bullet.tscn / player_shrapnel.tscn / enemy_bullet.tscn
   missile.tscn/.gd         ракета
 pickups/
@@ -222,7 +229,8 @@ Assets/                    исходные паки ассетов (архив�
 Новый корабль = новый `.tres` в `ships/` (можно создать в редакторе:
 ПКМ → New Resource → ShipData) + строка в конце `ShipCatalog._SHIPS`
 (порядок не менять — id хранятся в сохранении) + спрайт в `SPRITES`
-(`tools/render_topdown.py`) + модель в `SHIP_MODELS` (`view3d/view_3d.gd`).
+(`tools/render_topdown.py`) + 3D-модель в поле `model_3d` корабля
+(`tests/validate_data.gd` проверяет, что модель есть).
 
 ### Волны и траектории (модули)
 

@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://enemies/air/enemy.gd" id="1_script"]
 [ext_resource type="Script" path="res://fx/shadow.gd" id="2_shadow"]
 [ext_resource type="Texture2D" path="res://art/sprites/enemy_fighter.png" id="3_tex"]
-[ext_resource type="PackedScene" path="res://weapons/enemy_bullet.tscn" id="4_bullet"]
 [ext_resource type="Material" path="res://fx/materials/additive.tres" id="fx_add"]
 [ext_resource type="Texture2D" path="res://fx/materials/soft_glow.tres" id="fx_glow"]
 
@@ -27,10 +26,9 @@ speed = 380.0
 score_value = 50
 star_drop = 2
 fire_interval = 0.0
-bullet_scene = ExtResource("4_bullet")
-bullet_speed = 330.0
 sway_amplitude = 40.0
 explosion_size = 0.8
+model_3d = &"craft_speederB"
 
 [node name="Shadow" type="Sprite2D" parent="."]
 script = ExtResource("2_shadow")

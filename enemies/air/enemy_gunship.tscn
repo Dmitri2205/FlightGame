@@ -4,9 +4,16 @@
 [ext_resource type="PackedScene" path="res://weapons/enemy_bullet.tscn" id="2_bullet"]
 [ext_resource type="Script" path="res://fx/shadow.gd" id="3_shadow"]
 [ext_resource type="Texture2D" path="res://art/sprites/enemy_gunship.png" id="4_tex"]
+[ext_resource type="Script" path="res://weapons/gun_data.gd" id="gun_script"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hit"]
 radius = 32.0
+
+[sub_resource type="Resource" id="Resource_gun"]
+script = ExtResource("gun_script")
+bullet_scene = ExtResource("2_bullet")
+bullet_speed = 450.0
+bullet_damage = 20
 
 [node name="EnemyGunship" type="Area2D"]
 collision_layer = 2
@@ -17,8 +24,9 @@ speed = 150.0
 score_value = 250
 star_drop = 6
 fire_interval = 1.1
-bullet_scene = ExtResource("2_bullet")
 explosion_size = 1.5
+model_3d = &"craft_miner"
+gun = SubResource("Resource_gun")
 
 [node name="Shadow" type="Sprite2D" parent="."]
 script = ExtResource("3_shadow")

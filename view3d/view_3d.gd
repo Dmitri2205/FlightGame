@@ -27,19 +27,16 @@ const AIR_HEIGHT := 1.1
 const ENEMY := {"metalRed": Color(0.75, 0.25, 0.65), "metal": Color(0.6, 0.58, 0.66)}
 const BOSS := {"metalRed": Color(0.85, 0.2, 0.3), "metal": Color(0.5, 0.48, 0.55), "metalDark": Color(0.38, 0.36, 0.44)}
 
-## Сцена 2D-объекта → модель, размер (px, как у спрайта), высота, палитра.
-const TYPES := {
-	"res://enemies/air/enemy_fighter.tscn": {"model": "craft_speederB", "size": 64.0, "air": true, "palette": "enemy"},
-	"res://enemies/air/enemy_gunship.tscn": {"model": "craft_miner", "size": 88.0, "air": true, "palette": "enemy"},
-	"res://enemies/boss/miniboss.tscn": {"model": "craft_miner", "size": 150.0, "air": true, "palette": "boss"},
-	"res://enemies/boss/boss.tscn": {"model": "boss", "size": 210.0, "air": true, "palette": "boss"},
-	"res://enemies/ground/ground_tank.tscn": {"model": "rover", "size": 50.0, "air": false, "palette": "enemy"},
-	"res://enemies/ground/ground_turret.tscn": {"model": "turret_double", "size": 84.0, "air": false, "palette": "enemy", "turret": true},
-}
-const SHIP_MODELS := {
-	"falcon": "craft_speederA", "swift": "craft_racer", "bastion": "craft_cargoB",
-	"hawk": "craft_speederD", "citadel": "craft_cargoA",
-}
+## Модель берётся у самого объекта: EnemyBase.model_3d (враги, боссы,
+## постройки) и ShipData.model_3d (игрок). Размер — по спрайту объекта,
+## высота — по типу (наземные и постройки стоят на земле).
+
+## Размер корабля игрока (px до visual_scale).
+const PLAYER_MODEL_SIZE := 84.0
+## Крен модели относительно крена 2D-объекта (PatternMotion.bank / visual_bank).
+const BANK_ROLL := 0.7
+## Особое имя модели: босс, собранный из нескольких моделей пака (BOSS_PARTS).
+const BOSS_COMPOSITE := &"boss"
 ## Босс — та же композиция, что у спрайта (координаты Blender: x, к хвосту, вверх).
 const BOSS_PARTS := [
 	["craft_speederC", Vector3(0.0, 1.05, -0.05), 1.35],
@@ -50,15 +47,25 @@ const BOSS_PARTS := [
 	["turret_double", Vector3(0.45, -0.55, 0.9), 0.9],
 ]
 
+## 3D-двойник 2D-объекта.
+class Twin:
+	var node: Node2D
+	var holder: Node3D
+	## Узел в центре модели: крен и повороты модели.
+	var pivot: Node3D
+	## Летит (AIR_HEIGHT) или стоит на земле.
+	var air := true
+	var is_player := false
+
+
 ## Уровень (level.gd): берём у него контейнеры пуль и подбираемого.
 var level
 
 var _camera: Camera3D
 var _ground_material: StandardMaterial3D
 var _scroll := 0.0
-var _scroll_speed := 120.0
-## id 2D-узла → {"node": 2D, "proxy": Node3D}
-var _proxies := {}
+## id 2D-узла → Twin
+var _twins := {}
 var _model_cache := {}
 var _player_bullets: MultiMeshInstance3D
 var _enemy_bullets: MultiMeshInstance3D
@@ -94,9 +101,6 @@ func setup(p_level) -> void:
 		_enemy_bullets = _make_multimesh(_glow_sphere(0.08, Color(1.0, 0.35, 0.85)))
 		_pickups = _make_multimesh(_glow_sphere(0.07, Color(1.0, 0.85, 0.2)))
 		FX.spawned.connect(_on_fx)
-	var background := get_tree().get_first_node_in_group("background")
-	if background and "scroll_speed" in background:
-		_scroll_speed = background.scroll_speed
 
 
 func _exit_tree() -> void:
@@ -112,14 +116,14 @@ func to_3d(p: Vector2) -> Vector3:
 
 
 func _process(delta: float) -> void:
-	_scroll += _scroll_speed * delta
-	_sync_proxies()
+	_scroll += Arena.GROUND_SCROLL_SPEED * delta
+	_sync_twins()
 	_update_camera(delta)
 	_update_drag_scale()
 	if _headless:
 		return
 	_ground_material.uv1_offset = Vector3(0.0, -_scroll * S / 9.0, 0.0)
-	_move_decor(_scroll_speed * delta * S)
+	_move_decor(Arena.GROUND_SCROLL_SPEED * delta * S)
 	_move_streaks(delta)
 	_sync_multimeshes()
 
@@ -287,7 +291,7 @@ func _star_disc(radius: float, color: Color, pos: Vector3) -> Node3D:
 
 # --- Двойники объектов -------------------------------------------------------
 
-func _sync_proxies() -> void:
+func _sync_twins() -> void:
 	var alive := {}
 	var nodes: Array = []
 	nodes.append_array(get_tree().get_nodes_in_group("player"))
@@ -298,91 +302,109 @@ func _sync_proxies() -> void:
 			continue
 		var id: int = node.get_instance_id()
 		alive[id] = true
-		if not _proxies.has(id):
-			var proxy := _make_proxy(node)
-			if proxy == null:
+		if not _twins.has(id):
+			var twin := _make_twin(node)
+			if twin == null:
 				continue
-			add_child(proxy)
-			_proxies[id] = {"node": node, "proxy": proxy}
-		_update_proxy(node, _proxies[id].proxy)
-	for id in _proxies.keys():
+			add_child(twin.holder)
+			_twins[id] = twin
+		_update_twin(_twins[id])
+	for id in _twins.keys():
 		if not alive.has(id):
-			var entry: Dictionary = _proxies[id]
-			if is_instance_valid(entry.proxy):
-				entry.proxy.queue_free()
-			_proxies.erase(id)
+			var twin: Twin = _twins[id]
+			if is_instance_valid(twin.holder):
+				twin.holder.queue_free()
+			_twins.erase(id)
 
 
-func _make_proxy(node) -> Node3D:
-	var info := {}
+## Двойник игрока или врага; null — у объекта нет модели (или файла модели).
+func _make_twin(node: Node2D) -> Twin:
+	var twin := Twin.new()
+	twin.node = node
+	var model_name: StringName
+	var size := 0.0
+	var palette := {}
 	if node.is_in_group("player"):
 		var ship := GameState.get_selected_ship()
-		info = {"model": SHIP_MODELS.get(ship.id, "craft_speederA"), "size": 84.0 * ship.visual_scale, "air": true,
-			"palette": "player", "color": ship.color, "player": true}
-	elif node.is_in_group("destructibles"):
-		info = {"model": node.model_name, "size": node.sprite_size, "air": false, "palette": "enemy"}
-	else:
-		info = TYPES.get(node.scene_file_path, {})
-	if info.is_empty() or str(info.model) == "":
+		model_name = ship.model_3d
+		size = PLAYER_MODEL_SIZE * ship.visual_scale
+		palette = {"metalRed": ship.color}
+		twin.is_player = true
+	elif node is EnemyBase:
+		model_name = (node as EnemyBase).model_3d
+		size = _sprite_size(node)
+		palette = BOSS if node is Boss else ENEMY
+		twin.air = not (node is GroundUnit or node is Destructible)
+	if model_name == &"":
 		return null
-	var holder := Node3D.new()
-	var model := _build_boss() if info.model == "boss" else _instance_model(info.model)
+	var model := _build_boss() if model_name == BOSS_COMPOSITE else _instance_model(model_name)
 	if model == null:
 		return null
 	# Масштаб под размер спрайта: большая сторона модели = size px.
 	var aabb := _model_aabb(model)
 	var longest := maxf(aabb.size.x, aabb.size.z)
-	var factor := float(info.size) * S / longest if longest > 0.0 else 1.0
+	var factor := size * S / longest if longest > 0.0 else 1.0
 	model.scale = Vector3.ONE * factor
 	# У моделей пака начало координат на днище, а не в центре — сдвигаем
 	# модель так, чтобы центр габаритов совпал с точкой 2D-объекта (и крен
 	# вращал корабль вокруг его середины, а не вокруг края).
 	model.position = -aabb.get_center() * factor
-	match str(info.get("palette", "")):
-		"enemy":
-			_tint(model, ENEMY)
-		"boss":
-			_tint(model, BOSS)
-		"player":
-			_tint(model, {"metalRed": info.color})
+	_tint(model, palette)
 	# Крен и повороты — у промежуточного узла в центре модели.
-	var pivot := Node3D.new()
-	pivot.name = "Model"
-	pivot.add_child(model)
-	holder.add_child(pivot)
-	holder.set_meta("info", info)
-	return holder
+	twin.holder = Node3D.new()
+	twin.pivot = Node3D.new()
+	twin.pivot.add_child(model)
+	twin.holder.add_child(twin.pivot)
+	return twin
 
 
-func _update_proxy(node, proxy: Node3D) -> void:
-	var info: Dictionary = proxy.get_meta("info")
+## Большая сторона спрайта объекта (узел Sprite) с учётом его масштаба, px.
+func _sprite_size(node: Node2D) -> float:
+	var sprite := node.get_node_or_null("Sprite") as Sprite2D
+	if sprite == null or sprite.texture == null:
+		return 0.0
+	var texture_size := sprite.texture.get_size()
+	return maxf(texture_size.x, texture_size.y) * absf(sprite.scale.y)
+
+
+func _update_twin(twin: Twin) -> void:
+	var node := twin.node
 	var pos := to_3d(node.global_position)
-	pos.y = AIR_HEIGHT if info.air else 0.0
-	proxy.position = pos
-	var model: Node3D = proxy.get_node("Model")
-	if info.get("player", false):
+	pos.y = AIR_HEIGHT if twin.air else 0.0
+	twin.holder.position = pos
+	if twin.is_player:
 		# Игрок нарисован носом вверх (к горизонту), крен — вращение модели.
 		# Мигание при уроне — как у 2D-узла.
-		proxy.visible = node.visible
-		proxy.rotation = Vector3(0.0, PI, 0.0)
-		model.rotation = Vector3(0.0, 0.0, -float(node.visual_bank) * 0.7)
+		twin.holder.visible = node.visible
+		twin.holder.rotation = Vector3(0.0, PI, 0.0)
+		twin.pivot.rotation = Vector3(0.0, 0.0, -float(node.visual_bank) * BANK_ROLL)
 		return
-	if info.get("turret", false):
-		var head := node.get_node_or_null("Head") as Node2D
-		proxy.rotation = Vector3(0.0, -(head.global_rotation if head else node.global_rotation), 0.0)
-	else:
-		proxy.rotation = Vector3(0.0, -node.global_rotation, 0.0)
+	# Турель смотрит туда же, куда её башня.
+	var unit := node as GroundUnit
+	var facing := unit.turret.global_rotation if unit and unit.turret else node.global_rotation
+	twin.holder.rotation = Vector3(0.0, -facing, 0.0)
 	# Крен врага на вираже (PatternMotion.bank).
-	var motion = node.get("_motion")
-	if motion:
-		model.rotation = Vector3(0.0, 0.0, float(motion.bank) * 0.7)
-	if node.has_method("is_destroyed"):
-		proxy.visible = not node.is_destroyed()
+	var wave_enemy := node as WaveEnemy
+	if wave_enemy:
+		twin.pivot.rotation = Vector3(0.0, 0.0, wave_enemy.bank * BANK_ROLL)
+	twin.holder.visible = not (node as EnemyBase).is_destroyed()
 
 
-func _instance_model(model_name: String) -> Node3D:
+## Файл модели пака по её имени.
+static func model_path(model_name: StringName) -> String:
+	return "res://models/%s.glb" % model_name
+
+
+## Есть ли такая модель (для BOSS_COMPOSITE — все её части). Для проверки данных.
+static func has_model(model_name: StringName) -> bool:
+	if model_name == BOSS_COMPOSITE:
+		return BOSS_PARTS.all(func(part: Array) -> bool: return ResourceLoader.exists(model_path(part[0])))
+	return model_name != &"" and ResourceLoader.exists(model_path(model_name))
+
+
+func _instance_model(model_name: StringName) -> Node3D:
 	if not _model_cache.has(model_name):
-		_model_cache[model_name] = load("res://models/%s.glb" % model_name)
+		_model_cache[model_name] = load(model_path(model_name))
 	var scene: PackedScene = _model_cache[model_name]
 	return scene.instantiate() if scene else null
 
@@ -569,7 +591,7 @@ func _random_streak(z: float) -> Vector3:
 
 func _move_streaks(delta: float) -> void:
 	var multimesh := _streaks.multimesh
-	var speed := _scroll_speed * S * 6.0
+	var speed := Arena.GROUND_SCROLL_SPEED * S * 6.0
 	for i in _streak_positions.size():
 		var p := _streak_positions[i]
 		p.z += speed * delta

@@ -32,6 +32,9 @@ extends Resource
 ## Цвет корабля в интерфейсе (заголовок карточки, рамка выбора).
 @export var color := Color(0.92, 0.2, 0.22)
 @export var visual_scale := 1.0
+## Модель пака (models/<имя>.glb) для 3D-вида. Обязательна —
+## tests/validate_data.gd проверяет её у каждого корабля.
+@export var model_3d: StringName
 
 @export_group("Орудия")
 ## Где стоит основная пушка (нос), px от центра спрайта (до visual_scale).

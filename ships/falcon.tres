@@ -10,3 +10,4 @@ title = "Сокол"
 description = "Сбалансированный истребитель. Хорош во всём, но ни в чём не лучший."
 texture = ExtResource("2_tex")
 wing_gun = Vector2(30, 8)
+model_3d = &"craft_speederA"

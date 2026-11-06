@@ -22,25 +22,9 @@ enum Mirror {
 ## Случайная точка появления по горизонтали (вместо start.x траектории).
 @export var random_x := false
 
-## Скорость прокрутки земли по умолчанию (как у фона уровня), px/с.
-const GROUND_SCROLL := 120.0
-
-## Скорость врага по сцене — кэш, чтобы не создавать врага каждый раз.
-static var _speed_cache := {}
-
-
-## Наземная ли волна (танки, турели) — по сцене врага, с кэшем.
-static var _ground_cache := {}
-
-
+## Наземная ли волна (танки, турели).
 func is_ground() -> bool:
-	if enemy == null:
-		return false
-	if not _ground_cache.has(enemy):
-		var node = enemy.instantiate()
-		_ground_cache[enemy] = "is_ground" in node
-		node.free()
-	return _ground_cache[enemy]
+	return enemy != null and EnemyInfo.of(enemy).is_ground
 
 
 ## Сколько секунд выпускается вся волна (от первого врага до последнего).
@@ -52,12 +36,8 @@ func duration() -> float:
 func spawn_interval() -> float:
 	if enemy == null:
 		return 0.0
-	if not _speed_cache.has(enemy):
-		var node = enemy.instantiate()
-		_speed_cache[enemy] = float(node.speed) if "speed" in node else 200.0
-		node.free()
 	# Неподвижные наземные (турели) едут вниз только вместе с землёй.
-	var speed: float = _speed_cache[enemy]
+	var speed := EnemyInfo.of(enemy).speed
 	if speed <= 0.0:
-		speed = GROUND_SCROLL
+		speed = Arena.GROUND_SCROLL_SPEED
 	return spacing / speed

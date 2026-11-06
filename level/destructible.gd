@@ -1,99 +1,71 @@
-extends Area2D
+class_name Destructible
+extends EnemyBase
 ## Разрушаемый объект на земле (постройки захватчиков: бочки, генераторы,
 ## антенны). Стоит на земле и уезжает вниз вместе с ней, тарана нет
 ## (маска коллизий 0), пули попадают (слой врагов). Ракеты его не выбирают
 ## целью — он не в группе "enemies".
 ## Даёт немного звёзд, а если на уровне спрятан чертёж — может его уронить
 ## (бросок делает уровень по сигналу destroyed).
+## Вид (спрайт, прочность, награда, взрыв, 3D-модель) — случайный PropKind
+## из списка мелких или крупных.
 
-signal destroyed(prop: Node2D)
-
-## Виды: спрайт, прочность, звёзды, размер взрыва. Мелкие — бочки, генераторы,
-## антенны; крупные — ангары, тарелки связи (центр «базы»).
-const SMALL := [
-	{"texture": preload("res://art/sprites/prop_barrel.png"), "model": "machine_barrel", "hp": 2, "stars": 1, "blast": 0.6},
-	{"texture": preload("res://art/sprites/prop_barrel_large.png"), "model": "machine_barrelLarge", "hp": 4, "stars": 2, "blast": 0.7},
-	{"texture": preload("res://art/sprites/prop_generator.png"), "model": "machine_generator", "hp": 6, "stars": 3, "blast": 0.8},
-	{"texture": preload("res://art/sprites/prop_antenna.png"), "model": "machine_wireless", "hp": 4, "stars": 2, "blast": 0.7},
-]
-const LARGE := [
-	{"texture": preload("res://art/sprites/prop_hangar_large.png"), "model": "hangar_largeA", "hp": 30, "stars": 10, "blast": 1.6},
-	{"texture": preload("res://art/sprites/prop_hangar_round.png"), "model": "hangar_roundA", "hp": 24, "stars": 8, "blast": 1.5},
-	{"texture": preload("res://art/sprites/prop_hangar_small.png"), "model": "hangar_smallA", "hp": 18, "stars": 6, "blast": 1.3},
-	{"texture": preload("res://art/sprites/prop_dish.png"), "model": "satelliteDish_large", "hp": 16, "stars": 6, "blast": 1.3},
-	{"texture": preload("res://art/sprites/prop_generator_large.png"), "model": "machine_generatorLarge", "hp": 14, "stars": 5, "blast": 1.2},
-]
 ## Что остаётся на месте разрушенной постройки: тёмная воронка.
 const SCORCH := preload("res://art/sprites/decor_crater.png")
+const SCORCH_TINT := Color(0.18, 0.13, 0.12, 0.85)
+## Воронка чуть меньше постройки (доля её размера).
+const SCORCH_SCALE := 0.9
+## Радиус попадания — доля большей стороны спрайта.
+const HIT_RADIUS_SHARE := 0.42
+## Крупная постройка рушится серией взрывов: сколько, в каком радиусе, какого размера.
+const LARGE_CHAIN_COUNT := 3
+const LARGE_CHAIN_RADIUS := 40.0
+const LARGE_CHAIN_SIZE := 0.8
+## Ушла ниже нижнего края мира на столько px — удаляется.
+const DESPAWN_MARGIN := 100.0
+
+## Мелкие — бочки, генераторы, антенны; крупные — ангары, тарелки связи
+## (центр «базы»).
+@export var small_kinds: Array[PropKind] = []
+@export var large_kinds: Array[PropKind] = []
 
 ## Крупная постройка (выбирает уровень до add_child).
 var large := false
-## Модель пака для 3D-вида и размер спрайта (px).
-var model_name := ""
-var sprite_size := 64.0
-var score_value := 40
-var star_drop := 1
-
-var _hp := 1
-var _blast := 0.6
-var _dead := false
-var _scroll_speed := WaveData.GROUND_SCROLL
-var _flash_tween: Tween
+## Размер спрайта (большая сторона), px — для 3D-вида.
+var sprite_size := 0.0
 
 
 func _ready() -> void:
 	add_to_group("destructibles")
-	var kind: Dictionary = (LARGE if large else SMALL).pick_random()
+	var kind: PropKind = (large_kinds if large else small_kinds).pick_random()
 	$Sprite.texture = kind.texture
 	$Sprite.rotation = randi_range(0, 3) * PI / 2.0
-	model_name = kind.model
+	model_3d = kind.model_3d
 	sprite_size = maxf(kind.texture.get_width(), kind.texture.get_height())
-	_hp = kind.hp
-	_blast = kind.blast
+	hp = kind.hp
+	explosion_size = kind.blast
 	star_drop = kind.stars
-	score_value = 20 * kind.hp
+	score_value = kind.score_value()
 	var shape := CircleShape2D.new()
-	shape.radius = maxf(kind.texture.get_width(), kind.texture.get_height()) * 0.42
+	shape.radius = sprite_size * HIT_RADIUS_SHARE
 	$Collision.shape = shape
-	var background := get_tree().get_first_node_in_group("background")
-	if background and "scroll_speed" in background:
-		_scroll_speed = background.scroll_speed
 
 
 func _process(delta: float) -> void:
-	position.y += _scroll_speed * delta
-	if position.y > Arena.rect().size.y + 100.0:
+	position.y += Arena.GROUND_SCROLL_SPEED * delta
+	if position.y > Arena.rect().size.y + DESPAWN_MARGIN:
 		queue_free()
 
 
-func is_destroyed() -> bool:
-	return _dead
-
-
-func take_damage(amount: int) -> void:
-	if _dead:
-		return
-	_hp -= amount
-	modulate = Color(2.5, 2.5, 2.5)
-	if _flash_tween:
-		_flash_tween.kill()
-	_flash_tween = create_tween()
-	_flash_tween.tween_property(self, "modulate", Color.WHITE, 0.1)
-	if _hp <= 0:
-		_destroy()
-
-
 ## Взрыв, а на месте постройки — воронка, которая уезжает вместе с землёй.
-func _destroy() -> void:
+func _die() -> void:
 	_dead = true
-	FX.explosion(global_position, _blast, large)
+	FX.explosion(global_position, explosion_size, large)
 	if large:
-		FX.chain_explosions(global_position, 3, 40.0, 0.8)
+		FX.chain_explosions(global_position, LARGE_CHAIN_COUNT, LARGE_CHAIN_RADIUS, LARGE_CHAIN_SIZE)
 	destroyed.emit(self)
 	$Collision.set_deferred("disabled", true)
 	$Shadow.hide()
-	var size: float = maxf($Sprite.texture.get_width(), $Sprite.texture.get_height())
 	$Sprite.texture = SCORCH
-	$Sprite.scale = Vector2.ONE * (size / SCORCH.get_width()) * 0.9
-	$Sprite.self_modulate = Color(0.18, 0.13, 0.12, 0.85)
+	$Sprite.scale = Vector2.ONE * (sprite_size / SCORCH.get_width()) * SCORCH_SCALE
+	$Sprite.self_modulate = SCORCH_TINT
 	z_index = -6

@@ -2,6 +2,16 @@
 
 [ext_resource type="Script" path="res://level/destructible.gd" id="1_script"]
 [ext_resource type="Script" path="res://fx/shadow.gd" id="2_shadow"]
+[ext_resource type="Script" path="res://level/props/prop_kind.gd" id="3_kind"]
+[ext_resource type="Resource" path="res://level/props/barrel.tres" id="4_barrel"]
+[ext_resource type="Resource" path="res://level/props/barrel_large.tres" id="5_barrel_large"]
+[ext_resource type="Resource" path="res://level/props/generator.tres" id="6_generator"]
+[ext_resource type="Resource" path="res://level/props/antenna.tres" id="7_antenna"]
+[ext_resource type="Resource" path="res://level/props/hangar_large.tres" id="8_hangar_large"]
+[ext_resource type="Resource" path="res://level/props/hangar_round.tres" id="9_hangar_round"]
+[ext_resource type="Resource" path="res://level/props/hangar_small.tres" id="10_hangar_small"]
+[ext_resource type="Resource" path="res://level/props/dish.tres" id="11_dish"]
+[ext_resource type="Resource" path="res://level/props/generator_large.tres" id="12_generator_large"]
 
 [node name="Destructible" type="Area2D"]
 z_index = -4
@@ -9,6 +19,9 @@ collision_layer = 2
 collision_mask = 0
 monitoring = false
 script = ExtResource("1_script")
+small_kinds = Array[ExtResource("3_kind")]([ExtResource("4_barrel"), ExtResource("5_barrel_large"), ExtResource("6_generator"), ExtResource("7_antenna")])
+large_kinds = Array[ExtResource("3_kind")]([ExtResource("8_hangar_large"), ExtResource("9_hangar_round"), ExtResource("10_hangar_small"), ExtResource("11_dish"), ExtResource("12_generator_large")])
+hit_flash = Color(2.5, 2.5, 2.5, 1)
 
 [node name="Shadow" type="Sprite2D" parent="."]
 script = ExtResource("2_shadow")
