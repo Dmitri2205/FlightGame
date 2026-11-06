@@ -1,5 +1,5 @@
 extends Node
-## Проверка данных: все главы, уровни, волны и траектории ссылаются на
+## Проверка данных: все главы, уровни, волны, траектории и корабли ссылаются на
 ## существующее и заполнены. Запуск (CI):
 ##   godot --headless --path . res://tests/validate_data.tscn
 ## Это сцена, а не --script: так подключаются autoload (FX, GameState…),
@@ -23,6 +23,8 @@ func _ready() -> void:
 			_fail("%s: нет уровней" % chapter.id)
 		for i in chapter.levels.size():
 			_check_level(chapter, i)
+
+	_check_ships()
 
 	print("validate_data: %s" % ("OK" if _errors == 0 else "%d ошибок" % _errors))
 	get_tree().quit(1 if _errors > 0 else 0)
@@ -81,6 +83,21 @@ func _check_level(chapter: ChapterData, index: int) -> void:
 		_fail("%s: множитель здоровья врагов должен быть > 0" % where)
 	if not level.miniboss_at.is_empty() and chapter.miniboss_hp(index) <= 0:
 		_fail("%s: здоровье мини-босса должно быть > 0" % where)
+
+
+func _check_ships() -> void:
+	var first := ShipCatalog.first()
+	if first.cost != 0 or first.blueprints_required != 0:
+		_fail("%s: первый корабль должен быть доступен сразу" % first.id)
+	var seen := {}
+	for ship in ShipCatalog.all():
+		if ship.id == "" or seen.has(ship.id):
+			_fail("%s: пустой или повторяющийся id корабля" % ship.resource_path)
+		seen[ship.id] = true
+		if ship.texture == null:
+			_fail("%s: не задан спрайт" % ship.id)
+		if not View3D.SHIP_MODELS.has(ship.id):
+			_fail("%s: нет 3D-модели в View3D.SHIP_MODELS" % ship.id)
 
 
 func _fail(message: String) -> void:
