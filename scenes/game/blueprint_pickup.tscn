@@ -1,6 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/game/blueprint_pickup.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/components/pickup_motion.gd" id="9_motion"]
 [ext_resource type="Texture2D" path="res://fx/soft_glow.tres" id="2_glow"]
 [ext_resource type="Material" path="res://fx/additive.tres" id="3_add"]
 [ext_resource type="Texture2D" path="res://ui/blueprint.svg" id="4_icon"]
@@ -25,3 +26,15 @@ texture = ExtResource("4_icon")
 
 [node name="Collision" type="CollisionShape2D" parent="."]
 shape = SubResource("Shape_hit")
+
+[node name="Motion" type="Node" parent="."]
+script = ExtResource("9_motion")
+burst_spread_x = 80.0
+burst_min_y = -220.0
+burst_max_y = -220.0
+fall_speed = 120.0
+fall_accel = 400.0
+home_speed = 700.0
+home_delay = 0.7
+use_magnet = false
+despawn_margin = 60.0
