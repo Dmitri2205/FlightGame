@@ -20,11 +20,34 @@ extends Node2D
 @export var world_width := 900.0
 ## Насколько быстро камера догоняет игрока по горизонтали.
 @export var camera_follow := 4.0
-## Пауза между группами разрушаемых объектов, секунд.
-@export var prop_interval_min := 5.0
-@export var prop_interval_max := 9.0
 ## Пауза после победы над боссом, чтобы успеть собрать звёзды.
 @export var victory_delay := 3.0
+
+@export_group("Постройки")
+## Пауза до первой группы разрушаемых объектов и между группами, секунд.
+@export var first_prop_delay := 2.0
+@export var prop_interval_min := 5.0
+@export var prop_interval_max := 9.0
+## Центр группы — не ближе к краю мира, px.
+@export var prop_group_edge := 140.0
+## Отдельная постройка — не ближе к краю мира, px.
+@export var prop_edge := 50.0
+## Шанс, что группа — «база»: крупная постройка, вокруг неё кольцом мелкие.
+@export_range(0.0, 1.0) var base_chance := 0.45
+## Где появляется центр базы (y, px; выше экрана).
+@export var base_spawn_y := -260.0
+## Сколько мелких вокруг базы и на каком расстоянии от центра, px.
+@export var base_satellites_min := 2
+@export var base_satellites_max := 4
+@export var base_ring_radius_min := 120.0
+@export var base_ring_radius_max := 170.0
+## Не база — россыпь мелких: сколько, разброс по x от центра, px,
+## первая строка (y, px) и шаг между строками вверх, px.
+@export var scatter_count_min := 1
+@export var scatter_count_max := 3
+@export var scatter_spread_x := 110.0
+@export var scatter_start_y := -50.0
+@export var scatter_row_step := 70.0
 
 var score := 0
 var run_stars := 0
@@ -34,7 +57,7 @@ var level_data: LevelData
 var _finished := false
 var _boss_spawned := false
 var _force_boss := false
-var _prop_cooldown := 2.0
+var _prop_cooldown := 0.0
 ## Чертёж какого корабля спрятан на этом заходе ("" — нет) и найден ли он.
 var _hidden_blueprint := ""
 var _blueprint_dropped := false
@@ -54,8 +77,9 @@ func _ready() -> void:
 	tree_exiting.connect(func() -> void: Arena.world_width = 0.0)
 	_apply_cli_level()
 	level_data = GameState.current_level_data()
+	_prop_cooldown = first_prop_delay
 
-	player.place_at(Vector2(Arena.rect().size.x / 2.0, Arena.rect().size.y - 200.0))
+	player.place_at(Arena.player_spawn_point())
 	$Camera.position.x = maxf(Arena.rect().size.x - Arena.visible_size().x, 0.0) / 2.0
 	player.projectile_container = projectiles
 	player.health_changed.connect(hud.set_health)
@@ -165,28 +189,29 @@ func _update_props(delta: float) -> void:
 		return
 	_prop_cooldown = randf_range(prop_interval_min, prop_interval_max)
 	var width := Arena.rect().size.x
-	var center := randf_range(140.0, width - 140.0)
-	if randf() < 0.45:
-		# «База»: крупная постройка, вокруг неё 2–4 мелких.
-		_spawn_prop(Vector2(center, -260.0), true)
-		for i in randi_range(2, 4):
+	var center := randf_range(prop_group_edge, width - prop_group_edge)
+	if randf() < base_chance:
+		# «База»: крупная постройка, вокруг неё кольцом мелкие.
+		_spawn_prop(Vector2(center, base_spawn_y), true)
+		for i in randi_range(base_satellites_min, base_satellites_max):
 			var angle := randf() * TAU
-			var offset := Vector2(cos(angle), sin(angle)) * randf_range(120.0, 170.0)
-			_spawn_prop(Vector2(clampf(center + offset.x, 50.0, width - 50.0), -260.0 + offset.y), false)
+			var offset := Vector2(cos(angle), sin(angle)) * randf_range(base_ring_radius_min, base_ring_radius_max)
+			_spawn_prop(Vector2(clampf(center + offset.x, prop_edge, width - prop_edge), base_spawn_y + offset.y), false)
 	else:
-		for i in randi_range(1, 3):
-			_spawn_prop(Vector2(clampf(center + randf_range(-110.0, 110.0), 50.0, width - 50.0), -50.0 - 70.0 * i), false)
+		for i in randi_range(scatter_count_min, scatter_count_max):
+			var x := clampf(center + randf_range(-scatter_spread_x, scatter_spread_x), prop_edge, width - prop_edge)
+			_spawn_prop(Vector2(x, scatter_start_y - scatter_row_step * i), false)
 
 
 func _spawn_prop(pos: Vector2, is_large: bool) -> void:
-	var prop = prop_scene.instantiate()
+	var prop := prop_scene.instantiate() as Destructible
 	prop.large = is_large
 	prop.position = pos
 	prop.destroyed.connect(_on_prop_destroyed)
 	props.add_child(prop)
 
 
-func _on_prop_destroyed(prop) -> void:
+func _on_prop_destroyed(prop: EnemyBase) -> void:
 	_on_enemy_destroyed(prop)
 	if _hidden_blueprint == "" or _blueprint_dropped or blueprint_scene == null:
 		return
@@ -208,10 +233,8 @@ func _on_blueprint_collected() -> void:
 func _spawn_enemy(wave: WaveData, pattern: FlightPattern) -> void:
 	if _finished:
 		return
-	var enemy = wave.enemy.instantiate()
-	enemy.pattern = pattern
-	enemy.max_hp = ceili(enemy.max_hp * GameState.current_chapter_data().enemy_hp_multiplier(GameState.current_level))
-	enemy.position = pattern.start_position(Arena.rect().size.x)
+	var enemy := wave.enemy.instantiate() as WaveEnemy
+	enemy.setup(pattern, GameState.current_chapter_data().enemy_hp_multiplier(GameState.current_level))
 	enemy.projectile_container = projectiles
 	enemy.destroyed.connect(_on_enemy_destroyed)
 	enemies.add_child(enemy)
@@ -219,16 +242,7 @@ func _spawn_enemy(wave: WaveData, pattern: FlightPattern) -> void:
 
 func _spawn_boss() -> void:
 	_boss_spawned = true
-	var boss = boss_scene.instantiate()
-	boss.max_hp = level_data.boss_hp
-	boss.position = Vector2(Arena.rect().size.x / 2.0, -150.0)
-	boss.projectile_container = projectiles
-	boss.destroyed.connect(_on_enemy_destroyed)
-	boss.destroyed.connect(_on_boss_destroyed)
-	boss.health_changed.connect(hud.set_boss_health)
-	enemies.add_child(boss)
-	hud.show_boss(boss.max_hp)
-	Music.play("showdown")
+	_spawn_boss_like(boss_scene, level_data.boss_hp, _on_boss_destroyed)
 
 
 ## Мини-босс: время уровня стоит, пока он жив (WaveDirector ждёт resume()).
@@ -236,32 +250,41 @@ func _spawn_miniboss(_index: int) -> void:
 	if miniboss_scene == null or _finished:
 		director.resume()
 		return
-	var boss = miniboss_scene.instantiate()
-	boss.max_hp = GameState.current_chapter_data().miniboss_hp(GameState.current_level)
-	boss.position = Vector2(Arena.rect().size.x / 2.0, -120.0)
+	var hp: int = GameState.current_chapter_data().miniboss_hp(GameState.current_level)
+	_spawn_boss_like(miniboss_scene, hp, _on_miniboss_destroyed, "МИНИБОСС")
+
+
+## Босс или мини-босс: здоровье из данных уровня, полоска здоровья в HUD,
+## музыка боя. on_destroyed — что делать после победы (кроме награды).
+func _spawn_boss_like(scene: PackedScene, hp: int, on_destroyed: Callable, title := "") -> void:
+	var boss := scene.instantiate() as Boss
+	boss.setup(hp)
 	boss.projectile_container = projectiles
 	boss.destroyed.connect(_on_enemy_destroyed)
-	boss.destroyed.connect(_on_miniboss_destroyed)
+	boss.destroyed.connect(on_destroyed)
 	boss.health_changed.connect(hud.set_boss_health)
 	enemies.add_child(boss)
-	hud.show_boss(boss.max_hp, "МИНИБОСС")
+	if title.is_empty():
+		hud.show_boss(boss.max_hp)
+	else:
+		hud.show_boss(boss.max_hp, title)
 	Music.play("showdown")
 
 
-func _on_miniboss_destroyed(_boss) -> void:
+func _on_miniboss_destroyed(_boss: EnemyBase) -> void:
 	run_crystals += Balance.CRYSTALS_MINIBOSS
 	hud.hide_boss()
 	Music.play("assault")
 	director.resume()
 
 
-func _on_boss_destroyed(_boss) -> void:
+func _on_boss_destroyed(_boss: EnemyBase) -> void:
 	run_crystals += Balance.CRYSTALS_BOSS
 	hud.hide_boss()
 	get_tree().create_timer(victory_delay, false).timeout.connect(_finish.bind(true))
 
 
-func _on_enemy_destroyed(enemy) -> void:
+func _on_enemy_destroyed(enemy: EnemyBase) -> void:
 	score += enemy.score_value
 	hud.set_score(score)
 	if star_scene == null:

@@ -6,6 +6,9 @@ const NODE_SIZE := 112.0
 const BOSS_NODE_SIZE := 140.0
 ## Горизонтальные позиции узлов (доли ширины) — дорожка петляет.
 const NODE_X := [0.5, 0.74, 0.3, 0.66, 0.36, 0.7]
+## Пульсация уровня, который ждёт прохождения: масштаб и полупериод, с.
+const PULSE_SCALE := 1.08
+const PULSE_HALF_PERIOD := 0.6
 
 @onready var background: Node2D = $Background
 @onready var path: Control = $Path
@@ -18,7 +21,7 @@ const NODE_X := [0.5, 0.74, 0.3, 0.66, 0.36, 0.7]
 
 
 func _ready() -> void:
-	%StarsLabel.text = "%d" % GameState.stars
+	%StarsLabel.text = "%d" % GameState.progress.stars
 	%BackButton.pressed.connect(Router.main_menu)
 	%PrevButton.pressed.connect(_switch_chapter.bind(-1))
 	%NextButton.pressed.connect(_switch_chapter.bind(1))
@@ -26,12 +29,12 @@ func _ready() -> void:
 
 
 func _switch_chapter(step: int) -> void:
-	GameState.select_chapter(GameState.current_chapter + step)
+	GameState.select_chapter(GameState.progress.current_chapter + step)
 	_show_chapter()
 
 
 func _show_chapter() -> void:
-	var index := GameState.current_chapter
+	var index := GameState.progress.current_chapter
 	var chapter := GameState.current_chapter_data()
 	var unlocked := GameState.is_chapter_unlocked(index)
 
@@ -106,7 +109,7 @@ func _make_node(chapter_index: int, level_index: int, level: LevelData, center: 
 	# Уровень, который ждёт прохождения, мягко пульсирует
 	# (твин можно создать только когда кнопка уже в дереве сцены).
 	if unlocked and not completed:
-		button.tree_entered.connect(_pulse.bind(button), CONNECT_ONE_SHOT)
+		button.tree_entered.connect(func() -> void: UiKit.pulse(button, PULSE_SCALE, PULSE_HALF_PERIOD), CONNECT_ONE_SHOT)
 
 	var caption := Label.new()
 	caption.text = level.title
@@ -122,12 +125,6 @@ func _make_node(chapter_index: int, level_index: int, level: LevelData, center: 
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	holder.add_child(caption)
 	return holder
-
-
-func _pulse(button: Button) -> void:
-	var tween := button.create_tween().set_loops()
-	tween.tween_property(button, "scale", Vector2.ONE * 1.08, 0.6).set_trans(Tween.TRANS_SINE)
-	tween.tween_property(button, "scale", Vector2.ONE, 0.6).set_trans(Tween.TRANS_SINE)
 
 
 func _node_style(completed: bool, unlocked: bool, accent: Color, state: String) -> StyleBoxFlat:

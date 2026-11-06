@@ -4,9 +4,16 @@
 [ext_resource type="PackedScene" path="res://weapons/enemy_bullet.tscn" id="2_bullet"]
 [ext_resource type="Script" path="res://fx/shadow.gd" id="3_shadow"]
 [ext_resource type="Texture2D" path="res://art/sprites/boss.png" id="4_tex"]
+[ext_resource type="Script" path="res://weapons/gun_data.gd" id="gun_script"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hit"]
 size = Vector2(190, 150)
+
+[sub_resource type="Resource" id="Resource_gun"]
+script = ExtResource("gun_script")
+bullet_scene = ExtResource("2_bullet")
+bullet_speed = 380.0
+bullet_damage = 20
 
 [node name="Boss" type="Area2D"]
 collision_layer = 2
@@ -15,7 +22,13 @@ script = ExtResource("1_script")
 nose = Vector2(0, 84)
 gun_left = Vector2(-87, 45)
 gun_right = Vector2(87, 45)
-bullet_scene = ExtResource("2_bullet")
+score_value = 5000
+star_drop = 40
+explosion_size = 2.5
+hit_flash = Color(2, 2, 2, 1)
+hit_flash_time = 0.08
+model_3d = &"boss"
+gun = SubResource("Resource_gun")
 
 [node name="Shadow" type="Sprite2D" parent="."]
 script = ExtResource("3_shadow")

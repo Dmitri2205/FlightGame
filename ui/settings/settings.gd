@@ -1,7 +1,7 @@
 extends Control
 ## Настройки. Разделы строятся кодом: новый раздел — _add_section(),
 ## строки в нём — _add_slider() (или новые строители рядом).
-## Значения живут в GameState и сохраняются вместе с игрой.
+## Значения живут в GameState.settings и сохраняются вместе с игрой.
 
 const HEADER_COLOR := Color(1, 0.82, 0.35)
 ## Высота ползунка — под палец.
@@ -11,8 +11,8 @@ const SLIDER_HEIGHT := 72
 func _ready() -> void:
 	%BackButton.pressed.connect(Router.main_menu)
 	var sound := _add_section("Звук")
-	_add_slider(sound, "Музыка", GameState.music_volume, GameState.set_music_volume)
-	_add_slider(sound, "Эффекты", GameState.sfx_volume, GameState.set_sfx_volume)
+	_add_slider(sound, "Музыка", GameState.settings.music_volume, GameState.set_music_volume)
+	_add_slider(sound, "Эффекты", GameState.settings.sfx_volume, GameState.set_sfx_volume)
 
 
 ## Уйти с экрана посреди перетаскивания — значение всё равно сохранится.

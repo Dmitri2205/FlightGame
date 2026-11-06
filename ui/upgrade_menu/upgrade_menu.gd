@@ -2,11 +2,10 @@ extends Control
 ## Ангар: модули корабля. У модуля уровень (цифра в кружке) и шкала из 10
 ## делений: деления покупаются в характеристики (по 5 в каждую из двух или 10
 ## в одну). Заполнилась шкала — модуль переходит на следующий уровень.
-## Строки строятся по GameState.MODULES.
+## Карточки строятся по Modules.all(), состояние — GameState.progress.modules.
 ## Вкладка «Чертежи» — сбор кораблей: прогресс и докупка кусков за кристаллы.
 ## Где лежат чертежи, не показываем — их надо искать на уровнях.
 
-const STAR_ICON := preload("res://ui/kit/star.svg")
 const PIP_ON := Color(1, 0.8, 0.3)
 const PIP_OFF := Color(1, 1, 1, 0.15)
 
@@ -70,14 +69,14 @@ func _select_tab(tab: String) -> void:
 
 
 func _refresh() -> void:
-	stars_label.text = "%d" % GameState.stars
+	stars_label.text = "%d" % GameState.progress.stars
 	for child in list.get_children():
 		child.queue_free()
 	if _tab == "blueprints":
 		_build_blueprints()
 		return
-	for id in GameState.MODULES:
-		list.add_child(_make_card(id))
+	for module in Modules.all():
+		list.add_child(_make_card(module))
 
 
 func _build_blueprints() -> void:
@@ -144,7 +143,7 @@ func _make_blueprint_card(ship: ShipData) -> Control:
 
 	if not (owned or complete):
 		var cost := GameState.blueprint_crystal_cost(ship.id)
-		var button := _buy_button("Докупить чертёж · %d" % cost, GameState.crystals >= cost, false)
+		var button := _buy_button("Докупить чертёж · %d" % cost, GameState.progress.crystals >= cost, false)
 		button.icon = UiKit.CRYSTAL_ICON
 		button.expand_icon = false
 		button.pressed.connect(GameState.try_buy_blueprint.bind(ship.id))
@@ -152,10 +151,10 @@ func _make_blueprint_card(ship: ShipData) -> Control:
 	return card
 
 
-func _make_card(id: String) -> Control:
-	var data: Dictionary = GameState.MODULES[id]
-	var tier := GameState.module_tier(id)
-	var max_tier := GameState.module_max_tier(id)
+func _make_card(module: ModuleData) -> Control:
+	var id := module.id
+	var tier := GameState.progress.modules.tier(id)
+	var max_tier := module.max_tier
 
 	var card := PanelContainer.new()
 	card.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -171,7 +170,7 @@ func _make_card(id: String) -> Control:
 	var titles := VBoxContainer.new()
 	titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var title := Label.new()
-	title.text = data.title
+	title.text = module.title
 	titles.add_child(title)
 	var sub := Label.new()
 	sub.add_theme_font_size_override("font_size", 22)
@@ -188,21 +187,24 @@ func _make_card(id: String) -> Control:
 	box.add_child(header)
 
 	if tier == 0:
-		var install := _buy_button("Установить %d" % GameState.install_cost(id), GameState.stars >= GameState.install_cost(id))
+		var install := _buy_button("Установить %d" % module.install_cost, GameState.progress.stars >= module.install_cost)
 		install.pressed.connect(GameState.try_install.bind(id))
 		box.add_child(install)
 		return card
 
 	# Шкала уровня: 10 делений.
-	box.add_child(_pips(GameState.tier_progress(id), Balance.STEPS_PER_TIER, 12))
+	box.add_child(_pips(GameState.progress.modules.tier_progress(id), Balance.STEPS_PER_TIER, 12))
 
 	# Характеристики: свои деления и кнопка покупки.
-	for stat in data.stats:
-		box.add_child(_stat_row(id, stat, data.stats[stat]))
+	for stat in module.stats:
+		box.add_child(_stat_row(module, stat))
 	return card
 
 
-func _stat_row(id: String, stat: String, stat_title: String) -> Control:
+func _stat_row(module: ModuleData, stat_def: ModuleData.StatDef) -> Control:
+	var id := module.id
+	var stat := stat_def.id
+	var modules := GameState.progress.modules
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	row.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -210,19 +212,19 @@ func _stat_row(id: String, stat: String, stat_title: String) -> Control:
 	var info := VBoxContainer.new()
 	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var label := Label.new()
-	label.text = "%s — %s" % [stat_title, GameState.describe_stat(id, stat)]
+	label.text = "%s — %s" % [stat_def.title(), GameState.describe_stat(id, stat)]
 	label.add_theme_font_size_override("font_size", 24)
 	info.add_child(label)
-	info.add_child(_pips(GameState.stat_steps(id, stat), GameState.steps_per_stat(id), 8))
+	info.add_child(_pips(modules.stat_steps(id, stat), module.steps_per_stat(), 8))
 	row.add_child(info)
 
 	var button: Button
-	if GameState.is_maxed(id):
+	if modules.is_maxed(id):
 		button = _buy_button("МАКС", false, false)
-	elif GameState.stat_full(id, stat):
+	elif modules.stat_full(id, stat):
 		button = _buy_button("Готово", false, false)
 	else:
-		button = _buy_button("%d" % GameState.step_cost(id), GameState.can_buy_step(id, stat))
+		button = _buy_button("%d" % modules.step_cost(id), GameState.can_buy_step(id, stat))
 		button.pressed.connect(GameState.try_buy_step.bind(id, stat))
 	button.custom_minimum_size = Vector2(170, 72)
 	row.add_child(button)
@@ -237,7 +239,7 @@ func _buy_button(text: String, enabled: bool, with_star := true) -> Button:
 	# PASS, чтобы список можно было листать, начав свайп на кнопке.
 	button.mouse_filter = Control.MOUSE_FILTER_PASS
 	if with_star:
-		button.icon = STAR_ICON
+		button.icon = UiKit.STAR_ICON
 	return button
 
 

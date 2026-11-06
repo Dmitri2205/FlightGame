@@ -1,6 +1,8 @@
 extends Node
 ## Глобальное состояние: звёзды, корабли, улучшения, прогресс по главам, сохранение.
-## Подключено как autoload `GameState`.
+## Подключено как autoload `GameState`. Сохраняемые данные лежат в двух
+## объектах — progress (Progress) и settings (Settings); здесь — правила их
+## изменения, сигналы и запись на диск.
 
 signal stars_changed(total: int)
 signal upgrade_changed(id: String, tier: int)
@@ -10,110 +12,51 @@ signal crystals_changed(total: int)
 signal blueprints_changed(ship_id: String, count: int)
 
 const SAVE_PATH := "user://save.json"
-## Громкость по умолчанию (линейная 0..1) — музыка и эффекты.
-const DEFAULT_VOLUME := 0.8
 
-## Модули корабля. У модуля есть УРОВЕНЬ (1..max_tier) и шкала из 10 делений
-## внутри уровня. Деления покупаются по отдельности в характеристики (stats):
-## при двух характеристиках — по 5 в каждую, при одной — 10. Когда шкала
-## заполнена, модуль переходит на следующий уровень (это открывает новую
-## видимую возможность: шрапнель, ствол, ракету), шкала начинается заново.
-## installed = false — модуль сначала нужно установить (install_cost).
-const MODULES := {
-	"main_cannon": {
-		"title": "Основная пушка",
-		"max_tier": 5,
-		"installed": true,
-		"stats": {"damage": "Урон", "rate": "Скорострельность"},
-		"base_cost": 30,
-	},
-	"wing_cannons": {
-		"title": "Крыльевые пушки",
-		"max_tier": 3,
-		"installed": false,
-		"install_cost": 300,
-		"stats": {"damage": "Урон", "rate": "Скорострельность"},
-		"base_cost": 45,
-	},
-	"missiles": {
-		"title": "Ракеты",
-		"max_tier": 4,
-		"installed": false,
-		"install_cost": 600,
-		"stats": {"damage": "Урон", "reload": "Перезарядка"},
-		"base_cost": 60,
-	},
-	"health": {
-		"title": "Здоровье",
-		"max_tier": 5,
-		"installed": true,
-		"stats": {"armor": "Здоровье"},
-		"base_cost": 25,
-	},
-	"magnet": {
-		"title": "Магнит",
-		"max_tier": 3,
-		"installed": true,
-		"stats": {"radius": "Радиус"},
-		"base_cost": 25,
-	},
-}
 ## Старая система (до уровней модулей): по ней возвращаются потраченные звёзды.
+## Замороженные данные миграции: ключи — из старого формата сохранения.
 const LEGACY_UPGRADE_COSTS := {
 	"health": [40, 1.3], "main_cannon": [50, 1.35], "wing_cannons": [80, 1.35],
 	"magnet": [60, 1.3], "missiles": [150, 1.4],
 }
 
-var stars := 0
-## Кристаллы — редкая («твёрдая») валюта: докупка чертежей, потом — ускорения.
-var crystals := 0
-## Собранные чертежи кораблей: id корабля → сколько кусков.
-var blueprints := {}
-## Скрытая защита от невезения: сколько пройденных уровней подряд без чертежа.
-var blueprint_pity := 0
-## Прогресс модулей: id → {"tier": уровень (0 — не установлен), "steps": {stat: делений}}.
-var modules := {}
+## Сохраняемое состояние: прогресс (стирается сбросом) и настройки.
+var progress := Progress.new()
+var settings := Settings.new()
+
 ## Сколько звёзд вернули при переходе на уровни модулей (показать в ангаре один раз).
 var legacy_refund := 0
 var ships: Array[ShipData] = []
-var unlocked_ships: Array = []
-var selected_ship_id := ""
 var chapters: Array[ChapterData] = []
-## Пройденные уровни: "id_главы:номер_уровня" → лучший счёт.
-var completed_levels := {}
-## Какой уровень сейчас выбран/запущен.
-var current_chapter := 0
+## Какой уровень сейчас выбран/запущен (не сохраняется).
 var current_level := 0
-## Инструменты разработчика (превью волн, тесты) в меню. Скрыты от игрока:
-## включаются 7 тапами по названию в главном меню; в отладочной сборке — всегда.
-var dev_mode := false
-## Звук. Громкость — ползунки в настройках (линейная 0..1), music_on —
-## переключатель в меню паузы: глушит шину Music, не трогая громкость.
-## Применяются к шинам в apply_audio() (AudioBuses).
-var music_on := true
-var music_volume := DEFAULT_VOLUME
-var sfx_volume := DEFAULT_VOLUME
-## Прототип 2.5D-вида (камера сзади-сверху), переключатель в меню разработчика.
-var view_3d := false
 ## Отладка: следующий запуск уровня начнётся сразу с босса.
 var boss_test := false
 ## Отладка: волны с разными траекториями идут по очереди.
 var pattern_test := false
 
+## Временные псевдонимы только для чтения — для level/ и ui/wave_preview
+## (пакет B). В пакете C читать progress.current_chapter / settings.view_3d.
+var current_chapter: int:
+	get:
+		return progress.current_chapter
+var view_3d: bool:
+	get:
+		return settings.view_3d
+
 
 func _ready() -> void:
 	ships = ShipCatalog.all()
 	chapters = ChapterCatalog.all()
-	_reset_ships()
 	load_game()
 	apply_audio()
 
 
-# --- Звёзды и улучшения -------------------------------------------------------
+# --- Звёзды -------------------------------------------------------------------
 
 func add_stars(amount: int) -> void:
-	stars += amount
-	stars_changed.emit(stars)
+	progress.stars += amount
+	stars_changed.emit(progress.stars)
 	save_game()
 
 
@@ -128,13 +71,13 @@ func add_stars(amount: int) -> void:
 
 
 func add_crystals(amount: int) -> void:
-	crystals += amount
-	crystals_changed.emit(crystals)
+	progress.crystals += amount
+	crystals_changed.emit(progress.crystals)
 	save_game()
 
 
 func blueprint_count(ship_id: String) -> int:
-	return int(blueprints.get(ship_id, 0))
+	return int(progress.blueprints.get(ship_id, 0))
 
 
 func blueprints_required(ship_id: String) -> int:
@@ -160,17 +103,17 @@ func blueprint_crystal_cost(ship_id: String) -> int:
 
 
 func add_blueprint(ship_id: String) -> void:
-	blueprints[ship_id] = mini(blueprint_count(ship_id) + 1, blueprints_required(ship_id))
+	progress.blueprints[ship_id] = mini(blueprint_count(ship_id) + 1, blueprints_required(ship_id))
 	blueprints_changed.emit(ship_id, blueprint_count(ship_id))
 	save_game()
 
 
 func try_buy_blueprint(ship_id: String) -> bool:
 	var cost := blueprint_crystal_cost(ship_id)
-	if blueprints_complete(ship_id) or is_ship_unlocked(ship_id) or crystals < cost:
+	if blueprints_complete(ship_id) or is_ship_unlocked(ship_id) or progress.crystals < cost:
 		return false
-	crystals -= cost
-	crystals_changed.emit(crystals)
+	progress.crystals -= cost
+	crystals_changed.emit(progress.crystals)
 	add_blueprint(ship_id)
 	return true
 
@@ -178,15 +121,15 @@ func try_buy_blueprint(ship_id: String) -> bool:
 ## Сколько кусков чертежей собрано всего (по всем кораблям).
 func blueprints_collected_total() -> int:
 	var total := 0
-	for id in blueprints:
-		total += int(blueprints[id])
+	for id in progress.blueprints:
+		total += int(progress.blueprints[id])
 	return total
 
 
 ## Шанс чертежа на уровне: падает с числом собранных, растёт от скрытой
 ## защиты от невезения.
 func blueprint_level_chance() -> float:
-	return Balance.blueprint_chance(blueprints_collected_total(), blueprint_pity)
+	return Balance.blueprint_chance(blueprints_collected_total(), progress.blueprint_pity)
 
 
 ## Бросок при старте уровня: id корабля, чей чертёж тут спрятан, или "".
@@ -202,106 +145,46 @@ func finish_level_blueprint(found: String, victory: bool) -> void:
 	if not victory:
 		return
 	if found != "":
-		blueprint_pity = 0
+		progress.blueprint_pity = 0
 		add_blueprint(found)
 	else:
-		blueprint_pity += 1
+		progress.blueprint_pity += 1
 		save_game()
 
 
-# --- Модули: уровни и деления --------------------------------------------------
+# --- Модули: покупки ----------------------------------------------------------
+# Описание модулей — Modules; уровни, деления и цены — progress.modules
+# (ModuleProgress). Здесь — покупки за звёзды и сигналы.
 
-func module_tier(id: String) -> int:
-	return int(_module(id).tier)
-
-
-func module_max_tier(id: String) -> int:
-	return int(MODULES[id].max_tier)
-
-
-func is_installed(id: String) -> bool:
-	return module_tier(id) > 0
-
-
-## Сколько делений в одну характеристику на каждом уровне (5 или 10).
-func steps_per_stat(id: String) -> int:
-	return Balance.STEPS_PER_TIER / MODULES[id].stats.size()
-
-
-## Куплено делений характеристики на текущем уровне.
-func stat_steps(id: String, stat: String) -> int:
-	return int(_module(id).steps.get(stat, 0))
-
-
-## Всего делений характеристики за все уровни — от этого считаются эффекты.
-func stat_total(id: String, stat: String) -> int:
-	var tier := module_tier(id)
-	if tier <= 0:
-		return 0
-	return (tier - 1) * steps_per_stat(id) + stat_steps(id, stat)
-
-
-func tier_progress(id: String) -> int:
-	var total := 0
-	for stat in MODULES[id].stats:
-		total += stat_steps(id, stat)
-	return total
-
-
-func is_maxed(id: String) -> bool:
-	return module_tier(id) >= module_max_tier(id) and tier_progress(id) >= Balance.STEPS_PER_TIER
-
-
-func stat_full(id: String, stat: String) -> bool:
-	return stat_steps(id, stat) >= steps_per_stat(id)
-
-
-func install_cost(id: String) -> int:
-	return int(MODULES[id].get("install_cost", 0))
-
-
-## Цена деления: дороже с каждым уровнем и с каждым делением внутри уровня.
-func step_cost(id: String) -> int:
-	var tier := maxi(module_tier(id), 1)
-	return Balance.module_cost(MODULES[id].base_cost, tier, tier_progress(id))
+func can_buy_step(id: String, stat: String) -> bool:
+	var modules := progress.modules
+	return modules.is_installed(id) and not modules.stat_full(id, stat) and not modules.is_maxed(id) \
+		and progress.stars >= modules.step_cost(id)
 
 
 func try_install(id: String) -> bool:
-	if is_installed(id) or stars < install_cost(id):
+	var cost := Modules.get_by_id(id).install_cost
+	if progress.modules.is_installed(id) or progress.stars < cost:
 		return false
-	stars -= install_cost(id)
-	modules[id] = {"tier": 1, "steps": {}}
+	progress.stars -= cost
+	progress.modules.install(id)
 	_after_upgrade(id)
 	return true
-
-
-func can_buy_step(id: String, stat: String) -> bool:
-	return is_installed(id) and not stat_full(id, stat) and not is_maxed(id) and stars >= step_cost(id)
 
 
 ## Купить деление характеристики. Заполнилась шкала — модуль переходит на новый уровень.
 func try_buy_step(id: String, stat: String) -> bool:
 	if not can_buy_step(id, stat):
 		return false
-	stars -= step_cost(id)
-	var module := _module(id)
-	module.steps[stat] = stat_steps(id, stat) + 1
-	if tier_progress(id) >= Balance.STEPS_PER_TIER and module_tier(id) < module_max_tier(id):
-		module.tier = module_tier(id) + 1
-		module.steps = {}
+	progress.stars -= progress.modules.step_cost(id)
+	progress.modules.add_step(id, stat)
 	_after_upgrade(id)
 	return true
 
 
-func _module(id: String) -> Dictionary:
-	if not modules.has(id):
-		modules[id] = {"tier": 1 if MODULES[id].installed else 0, "steps": {}}
-	return modules[id]
-
-
 func _after_upgrade(id: String) -> void:
-	stars_changed.emit(stars)
-	upgrade_changed.emit(id, module_tier(id))
+	stars_changed.emit(progress.stars)
+	upgrade_changed.emit(id, progress.modules.tier(id))
 	save_game()
 
 
@@ -318,6 +201,24 @@ func _legacy_refund(old_levels: Dictionary) -> int:
 	return refund
 
 
+# --- Характеристики корабля ---------------------------------------------------
+# Итог = база выбранного корабля + улучшения (улучшения общие для всех кораблей).
+
+func player_stats() -> PlayerStats:
+	return PlayerStats.build(get_selected_ship(), progress.modules)
+
+
+## Текущее значение характеристики — подпись в ангаре.
+func describe_stat(id: String, stat: String) -> String:
+	return Modules.get_by_id(id).get_stat(stat).describe.call(player_stats())
+
+
+## Что даёт уровень модуля — видимая возможность (значения в конце уровня).
+func describe_tier(id: String, tier: int) -> String:
+	var stats := PlayerStats.build(get_selected_ship(), progress.modules.with_tier_filled(id, tier))
+	return Modules.get_by_id(id).describe_tier.call(stats)
+
+
 # --- Корабли ------------------------------------------------------------------
 
 func get_ship(id: String) -> ShipData:
@@ -326,25 +227,25 @@ func get_ship(id: String) -> ShipData:
 
 
 func get_selected_ship() -> ShipData:
-	return get_ship(selected_ship_id)
+	return get_ship(progress.selected_ship_id)
 
 
 func is_ship_unlocked(id: String) -> bool:
-	return id in unlocked_ships
+	return id in progress.unlocked_ships
 
 
 ## Купить можно, только когда собраны все чертежи корабля.
 func can_unlock_ship(id: String) -> bool:
-	return not is_ship_unlocked(id) and blueprints_complete(id) and stars >= get_ship(id).cost
+	return not is_ship_unlocked(id) and blueprints_complete(id) and progress.stars >= get_ship(id).cost
 
 
 func try_unlock_ship(id: String) -> bool:
 	var ship := get_ship(id)
 	if not can_unlock_ship(id):
 		return false
-	stars -= ship.cost
-	unlocked_ships.append(id)
-	stars_changed.emit(stars)
+	progress.stars -= ship.cost
+	progress.unlocked_ships.append(id)
+	stars_changed.emit(progress.stars)
 	select_ship(id)
 	return true
 
@@ -352,14 +253,9 @@ func try_unlock_ship(id: String) -> bool:
 func select_ship(id: String) -> void:
 	if not is_ship_unlocked(id):
 		return
-	selected_ship_id = id
+	progress.selected_ship_id = id
 	ship_changed.emit(id)
 	save_game()
-
-
-func _reset_ships() -> void:
-	unlocked_ships = [ships[0].id]
-	selected_ship_id = ships[0].id
 
 
 # --- Главы и уровни -----------------------------------------------------------
@@ -369,7 +265,7 @@ func get_chapter(index: int) -> ChapterData:
 
 
 func current_chapter_data() -> ChapterData:
-	return get_chapter(current_chapter)
+	return get_chapter(progress.current_chapter)
 
 
 func current_level_data() -> LevelData:
@@ -378,13 +274,13 @@ func current_level_data() -> LevelData:
 
 
 func select_level(chapter: int, level: int) -> void:
-	current_chapter = chapter
+	progress.current_chapter = chapter
 	current_level = level
 
 
 func select_chapter(chapter: int) -> void:
-	current_chapter = clampi(chapter, 0, chapters.size() - 1)
-	chapter_changed.emit(current_chapter)
+	progress.current_chapter = clampi(chapter, 0, chapters.size() - 1)
+	chapter_changed.emit(progress.current_chapter)
 
 
 func _level_key(chapter: int, level: int) -> String:
@@ -392,11 +288,11 @@ func _level_key(chapter: int, level: int) -> String:
 
 
 func is_level_completed(chapter: int, level: int) -> bool:
-	return completed_levels.has(_level_key(chapter, level))
+	return progress.completed_levels.has(_level_key(chapter, level))
 
 
 func best_score(chapter: int, level: int) -> int:
-	return int(completed_levels.get(_level_key(chapter, level), 0))
+	return int(progress.completed_levels.get(_level_key(chapter, level), 0))
 
 
 ## Первый уровень игры открыт всегда; остальные — после прохождения предыдущего
@@ -417,19 +313,30 @@ func is_chapter_completed(chapter: int) -> bool:
 	return is_level_completed(chapter, get_chapter(chapter).levels.size() - 1)
 
 
-## Записывает прохождение текущего уровня. Возвращает бонус за первое прохождение.
-func complete_current_level(score: int) -> int:
-	var key := _level_key(current_chapter, current_level)
-	var first_time := not completed_levels.has(key)
-	completed_levels[key] = maxi(score, int(completed_levels.get(key, 0)))
-	var bonus := current_level_data().completion_bonus if first_time else 0
-	if first_time:
-		crystals += Balance.CRYSTALS_FIRST_CLEAR
-		crystals_changed.emit(crystals)
-	stars += bonus
-	stars_changed.emit(stars)
+## Записывает прохождение текущего уровня и начисляет награду за первое
+## прохождение (бонус звёзд и кристаллы). Возвращает начисленное — экран
+## итогов показывает это, а не считает сам.
+func complete_level(score: int) -> LevelReward:
+	var key := _level_key(progress.current_chapter, current_level)
+	var reward := LevelReward.new()
+	if not progress.completed_levels.has(key):
+		reward.bonus_stars = current_level_data().completion_bonus
+		reward.crystals = Balance.CRYSTALS_FIRST_CLEAR
+	progress.completed_levels[key] = maxi(score, int(progress.completed_levels.get(key, 0)))
+	if reward.crystals > 0:
+		progress.crystals += reward.crystals
+		crystals_changed.emit(progress.crystals)
+	progress.stars += reward.bonus_stars
+	stars_changed.emit(progress.stars)
 	save_game()
-	return bonus
+	return reward
+
+
+## Временная обёртка для level/level.gd (пакет B). В пакете C уровень
+## переходит на complete_level() и показывает reward.crystals вместо
+## своего подсчёта first_clear. Возвращает бонус звёзд.
+func complete_current_level(score: int) -> int:
+	return complete_level(score).bonus_stars
 
 
 ## Первый открытый, но ещё не пройденный уровень — [глава, уровень].
@@ -445,110 +352,15 @@ func next_level_to_play() -> Array:
 func has_next_level() -> bool:
 	if current_level + 1 < current_chapter_data().levels.size():
 		return true
-	return current_chapter + 1 < chapters.size()
+	return progress.current_chapter + 1 < chapters.size()
 
 
 func select_next_level() -> void:
 	if current_level + 1 < current_chapter_data().levels.size():
 		current_level += 1
-	elif current_chapter + 1 < chapters.size():
-		current_chapter += 1
+	elif progress.current_chapter + 1 < chapters.size():
+		progress.current_chapter += 1
 		current_level = 0
-
-
-# --- Характеристики корабля (весь баланс в одном месте) ----------------------
-# Итог = база выбранного корабля + улучшения (улучшения общие для всех кораблей).
-
-## Формулы — в Balance.
-
-
-func player_max_health() -> int:
-	return Balance.max_health(get_selected_ship().base_health, stat_total("health", "armor"))
-
-
-func fire_interval() -> float:
-	return Balance.main_fire_interval(stat_total("main_cannon", "rate"), get_selected_ship().fire_rate_mult)
-
-
-func main_cannon_damage() -> int:
-	return Balance.main_damage(stat_total("main_cannon", "damage"), get_selected_ship().damage_bonus)
-
-
-## Сколько дополнительных маленьких патронов (шрапнели) даёт основная пушка.
-func shrapnel_count() -> int:
-	return Balance.shrapnel(module_tier("main_cannon"))
-
-
-## Стволов на каждом крыле = уровень модуля (0 — не установлены).
-func wing_guns_per_side() -> int:
-	return module_tier("wing_cannons")
-
-
-## Крыльевые бьют очень редко, но тяжело: снаряд — как залп основной пушки.
-## (Потом их заменят навесные орудия из чертежей со своими характеристиками.)
-func wing_cannon_damage() -> int:
-	return Balance.wing_damage(stat_total("wing_cannons", "damage"))
-
-
-## Свой темп у крыльевых пушек (характеристика «Скорострельность»).
-func wing_fire_interval() -> float:
-	return Balance.wing_fire_interval(stat_total("wing_cannons", "rate"), get_selected_ship().fire_rate_mult)
-
-
-## Ракет в залпе = уровень модуля (0 — не установлены).
-func missiles_per_salvo() -> int:
-	return module_tier("missiles")
-
-
-func missile_interval() -> float:
-	return Balance.missile_interval(stat_total("missiles", "reload"))
-
-
-func missile_damage() -> int:
-	return Balance.missile_damage(stat_total("missiles", "damage"))
-
-
-func magnet_radius() -> float:
-	return Balance.magnet_radius(stat_total("magnet", "radius"), get_selected_ship().magnet_mult)
-
-
-## Текущее значение характеристики — подпись в ангаре.
-func describe_stat(id: String, stat: String) -> String:
-	match [id, stat]:
-		["main_cannon", "damage"]:
-			return "урон %d" % main_cannon_damage()
-		["main_cannon", "rate"]:
-			return "%.1f выстр/с" % (1.0 / fire_interval())
-		["wing_cannons", "damage"]:
-			return "урон %d" % wing_cannon_damage()
-		["wing_cannons", "rate"]:
-			return "раз в %.1f с" % wing_fire_interval()
-		["missiles", "damage"]:
-			return "урон %d" % missile_damage()
-		["missiles", "reload"]:
-			return "раз в %.1f с" % missile_interval()
-		["health", "armor"]:
-			return "%d HP (+%d%%)" % [player_max_health(), Balance.health_bonus_percent(stat_total("health", "armor"))]
-		["magnet", "radius"]:
-			return "%d px" % magnet_radius()
-	return ""
-
-
-## Что открывает уровень модуля — видимая возможность.
-func describe_tier(id: String, tier: int) -> String:
-	match id:
-		"main_cannon":
-			var shrapnel: int = Balance.shrapnel(tier)
-			return "шрапнель: %d" % shrapnel if shrapnel > 0 else "один ствол"
-		"wing_cannons":
-			return "%d ств. на крыло" % tier
-		"missiles":
-			return "%d ракет(ы) в залпе" % tier
-		"health":
-			return "до +%d%% здоровья" % (tier * 30)
-		"magnet":
-			return "до %d px" % roundi(60 + 10 * tier * steps_per_stat(id))
-	return ""
 
 
 # --- Сохранение --------------------------------------------------------------
@@ -558,22 +370,9 @@ func save_game() -> void:
 	if file == null:
 		push_error("Не удалось сохранить игру: %s" % FileAccess.get_open_error())
 		return
-	file.store_string(JSON.stringify({
-		"stars": stars,
-		"crystals": crystals,
-		"blueprints": blueprints,
-		"blueprint_pity": blueprint_pity,
-		"modules": modules,
-		"unlocked_ships": unlocked_ships,
-		"selected_ship": selected_ship_id,
-		"completed_levels": completed_levels,
-		"current_chapter": current_chapter,
-		"dev_mode": dev_mode,
-		"music_on": music_on,
-		"music_volume": music_volume,
-		"sfx_volume": sfx_volume,
-		"view_3d": view_3d,
-	}))
+	var data := progress.to_dict()
+	data.merge(settings.to_dict())
+	file.store_string(JSON.stringify(data))
 
 
 func load_game() -> void:
@@ -583,33 +382,19 @@ func load_game() -> void:
 	if typeof(data) != TYPE_DICTIONARY:
 		push_warning("Файл сохранения повреждён, начинаем заново")
 		return
-	stars = int(data.get("stars", 0))
-	crystals = int(data.get("crystals", 0))
-	blueprints = data.get("blueprints", {})
-	blueprint_pity = int(data.get("blueprint_pity", 0))
-	modules = data.get("modules", {})
+	progress = Progress.from_dict(data)
+	settings = Settings.from_dict(data)
 	# Переход со старой прокачки (уровни 0..10) — возвращаем потраченные звёзды.
+	# Сохраняем, только когда прочитан весь файл: иначе на диск попали бы
+	# значения по умолчанию вместо ещё не прочитанных полей.
 	if not data.has("modules") and data.has("upgrades"):
 		legacy_refund = _legacy_refund(data.get("upgrades", {}))
-		stars += legacy_refund
+		progress.stars += legacy_refund
 		save_game()
-	for id in data.get("unlocked_ships", []):
-		if not is_ship_unlocked(id):
-			unlocked_ships.append(id)
-	var selected: String = data.get("selected_ship", selected_ship_id)
-	if is_ship_unlocked(selected):
-		selected_ship_id = selected
-	completed_levels = data.get("completed_levels", {})
-	current_chapter = clampi(int(data.get("current_chapter", 0)), 0, chapters.size() - 1)
-	dev_mode = bool(data.get("dev_mode", false))
-	music_on = bool(data.get("music_on", true))
-	music_volume = clampf(float(data.get("music_volume", DEFAULT_VOLUME)), 0.0, 1.0)
-	sfx_volume = clampf(float(data.get("sfx_volume", DEFAULT_VOLUME)), 0.0, 1.0)
-	view_3d = bool(data.get("view_3d", false))
 
 
 func dev_tools_available() -> bool:
-	return dev_mode or OS.is_debug_build()
+	return settings.dev_mode or OS.is_debug_build()
 
 
 # --- Звук -------------------------------------------------------------------
@@ -617,9 +402,9 @@ func dev_tools_available() -> bool:
 ## Переключатель музыки (меню паузы). Включение при нулевой громкости
 ## возвращает громкость по умолчанию — иначе «вкл» было бы беззвучным.
 func set_music(enabled: bool) -> void:
-	music_on = enabled
-	if enabled and music_volume <= 0.0:
-		music_volume = DEFAULT_VOLUME
+	settings.music_on = enabled
+	if enabled and settings.music_volume <= 0.0:
+		settings.music_volume = Settings.DEFAULT_VOLUME
 	apply_audio()
 	save_game()
 
@@ -628,9 +413,9 @@ func set_music(enabled: bool) -> void:
 ## музыку, поэтому это заодно включает её. save = false — применить сразу,
 ## а сохранить потом (ползунок сохраняет, когда его отпустили).
 func set_music_volume(volume: float, save := true) -> void:
-	music_volume = clampf(volume, 0.0, 1.0)
-	if music_volume > 0.0:
-		music_on = true
+	settings.music_volume = clampf(volume, 0.0, 1.0)
+	if settings.music_volume > 0.0:
+		settings.music_on = true
 	apply_audio()
 	if save:
 		save_game()
@@ -638,34 +423,34 @@ func set_music_volume(volume: float, save := true) -> void:
 
 ## Громкость эффектов 0..1 (шина SFX). save — как у set_music_volume.
 func set_sfx_volume(volume: float, save := true) -> void:
-	sfx_volume = clampf(volume, 0.0, 1.0)
+	settings.sfx_volume = clampf(volume, 0.0, 1.0)
 	apply_audio()
 	if save:
 		save_game()
 
 
 func apply_audio() -> void:
-	AudioBuses.apply(AudioBuses.MUSIC, music_volume, not music_on)
-	AudioBuses.apply(AudioBuses.SFX, sfx_volume)
+	AudioBuses.apply(AudioBuses.MUSIC, settings.music_volume, not settings.music_on)
+	AudioBuses.apply(AudioBuses.SFX, settings.sfx_volume)
 
 
 # --- Режим разработчика --------------------------------------------------------
 
 func set_dev_mode(enabled: bool) -> void:
-	dev_mode = enabled
+	settings.dev_mode = enabled
 	save_game()
 
 
+## Прототип 2.5D-вида уровня (меню разработчика).
+func set_view_3d(enabled: bool) -> void:
+	settings.view_3d = enabled
+	save_game()
+
+
+## Стирает прогресс; настройки остаются.
 func reset_progress() -> void:
-	stars = 0
-	crystals = 0
-	blueprints = {}
-	blueprint_pity = 0
-	modules = {}
-	completed_levels = {}
-	current_chapter = 0
+	progress = Progress.new()
 	current_level = 0
-	_reset_ships()
-	stars_changed.emit(stars)
-	crystals_changed.emit(crystals)
+	stars_changed.emit(progress.stars)
+	crystals_changed.emit(progress.crystals)
 	save_game()

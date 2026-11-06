@@ -1,15 +1,14 @@
 extends Control
 ## Выбор и покупка кораблей. Карточки строятся по GameState.ships.
 
-## Значения, которые соответствуют полной полосе характеристики.
-const STAT_MAX := {
-	"speed": 1600.0,
-	"agility": 12000.0,
-	"armor": 200.0,
-	"firepower": 2.5,
-}
+## Значения, которые соответствуют полной полосе характеристики
+## (характеристики корабля без улучшений, PlayerStats.base).
+const SPEED_BAR_MAX := 1600.0
+const AGILITY_BAR_MAX := 12000.0
+const ARMOR_BAR_MAX := 200.0
+## Огневая мощь основной пушки — урон в секунду.
+const FIREPOWER_BAR_MAX := 10.0
 
-const STAR_ICON := preload("res://ui/kit/star.svg")
 ## Если палец сдвинулся дальше этого (px), это свайп списка, а не тап по карточке.
 const TAP_SLOP := 20.0
 
@@ -36,7 +35,7 @@ func _on_ship_changed(_id: String) -> void:
 
 
 func _refresh() -> void:
-	stars_label.text = "%d" % GameState.stars
+	stars_label.text = "%d" % GameState.progress.stars
 	for child in list.get_children():
 		child.queue_free()
 	for ship in GameState.ships:
@@ -76,16 +75,17 @@ func _make_card(ship: ShipData) -> Control:
 	description.add_theme_font_size_override("font_size", 24)
 	box.add_child(description)
 
-	var firepower := (1 + ship.damage_bonus) * ship.fire_rate_mult
-	box.add_child(_make_stat("Скорость", ship.max_speed / STAT_MAX.speed))
-	box.add_child(_make_stat("Манёвренность", ship.acceleration() / STAT_MAX.agility))
-	box.add_child(_make_stat("Прочность", ship.base_health / STAT_MAX.armor))
-	box.add_child(_make_stat("Огневая мощь", firepower / STAT_MAX.firepower))
+	var stats := PlayerStats.base(ship)
+	var firepower := stats.main_damage / stats.fire_interval
+	box.add_child(_make_stat("Скорость", stats.max_speed / SPEED_BAR_MAX))
+	box.add_child(_make_stat("Манёвренность", stats.acceleration / AGILITY_BAR_MAX))
+	box.add_child(_make_stat("Прочность", stats.max_health / ARMOR_BAR_MAX))
+	box.add_child(_make_stat("Огневая мощь", firepower / FIREPOWER_BAR_MAX))
 
 	var button := Button.new()
 	button.custom_minimum_size = Vector2(0, 80)
 	button.mouse_filter = Control.MOUSE_FILTER_PASS
-	if ship.id == GameState.selected_ship_id:
+	if ship.id == GameState.progress.selected_ship_id:
 		button.text = "Выбран"
 		button.disabled = true
 	elif GameState.is_ship_unlocked(ship.id):
@@ -98,7 +98,7 @@ func _make_card(ship: ShipData) -> Control:
 		button.disabled = true
 	else:
 		button.text = "Купить %d" % ship.cost
-		button.icon = STAR_ICON
+		button.icon = UiKit.STAR_ICON
 		button.disabled = not GameState.can_unlock_ship(ship.id)
 		button.pressed.connect(GameState.try_unlock_ship.bind(ship.id))
 	box.add_child(button)
@@ -121,7 +121,7 @@ func _card_style(ship: ShipData) -> StyleBoxFlat:
 	style.bg_color = Color(0.1, 0.12, 0.17)
 	style.set_corner_radius_all(12)
 	style.set_content_margin_all(20)
-	if ship.id == GameState.selected_ship_id:
+	if ship.id == GameState.progress.selected_ship_id:
 		style.bg_color = ship.color.darkened(0.75)
 		style.border_color = ship.color
 		style.set_border_width_all(4)

@@ -22,3 +22,4 @@ color = Color(1, 0.78, 0.2, 1)
 visual_scale = 0.95
 nose_gun = Vector2(0, -30)
 wing_gun = Vector2(30, 4)
+model_3d = &"craft_speederD"

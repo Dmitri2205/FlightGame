@@ -101,12 +101,12 @@ func resume() -> void:
 
 
 func _toggle_music() -> void:
-	GameState.set_music(not GameState.music_on)
+	GameState.set_music(not GameState.settings.music_on)
 	_update_music_button()
 
 
 func _update_music_button() -> void:
-	(%MusicButton as Button).text = "Музыка: вкл" if GameState.music_on else "Музыка: выкл"
+	(%MusicButton as Button).text = "Музыка: вкл" if GameState.settings.music_on else "Музыка: выкл"
 
 
 func is_paused() -> bool:
@@ -122,7 +122,7 @@ func _build_blueprint_badge() -> void:
 	_blueprint_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_blueprint_badge.add_theme_constant_override("separation", 8)
 	var icon := TextureRect.new()
-	icon.texture = preload("res://ui/kit/blueprint.svg")
+	icon.texture = UiKit.BLUEPRINT_ICON
 	icon.custom_minimum_size = Vector2(44, 44)
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -154,7 +154,7 @@ func show_results(victory: bool, score: int, stars: int, bonus: int, has_next: b
 		lines.append("Кристаллы: +%d" % crystals)
 	if blueprint_line != "":
 		lines.append(blueprint_line)
-	lines.append("Всего звёзд: %d · кристаллов: %d" % [GameState.stars, GameState.crystals])
+	lines.append("Всего звёзд: %d · кристаллов: %d" % [GameState.progress.stars, GameState.progress.crystals])
 	results_stats.text = "\n".join(lines)
 	%NextButton.visible = has_next
 	%PausePanel.hide()

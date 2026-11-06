@@ -21,3 +21,4 @@ texture = ExtResource("2_tex")
 color = Color(0.2, 0.82, 0.72, 1)
 visual_scale = 1.2
 wing_gun = Vector2(22, -10)
+model_3d = &"craft_cargoA"

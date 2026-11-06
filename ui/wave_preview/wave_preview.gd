@@ -47,7 +47,7 @@ func _ready() -> void:
 			_levels.append([c, l])
 	_level_index = maxi(0, _levels.find([GameState.current_chapter, GameState.current_level]))
 
-	ghosts.target = _player_spot()
+	ghosts.target = Arena.player_spawn_point()
 	overlay.draw.connect(_draw_overlay)
 	director.enemy_requested.connect(_on_enemy_requested)
 	director.wave_started.connect(_on_wave_started)
@@ -178,35 +178,29 @@ func _on_enemy_requested(wave: WaveData, pattern: FlightPattern) -> void:
 
 
 func _on_wave_started(wave: WaveData, _time: float) -> void:
-	var info := ghosts.enemy_info(wave.enemy)
+	var speed := EnemyInfo.of(wave.enemy).speed
 	var sides := [false, true] if wave.mirror == WaveData.Mirror.BOTH else [false]
 	for mirrored in sides:
-		_paths.append({"points": _compute_path(wave.pattern.mirrored() if mirrored else wave.pattern, info.speed), "color": COLOR_MAIN if not mirrored else COLOR_MIRROR, "dashed": mirrored, "age": 0.0})
+		_paths.append({"points": _compute_path(wave.pattern.mirrored() if mirrored else wave.pattern, speed), "color": COLOR_MAIN if not mirrored else COLOR_MIRROR, "dashed": mirrored, "age": 0.0})
 
 
-## Путь траектории — та же симуляция, что у врага в игре.
+## Путь траектории — та же симуляция и то же правило «улетел», что у
+## самолёта в бою (PatternMotion, Arena.is_air_gone).
 func _compute_path(pattern: FlightPattern, speed: float) -> PackedVector2Array:
-	var screen := get_viewport_rect()
-	var motion := PatternMotion.new(pattern, speed, screen.size.x)
+	var motion := PatternMotion.new(pattern, speed, Arena.rect().size.x)
 	var points := PackedVector2Array([motion.position])
-	var seen := false
-	var target := _player_spot()
-	for i in int(30.0 / SIM_STEP):
+	var was_on_screen := false
+	var target := Arena.player_spawn_point()
+	for i in int(Arena.AIR_MAX_LIFETIME / SIM_STEP):
 		motion.advance(SIM_STEP, target)
 		if i % 3 == 0:
 			points.append(motion.position)
-		if screen.has_point(motion.position):
-			seen = true
-		elif seen and not screen.grow(150.0).has_point(motion.position):
+		if Arena.is_on_screen(motion.position):
+			was_on_screen = true
+		elif Arena.is_air_gone(motion.position, was_on_screen, (i + 1) * SIM_STEP):
 			break
 	points.append(motion.position)
 	return points
-
-
-## Где обычно находится игрок — цель для манёвра «доворот на игрока».
-func _player_spot() -> Vector2:
-	var size := get_viewport_rect().size
-	return Vector2(size.x / 2.0, size.y - 200.0)
 
 
 # --- Рисование ----------------------------------------------------------------
@@ -227,7 +221,7 @@ func _draw_overlay() -> void:
 		_draw_arrow(points[points.size() - 2], points[points.size() - 1], color)
 
 	# Условное место игрока (цель «охотников»).
-	var spot := _player_spot()
+	var spot := Arena.player_spawn_point()
 	overlay.draw_arc(spot, 26.0, 0.0, TAU, 32, Color(1, 1, 1, 0.6), 3.0)
 	overlay.draw_string(get_theme_default_font(), spot + Vector2(-34, 52), "игрок", HORIZONTAL_ALIGNMENT_LEFT, -1, 22, Color(1, 1, 1, 0.7))
 

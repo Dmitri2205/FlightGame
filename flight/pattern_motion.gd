@@ -4,7 +4,8 @@ extends RefCounted
 ## поэтому превью показывает ровно тот путь, что будет в бою.
 
 var pattern: FlightPattern
-var speed := 220.0
+## Скорость по траектории, px/с (задаётся в _init).
+var speed: float
 var position := Vector2.ZERO
 var heading := Vector2.DOWN
 ## Крен −1..1: насколько корабль завален на бок на вираже (знак — сторона).

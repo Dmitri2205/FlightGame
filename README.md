@@ -48,7 +48,12 @@ Actions*, ветка по умолчанию — `main` (*Settings → General �
 project.godot              настройки: экран, слои коллизий, autoload
 default_bus_layout.tres    шины звука: Master ← Music, SFX
 core/                      autoload и общая инфраструктура
-  game_state.gd            autoload GameState: звёзды, корабли, улучшения, баланс, сохранение
+  game_state.gd            autoload GameState: правила прогресса (покупки, уровни), сохранение
+  save/                    Progress (прогресс, стирается сбросом) и Settings (настройки) —
+                           что пишется в save.json (to_dict / from_dict)
+  modules/                 модули корабля: Modules (список и id), ModuleData, ModuleStat,
+                           ModuleProgress (уровни и деления игрока)
+  level_reward.gd          LevelReward — награда за прохождение уровня
   router.gd                autoload Router: переходы между экранами
   fx.gd                    autoload FX: взрывы, искры, тряска экрана
   pool.gd                  autoload Pool: переиспользование пуль (take / release)
@@ -73,6 +78,7 @@ flight/                    траектории и волны
   pattern_motion.gd        движение по траектории (враг и превью)
   data_library.gd          списки траекторий и волн
   ghost_flock.gd           враги-призраки (превью и фон меню)
+  enemy_info.gd            EnemyInfo — скорость/спрайт/наземный по сцене врага (кэш)
   patterns/, waves/        библиотеки траекторий и волн (*.tres)
 level/
   level.tscn/.gd           уровень: волны врагов, счёт, конец уровня
@@ -81,10 +87,15 @@ level/
   clouds.gd                облака над полем боя (параллакс)
   camera_shake.gd          камера уровня с тряской
   destructible.tscn/.gd    постройки на земле
+  props/                   виды построек (PropKind: спрайт, модель, HP, звёзды)
 player/
-  player.tscn/.gd          корабль игрока
+  player.tscn/.gd          корабль игрока (боевое состояние)
+  player_stats.gd          PlayerStats — характеристики: корабль + улучшения
 enemies/
-  air/enemy.gd             общий скрипт воздушного врага
+  enemy_base.gd            EnemyBase — общее у всех целей: HP, награда, вспышка,
+                           взрыв, пушка (GunData), 3D-модель (model_3d)
+  wave_enemy.gd            WaveEnemy — враг из волны (траектория, HP × глава)
+  air/enemy.gd             AirEnemy — воздушный враг
   air/enemy_fighter.tscn   лёгкий истребитель (не стреляет, берёт числом и тараном)
   air/enemy_gunship.tscn   тяжёлый, стреляет в игрока
   ground/ground_unit.gd    наземный враг: стоит на земле, едет с ней вниз
@@ -94,6 +105,8 @@ enemies/
   boss/miniboss.tscn       минибосс на скрипте босса
 weapons/
   bullet.gd                общий скрипт пули
+  gun_data.gd              GunData — пушка врага (пуля, скорость, урон)
+  projectiles.gd           Projectiles.spawn — выпуск пули из пула
   player_bullet.tscn / player_wing_bullet.tscn / player_shrapnel.tscn / enemy_bullet.tscn
   missile.tscn/.gd         ракета
 pickups/
@@ -106,7 +119,7 @@ view3d/                    2.5D-вид (прототип): view_3d.gd и шей�
 ui/
   kit/                     ui_kit.gd, тема theme.tres, иконки
   main_menu/               главное меню
-  upgrade_menu/            ангар (прокачка), модули из GameState.MODULES (уровни + деления)
+  upgrade_menu/            ангар (прокачка), модули из Modules (уровни + деления)
   ship_select/             выбор и покупка кораблей
   level_map/               карта уровней: главы-планеты, дорожка уровней (+ map_path.gd)
   wave_preview/            превью траекторий и волн уровней
@@ -222,7 +235,8 @@ Assets/                    исходные паки ассетов (архив�
 Новый корабль = новый `.tres` в `ships/` (можно создать в редакторе:
 ПКМ → New Resource → ShipData) + строка в конце `ShipCatalog._SHIPS`
 (порядок не менять — id хранятся в сохранении) + спрайт в `SPRITES`
-(`tools/render_topdown.py`) + модель в `SHIP_MODELS` (`view3d/view_3d.gd`).
+(`tools/render_topdown.py`) + 3D-модель в поле `model_3d` корабля
+(`tests/validate_data.gd` проверяет, что модель есть).
 
 ### Волны и траектории (модули)
 
@@ -407,8 +421,9 @@ Autoload `Music` (`core/music.gd`): обе дорожки играют одно�
 | Здоровье | 1–5 | 10 × +3% к базовому HP | каждый уровень — +30% |
 | Магнит | 1–3 | 10 × +10 px | больший радиус |
 
-Описание — `GameState.MODULES`; эффекты считаются от общего числа делений
-характеристики за все уровни (`stat_total`). При переходе со старой прокачки
+Описание — `Modules` (`core/modules/`); эффекты считаются от общего числа
+делений характеристики за все уровни (`ModuleProgress.stat_total`), итог —
+`PlayerStats.build()`. При переходе со старой прокачки
 (уровни 0..10) потраченные звёзды возвращаются.
 
 В ангаре: уровень в кружке, что он даёт и что откроет следующий, шкала из 10
@@ -431,11 +446,11 @@ Autoload `Music` (`core/music.gd`): обе дорожки играют одно�
 
 ### Кристаллы и чертежи
 
-**Кристаллы** — редкая валюта (`GameState.crystals`): мини-босс +1, босс +3,
+**Кристаллы** — редкая валюта (`GameState.progress.crystals`): мини-босс +1, босс +3,
 первое прохождение уровня +2 (`CRYSTALS_*`). Тратятся на докупку чертежей,
 позже — на ускорение таймера, «рацию» и т. п.
 
-**Чертежи** — куски кораблей (`GameState.blueprints`). Корабль можно купить
+**Чертежи** — куски кораблей (`GameState.progress.blueprints`). Корабль можно купить
 за звёзды, только когда собраны все его чертежи (`ShipData.blueprints_required`:
 Стриж — 10, Ястреб — 15, Бастион — 20, Цитадель — 25; Сокол стартовый).
 
@@ -465,9 +480,10 @@ Autoload `Music` (`core/music.gd`): обе дорожки играют одно�
 
 ### Баланс
 
-Все формулы характеристик и цены — в `core/game_state.gd`. Новый модуль =
-запись в `MODULES` + формулы эффектов + строки в `describe_stat()` и
-`describe_tier()`.
+Все формулы характеристик и цены — в `core/balance.gd` (именованные
+константы); набор характеристик игрока собирает `PlayerStats.build()`.
+Новый модуль = id и запись в `core/modules/modules.gd` (там же подписи
+характеристик и уровней) + поле в `PlayerStats` и формула в `Balance`.
 
 ## Что дальше
 
